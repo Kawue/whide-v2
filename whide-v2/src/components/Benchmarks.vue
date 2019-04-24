@@ -1,17 +1,28 @@
 <template>
-    <SidebarGenerally v-bind:side="side" v-bind:initial-expended="initialExpended">
-      <div>Benschmarks</div>
+    <SidebarGenerally v-bind:side="side" v-bind:initialExpanded="initialExpanded">
+      <div>Benchmarks</div>
     </SidebarGenerally>
 </template>
 
 <script>
-import SidebarGenerally from './SidebarGenerally'
+import SidebarGenerally from '@/components/SidebarGenerally'
 
 export default {
+  props: ["initialExpanded"],
   extends: SidebarGenerally,
   name: 'benchmarks',
   components: {
     SidebarGenerally
+  },
+
+  data () {
+    return {
+    }
+  },
+   
+  created () {
+    console.log("Benchmark")
+    console.log(this.initialExpanded)
   }
 }
 
@@ -21,7 +32,7 @@ export default {
     background-color: aqua;
   }
   .sidebar-generally {
-    &.expended {
+    &.expanded {
       width: 200px !important;
     }
   }

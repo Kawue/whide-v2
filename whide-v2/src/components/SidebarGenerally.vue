@@ -1,5 +1,5 @@
 <template>
-  <div class="sidebar-generally" v-bind:class="{ expanded: expanded }">
+  <div class="sidebar-generally" v-bind:class="{ expanded: isExpanded }">
     <span v-on:click="toggleView()" v-bind:class="getExpandIconClass()">
       <v-icon name="arrow-right" v-if="showExpandRightIcon()"></v-icon>
       <v-icon name="arrow-left" v-if="showExpandLeftIcon()"></v-icon>
@@ -22,27 +22,32 @@ export default {
       type: Boolean,
       required: false,
       default: true
-    },
-    data: function () {
-      return {
-        expanded: this.initialExpanded
-      }
-    },
-    methods: {
-      toggleView: function () {
-        this.expanded = !this.expanded
-      },
-      getExpandIconClass: function () {
-        return this.side === 'right' ? 'float-right' : 'float-left'
-      },
-      showExpandLeftIcon: function () {
-        return this.side === 'right' ? !this.expanded : this.expanded
-      },
-      showExpandRightIcon: function () {
-        return this.side === 'right' ? this.expanded : !this.expanded
-      }
     }
+  },
+  data: function () {
+    return {
+      isExpanded: this.initialExpanded
+    }
+  },
+  methods: {
+    toggleView: function () {
+      this.isExpanded = !this.isExpanded
+    },
+    getExpandIconClass: function () {
+      return this.side === 'right' ? 'float-right' : 'float-left'
+    },
+    showExpandLeftIcon: function () {
+      return this.side === 'right' ? !this.isExpanded : this.isExpanded
+    },
+    showExpandRightIcon: function () {
+      return this.side === 'right' ? this.isExpanded : !this.isExpanded
+    }
+  },
+  created () {
+    console.log("SidebarGeneral")
+    console.log(this.initialExpanded)
   }
+  
 }
 
 </script>

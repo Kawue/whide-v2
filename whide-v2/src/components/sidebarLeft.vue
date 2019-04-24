@@ -9,11 +9,19 @@
 </template>
 
 <script>
-import Benchmarks from './Benchmarks'
+import Benchmarks from '@/components/Benchmarks'
 export default {
   name: 'sidebarLeft',
   components: {
     Benchmarks
+  },
+  data () {
+    return {
+    }
+  },
+   
+  created () {
+    console.log("SidebarLeft")
   }
 }
 </script>
