@@ -1,8 +1,12 @@
 <template>
-  <div class="sidebar-generally" v-bind:class="{ expanded: isExpanded }">
+  <div class="sidebarWidget" v-bind:class="{ expanded: isExpanded }">
     <span v-on:click="toggleView()" v-bind:class="getExpandIconClass()">
       <v-icon name="arrow-right" v-if="showExpandRightIcon()"></v-icon>
       <v-icon name="arrow-left" v-if="showExpandLeftIcon()"></v-icon>
+    </span>
+    <span v-on:click="toggleView()" v-bind:class="getExpandUpIconClass()">
+      <v-icon name="arrow-up" v-if="showExpandUpIcon()"></v-icon>
+      <v-icon name="arrow-down" v-if="showExpandDownIcon()"></v-icon>
     </span>
     <div class="content">
       <slot></slot>
@@ -12,7 +16,7 @@
 
 <script>
 export default {
-  name: 'SidebarGenerally',
+  name: 'SidebarWidget',
   props: {
     side: {
       type: String,
@@ -34,26 +38,41 @@ export default {
       this.isExpanded = !this.isExpanded
     },
     getExpandIconClass: function () {
+      /* var side = null
+if (this.side === 'right') {
+side = 'float-right'
+} else {
+side = 'float-left'
+}
+return side */
       return this.side === 'right' ? 'float-right' : 'float-left'
+    },
+    getExpandUpIconClass: function () {
+      return this.side === 'up' ? 'float-up' : 'float-down'
     },
     showExpandLeftIcon: function () {
       return this.side === 'right' ? !this.isExpanded : this.isExpanded
     },
     showExpandRightIcon: function () {
       return this.side === 'right' ? this.isExpanded : !this.isExpanded
+    },
+    showExpandUpIcon: function () {
+      return this.side === 'up' ? this.isExpanded : this.isExpanded
+    },
+    showExpandDownIcon: function () {
+      return this.side === 'up' ? this.isExpanded : !this.isExpanded
     }
   },
   created () {
-    console.log("SidebarGeneral")
+    console.log('SidebarGeneral')
     console.log(this.initialExpanded)
   }
-  
 }
 
 </script>
 
 <style scoped lang="scss">
-  .sidebar-gerneally {
+  .sidebarWidget {
     width: 20px;
     min-height: 100vh;
     max-height: 100vh;

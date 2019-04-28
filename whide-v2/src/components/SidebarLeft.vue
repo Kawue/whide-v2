@@ -2,26 +2,27 @@
   <div class="sidebar">
     <div class="row">
       <div class="col-sm">
-        <Benchmarks side="left" v-bind:initialExpanded="false"></Benchmarks>
+        <MzList side="left" v-bind:initialExpanded="false">
+          Book
+        </MzList>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import Benchmarks from '@/components/Benchmarks'
+import MzList from '@/components/MzList'
 export default {
-  name: 'sidebarLeft',
+  name: 'MzList',
   components: {
-    Benchmarks
+    MzList
   },
   data () {
     return {
     }
   },
-   
   created () {
-    console.log("SidebarLeft")
+    console.log('SidebarLeft')
   }
 }
 </script>
