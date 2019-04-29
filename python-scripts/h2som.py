@@ -1,5 +1,7 @@
-from pyclusterbdm.algorithms import H2SOM
-import pyclusterbdm.core as core
+#from pyclusterbdm.algorithms import H2SOM
+from pycluster.algorithms import H2SOM
+#import pyclusterbdm.core as core
+import pycluster.core as core
 import pandas as pd
 import numpy as np
 import matplotlib
