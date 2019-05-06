@@ -2,17 +2,17 @@
   <div class="sidebar">
   <div class="row">
     <div class="col-sm">
-      <ColorPicker side="right" v-bind:initialExpanded="false">
-      </ColorPicker>
+      <ColorPicker side="right"></ColorPicker>
     </div>
   </div>
   </div>
 </template>
 
 <script>
-import ColorPicker from './ColorPicker'
+import ColorPicker from './ColorPicker.vue'
+
 export default {
-  name: 'SidebarRight',
+  name: 'Sidebar',
   components: { ColorPicker },
   data () {
     return {}

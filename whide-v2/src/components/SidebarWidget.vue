@@ -44,7 +44,7 @@ export default {
     }
   },
   created () {
-    console.log('SidebarGeneral')
+    console.log('SidebarWidget')
     console.log(this.initialExpanded)
   }
 }

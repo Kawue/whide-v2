@@ -7,8 +7,18 @@
 <script>
 import BottombarWidget from './BottombarWidget'
 export default {
+  props: ['initialExpanded'],
   name: 'Bookmarks',
-  components: { BottombarWidget }
+  components: { BottombarWidget },
+  data () {
+    return {
+    }
+  },
+
+  created () {
+    console.log('Bookmarks')
+    console.log(this.initialExpanded)
+  }
 }
 </script>
 

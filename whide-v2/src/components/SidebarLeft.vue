@@ -11,9 +11,10 @@
 </template>
 
 <script>
-import MzList from '@/components/MzList'
+import MzList from '@/components/MzList.vue'
+
 export default {
-  name: 'MzList',
+  name: 'Sidebar',
   components: { MzList },
   data () {
     return {}
