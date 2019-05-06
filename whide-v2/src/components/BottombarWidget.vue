@@ -48,10 +48,13 @@ export default {
 
 <style scoped lang="scss">
   .bottombarWidget {
+    position: relative;
     height: 20px;
+    width: 300px;
     min-width: 100vh;
     max-width: 100vh;
     overflow: hidden;
+    bottom: 0;
     background-color: white;
 
   &.expanded {

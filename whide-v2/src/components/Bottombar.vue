@@ -1,33 +1,30 @@
 <template>
-    <Bookmarks>
-
+  <div class="bottombar">
+    <Bookmarks side="down" v-bind:initialExpanded="false">
+    BOOKMARKS
     </Bookmarks>
+  </div>
 </template>
 
 <script>
 import Bookmarks from './Bookmarks'
 export default {
   name: 'SidebarBottom',
-  components: { Bookmarks }
+  components: { Bookmarks },
+  data () {
+    return {}
+  },
+  created () {
+    console.log('Bottombar')
+  }
 }
 </script>
 
 <style scoped lang="scss">
-  .sidebar {
+  .bottombar {
     position: absolute;
-    left: 0;
-    top: 0;
     bottom: 0;
-    z-index: 101;
+    z-index: 102;
     background-color: yellow;
-
-    .row {
-      padding: 0;
-      margin: 0;
-      .col-sm {
-        padding: 0;
-        margin: 0;
-      }
-    }
   }
 </style>

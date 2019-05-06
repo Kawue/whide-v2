@@ -2,6 +2,7 @@
   <div class="home">
     <SidebarLeft />
     <SidebarRight />
+    <Bottombar />
     <MainPlane />
   </div>
 </template>
@@ -11,13 +12,15 @@
 import MainPlane from '@/components/MainPlane'
 import SidebarLeft from '@/components/SidebarLeft'
 import SidebarRight from '@/components/SidebarRight'
+import Bottombar from '../components/Bottombar'
 
 export default {
   name: 'home',
   components: {
     SidebarRight,
     SidebarLeft,
-    MainPlane
+    MainPlane,
+    Bottombar
   }
 }
 </script>

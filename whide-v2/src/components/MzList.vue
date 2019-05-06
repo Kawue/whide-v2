@@ -1,6 +1,6 @@
 <template>
     <SidebarWidget v-bind:side="side" v-bind:initialExpanded="initialExpanded">
-      <div>MzList</div>
+      <div>MZs</div>
     </SidebarWidget>
 </template>
 
