@@ -1,14 +1,14 @@
 <template>
-    <SidebarWidget v-bind:side="side" v-bind:initialExpanded="initialExpanded">
+    <BottombarWidget v-bind:side="side" v-bind:initialExpanded="initialExpanded">
       <div>Bookmarks</div>
-    </SidebarWidget>
+    </BottombarWidget>
 </template>
 
 <script>
-import SidebarWidget from './SidebarWidget'
+import BottombarWidget from './BottombarWidget'
 export default {
   name: 'Bookmarks',
-  components: { SidebarWidget }
+  components: { BottombarWidget }
 }
 </script>
 

@@ -14,12 +14,9 @@
 import MzList from '@/components/MzList'
 export default {
   name: 'MzList',
-  components: {
-    MzList
-  },
+  components: { MzList },
   data () {
-    return {
-    }
+    return {}
   },
   created () {
     console.log('SidebarLeft')

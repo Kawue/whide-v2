@@ -15,8 +15,7 @@ export default {
   name: 'SidebarRight',
   components: { ColorPicker },
   data () {
-    return {
-    }
+    return {}
   },
   created () {
     console.log('SidebarRight')
