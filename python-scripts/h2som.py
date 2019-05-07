@@ -1,5 +1,7 @@
-from pyclusterbdm.algorithms import H2SOM
-import pyclusterbdm.core as core
+#from pyclusterbdm.algorithms import H2SOM
+#import pyclusterbdm.core as core
+from pycluster.algorithms import H2SOM
+import pycluster.core as core
 import pandas as pd
 import numpy as np
 import matplotlib
@@ -135,10 +137,11 @@ def spatial_cluster(data, h2som, bmu_matches, dframe):
 
 
 ### Spectral workflow
-path = "/home/kwuellems/datasets/barley101.h5"
+path = "../datasets/barley_101.h5"
 dframe, data = read_data(path)
 ### For spatial workflow add:
 #data = data.T.copy(order="C")
+print(data.shape)
 h2som = calc_h2som(data)
 membs = calc_memb(data, h2som, 1)
 spectral_cluster(data, membs, dframe)
