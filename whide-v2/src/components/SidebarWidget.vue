@@ -1,6 +1,6 @@
 <template>
   <div class="sidebarWidget" v-bind:class="{ expanded: isExpanded }">
-    <span v-on:click="toggleView()" v-bind:class="getExpandIconClass()">
+    <span class="trigger" v-on:click="toggleView()" v-bind:class="getExpandIconClass()">
       <v-icon name="arrow-right" v-if="showExpandRightIcon()"></v-icon>
       <v-icon name="arrow-left" v-if="showExpandLeftIcon()"></v-icon>
     </span>
@@ -61,12 +61,15 @@ export default {
 
     &.expanded {
       width: 200px;
-      content {
+      .content {
         display: block;
       }
     }
     .content {
       display: none;
     }
+  }
+  .trigger {
+    vertical-align: middle;
   }
 </style>

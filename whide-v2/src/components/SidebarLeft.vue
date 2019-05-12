@@ -3,7 +3,6 @@
     <div class="row">
       <div class="col-sm">
         <MzList side="left" v-bind:initialExpanded="false">
-          Book
         </MzList>
       </div>
     </div>

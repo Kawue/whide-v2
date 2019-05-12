@@ -50,16 +50,17 @@ export default {
   .bottombarWidget {
     position: relative;
     height: 20px;
-    width: 300px;
-    min-width: 100vh;
-    max-width: 100vh;
+    width: 7vw;
+    min-width: 5vw;
+    max-width: 80vw;
     overflow: hidden;
     bottom: 0;
     background-color: white;
 
   &.expanded {
      height: 200px;
-
+     width: 60vw;
+     position: absolute;
   .content {
     display: block;
   }

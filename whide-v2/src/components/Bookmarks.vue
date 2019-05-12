@@ -23,10 +23,10 @@ export default {
 </script>
 
 <style scoped lang="scss">
-  .sidebarWidget {
+  .BottombarWidget {
     background-color: aqua;
   }
-  .sidebarWidget {
+  .BottombarWidget {
     &.expanded {
       width: 200px !important;
     }

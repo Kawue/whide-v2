@@ -1,7 +1,6 @@
 <template>
   <div class="bottombar">
     <Bookmarks side="down" v-bind:initialExpanded="false">
-    BOOKMARKS
     </Bookmarks>
   </div>
 </template>
@@ -23,8 +22,10 @@ export default {
 <style scoped lang="scss">
   .bottombar {
     position: absolute;
+    left: 43vw;
     bottom: 0;
     z-index: 102;
     background-color: yellow;
   }
+
 </style>
