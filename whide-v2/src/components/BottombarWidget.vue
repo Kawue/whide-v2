@@ -37,7 +37,7 @@ export default {
       return this.side === 'up' ? 'float-up' : 'float-down'
     },
     showExpandUpIcon: function () {
-      return this.side === 'up' ? this.isExpanded : this.isExpanded
+      return this.side === 'up' ? !this.isExpanded : this.isExpanded
     },
     showExpandDownIcon: function () {
       return this.side === 'up' ? this.isExpanded : !this.isExpanded
@@ -48,18 +48,19 @@ export default {
 
 <style scoped lang="scss">
   .bottombarWidget {
-    position: relative;
+    position: absolute;
     height: 20px;
     width: 7vw;
+    left: 43vw;
     min-width: 5vw;
     max-width: 80vw;
     overflow: hidden;
-    bottom: 0;
     background-color: white;
 
   &.expanded {
      height: 200px;
-     width: 60vw;
+     width: 30vw;
+     left: 15vw !important;
      position: absolute;
   .content {
     display: block;

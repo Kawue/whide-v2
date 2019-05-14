@@ -1,15 +1,15 @@
 <template>
-    <BottombarWidget v-bind:side="side" v-bind:initialExpanded="initialExpanded">
-      <div>Bookmarks</div>
-    </BottombarWidget>
+  <BottombarWidget v-bind:side="side" v-bind:initialExpanded="initialExpanded">
+    <div>Options</div>
+  </BottombarWidget>
 </template>
 
 <script>
 import BottombarWidget from './BottombarWidget'
 export default {
   props: ['initialExpanded'],
+  name: 'Options',
   extends: BottombarWidget,
-  name: 'Bookmarks',
   components: { BottombarWidget },
   data () {
     return {
@@ -17,7 +17,7 @@ export default {
   },
 
   created () {
-    console.log('Bookmarks')
+    console.log('Options')
     console.log(this.initialExpanded)
   }
 }
@@ -28,8 +28,8 @@ export default {
     background-color: aqua;
   }
   .BottombarWidget {
-    //&.expanded {
-     // width: 200px !important;
-    //}
+    &.expanded {
+      width: 200px !important;
+    }
   }
 </style>

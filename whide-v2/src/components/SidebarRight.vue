@@ -2,7 +2,7 @@
   <div class="sidebar">
   <div class="row">
     <div class="col-sm">
-      <ColorPicker side="right"></ColorPicker>
+      <ColorPicker side="right" v-bind:initialExpanded="false"></ColorPicker>
     </div>
   </div>
   </div>

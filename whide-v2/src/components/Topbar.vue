@@ -1,15 +1,15 @@
 <template>
-  <div class="bottombar">
-    <Bookmarks side="down" v-bind:initialExpanded="false">
-    </Bookmarks>
+  <div class="topbar">
+    <Options side="up" v-bind:initialExpanded="false">
+    </Options>
   </div>
 </template>
 
 <script>
-import Bookmarks from './Bookmarks'
+import Options from './Options'
 export default {
-  name: 'SidebarBottom',
-  components: { Bookmarks },
+  name: 'Topbar',
+  components: { Options },
   data () {
     return {}
   },
@@ -20,11 +20,14 @@ export default {
 </script>
 
 <style scoped lang="scss">
-  .bottombar {
+  .topbar {
     position: absolute;
-    bottom: 4vh;
+    top: 10px;
     z-index: 102;
     background-color: yellow;
+    &.expanded {
+      bottom: 0vh;
+    }
   }
 
 </style>
