@@ -41,7 +41,7 @@ def calc_h2som(data):
 
     # Child node indices of each node as dict. Key = node, value = list of child indices.
     # Indices which are not included: parent index, index of both same level hierarchy neighbors
-    #print(h2som._childs)
+    
 
     # 2D positions in on poincare disc
     #print(h2som._pos)
@@ -54,6 +54,7 @@ def calc_h2som(data):
     
     # H2SOM training
     h2som.cluster()
+    print(h2som._childs.items())
 
     return h2som
 
@@ -142,6 +143,7 @@ dframe, data = read_data(path)
 ### For spatial workflow add:
 #data = data.T.copy(order="C")
 print(data.shape)
+print(data)
 h2som = calc_h2som(data)
 membs = calc_memb(data, h2som, 1)
 spectral_cluster(data, membs, dframe)

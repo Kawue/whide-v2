@@ -3,16 +3,19 @@
 		"ring0": {
 			"childs": {
 				"child0":{
-					[1,2,3,...,8]
+					"child.item": [1,2,3,...,8],
+					"PixelPosPerItem": [[],[],[],..[]]
 				},
 				"child1":{
-					[9,..,13]
+					"child.item": [9,...,13],
+					"PixelPosPerItem": [[],[],[],..[]]
 				},
 				.
 				.
 				.,
 				"childN":{
-					[n-x,...,n]
+					"child.item": [n-x,...,n],
+					"PixelPosPerItem": [[],[],[],..[]]
 				 }
 			}
 		},
@@ -21,5 +24,8 @@
 			.
 			.
 		}
+	},
+	"MZs":{
+		[[...],[...]]
 	}
 }
