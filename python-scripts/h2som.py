@@ -8,12 +8,14 @@ import matplotlib
 import matplotlib.pyplot as plt
 from os import listdir, makedirs
 from os.path import join, exists
+import json 
 
 matplotlib.use("TkAgg")
 
 def plot_poincare_structure(h2som):
     plt.plot(h2som._pos[:,0], h2som._pos[:,1], "ro")
     tuples = []
+    i = 0
     for key, vals in h2som._childs.items():
         tuples = tuples + [(key, v) for v in vals]
     tuples = np.array(tuples)
@@ -21,6 +23,8 @@ def plot_poincare_structure(h2som):
         pos1 = h2som._pos[tup[0]]
         pos2 = h2som._pos[tup[1]]
         pos = list(zip(pos1, pos2))
+        print(i)
+        i += 1 
         plt.plot(pos[0], pos[1])
     plt.show()
 
@@ -54,7 +58,7 @@ def calc_h2som(data):
     
     # H2SOM training
     h2som.cluster()
-    print(h2som._childs.items())
+    #print(h2som._childs.items())
 
     return h2som
 
@@ -135,16 +139,50 @@ def spatial_cluster(data, h2som, bmu_matches, dframe):
         img = ((img - np.amin(img)) / (np.amax(img) - np.amin(img)))
         plt.imsave(join(cl_path, "proto" + str(i)), img, vmin=0, vmax=1)
 
-
-
+def createJson(h2som, data, bmumatches, dframe):
+	posRings = {}
+	pixelsRings = {}
+	coefficientsRings = {}
+	
+	data = []
+	jsonA = {}
+	i = 0
+	prototypX ={}
+	ringY = {}
+	rings= {}
+	#print ( h2som._centroids[h2som._rings[i][0]:h2som._rings[i][1]+1])
+	for ring in h2som._rings:
+		for k in range(ring[0],ring[1]+1):
+			prototypX["prototyp"+str(k-1)] = "pups"
+		ringY["ring"+str(i)]=prototypX
+		prototypX = {}
+		i +=1
+		#rings.append(ringY)
+	jsonA["rings"] = ringY
+	data.append(jsonA)
+	jsonData= json.dumps(data)
+	return jsonData
+	
+def getPos(h2som):
+	tuples = []
+	for key, vals in h2som._childs.items():
+		tuples = tuples + [(key, v) for v in vals]
+	tuples = np.array(tuples)
+	for tup in tuples:
+		pos1 = h2som._pos[tup[0]]
+		pos2 = h2som._pos[tup[1]]
+		pos = list(zip(pos1, pos2))
+	return pos
+	
 ### Spectral workflow
 path = "../datasets/barley_101.h5"
 dframe, data = read_data(path)
 ### For spatial workflow add:
 #data = data.T.copy(order="C")
-print(data.shape)
-print(data)
+#print(data)
 h2som = calc_h2som(data)
 membs = calc_memb(data, h2som, 1)
+json = createJson(h2som, data, membs, dframe)
+print(json)
 spectral_cluster(data, membs, dframe)
-#plot_poincare_structure(h2som)
+plot_poincare_structure(h2som)
