@@ -15,7 +15,6 @@ matplotlib.use("TkAgg")
 def plot_poincare_structure(h2som):
     plt.plot(h2som._pos[:,0], h2som._pos[:,1], "ro")
     tuples = []
-    i = 0
     for key, vals in h2som._childs.items():
         tuples = tuples + [(key, v) for v in vals]
     tuples = np.array(tuples)
@@ -23,10 +22,9 @@ def plot_poincare_structure(h2som):
         pos1 = h2som._pos[tup[0]]
         pos2 = h2som._pos[tup[1]]
         pos = list(zip(pos1, pos2))
-        print(i)
-        i += 1 
         plt.plot(pos[0], pos[1])
     plt.show()
+		
 
 
 # Reads hdf5 file and returns a numpy array
@@ -143,7 +141,14 @@ def createJson(h2som, data, bmumatches, dframe):
 	posRings = {}
 	pixelsRings = {}
 	coefficientsRings = {}
+	posX = h2som._pos[:,0]
+	posY = h2som._pos[:,1]
+	print(posX[0])
+
 	
+	#for i in range(h2som._pos[:,0], h2som._pos[:,1]):
+	#	print(i)
+
 	data = []
 	jsonA = {}
 	i = 0
@@ -153,7 +158,9 @@ def createJson(h2som, data, bmumatches, dframe):
 	#print ( h2som._centroids[h2som._rings[i][0]:h2som._rings[i][1]+1])
 	for ring in h2som._rings:
 		for k in range(ring[0],ring[1]+1):
-			prototypX["prototyp"+str(k-1)] = "pups"
+			posRings["pos"] = [posX[k-1], posY[k-1]]
+			coefficientsRings["coefficients"] = []
+			prototypX["prototyp"+str(k-1)] = posRings, coefficientsRings
 		ringY["ring"+str(i)]=prototypX
 		prototypX = {}
 		i +=1
