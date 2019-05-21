@@ -80,7 +80,6 @@ def spectral_cluster(data, bmu_matches, dframe):
     #print(grid_x)
     #print(grid_y)
     img = np.zeros((np.amax(grid_y)+1, np.amax(grid_x)+1))
-
     proto_idx = np.array(range(np.amax(bmu_matches+1)))
     #print(proto_idx)
 
@@ -102,17 +101,10 @@ def getPixelsForRing(data, bmu_matches, dframe,ring):
     grid_y = np.array(dframe.index.get_level_values("grid_y"))
     
     proto_idx = np.array(range(np.amax(bmu_matches+1)))
-    #print(proto_idx[0])
-    #print("Rings Prtotyp start index:")
-    #print(ring[0]-1)
-    #if proto_idx[0] != int(ring[0]-1):
-     #   proto_idx += ring[0]-1
-    #print("Bmu_mbms mit start offset")    
-    #print(proto_idx[0])
-    allResults=[]
-    pixelIDs ={}
+    print(proto_idx)
     pixels = []
-    
+    pixels_dict = {}
+    id = 0
     for i in proto_idx:
         #print(i)
         # Find indices in bmu that matches a specific prototype, i.e. indices of pixels that match a specific prototype
@@ -127,18 +119,23 @@ def getPixelsForRing(data, bmu_matches, dframe,ring):
         
         result = list(zip(seg_x, seg_y))
         #print("Pixels:"+str(i))
-        #print(result)
-        for k in range(0,len(result)-1):
-            pixelIDs["px"+str(k)+"ID"] = (int(result[k][0]),int(result[k][1]))
+        pixelIDs = []
+        for k in range(0,len(result)):
+            #pixelIDs[] = (int(result[k][0]),int(result[k][1]))
+            pixelIDs.append("px"+str(id)+"ID")
+            pixels_dict["px"+str(id)+"ID"] = {}
+            pixels_dict["px"+str(id)+"ID"]["pos"] = (int(result[k][0]),int(result[k][1]))
+            id += 1
+        
         #print(pixelIDs)
         pixels.append(pixelIDs)
-        pixelIDs = {}
+        #pixelIDs = {}
         #print("prototyp"+str(i))
         #print(pixels)
-        allResults.append(pixels)
+        #allResults.append(pixels)
         #allResults["protottyp"+str(i)] = allResultsPerProto
-    print(len(allResults))
-    return allResults
+    #print(len(allResults))
+    return pixels, pixels_dict
         
 
 # Calculate cluster of images
@@ -199,12 +196,12 @@ def createJson(h2som, data, dframe):
 	rings= {}
 	print(h2som._rings)
 	# Get each Ring
+	pixels_dict = None
 	for ring in h2som._rings:
 		membs = calc_memb(data, h2som, ring_idx)
 		#print("ALLE PIXEL IN RING: "+str(ring_idx))
-		pixelsPerPrototype = getPixelsForRing(data, membs, dframe,ring)
+		pixelsPerPrototype, pixels_dict = getPixelsForRing(data, membs, dframe,ring)
 		ring_idx +=1
-
 		
 		#print("Range Rings:")
 		#print(ring[0]-1,ring[1]-1)
@@ -214,14 +211,14 @@ def createJson(h2som, data, dframe):
 		# get the Prototypes of the ring
 		prototyp_idx = 0
 		for k in range(ring[0],ring[1]+1):
+			prototypX["prototyp"+str(k-1)] = {}
 			# set the pos of the Prototype
-			posRings["pos"] = [posX[k-1], posY[k-1]]
+			prototypX["prototyp"+str(k-1)]["pos"] = [posX[k-1], posY[k-1]]
 			#print(type(pixelsPerPrototype[prototyp_idx]))
-			pixelRings["pixel"] = pixelsPerPrototype[prototyp_idx]
-			
-			coefficientsRings["coefficients"] = []
+			prototypX["prototyp"+str(k-1)]["pixel"] = pixelsPerPrototype[prototyp_idx]
+			prototypX["prototyp"+str(k-1)]["coefficients"] = []
 			# add pos and coefficient to the prototype
-			prototypX["prototyp"+str(k-1)] = posRings, pixelRings, coefficientsRings
+			
 			prototyp_idx += 1
 		# add prtotype to the ring
 	    
@@ -232,6 +229,16 @@ def createJson(h2som, data, dframe):
 		posRings = {}
 		i +=1
 	jsonA["rings"] = ringY
+	jsonA["pixels"] = pixels_dict
+	jsonA["mzs"] = [x for x in dframe.columns]
+	
+	for key_px, val_px in jsonA["pixels"].items():
+		jsonA["pixels"][key_px]["membership"] = {}
+		for key_ring, val_ring in jsonA["rings"].items():
+			for prot, val_prot in val_ring.items():
+				if key_px in val_prot["pixel"]:
+					jsonA["pixels"][key_px]["membership"][key_ring] = prot
+
 	#ring_idx_for_Pixels = 1
 	#pixels_Pixels = {}
 	#for ring in h2som._rings:
@@ -240,27 +247,27 @@ def createJson(h2som, data, dframe):
 	 #   ring_idx_for_Pixels += 1
 	    #for y in pixels_Pixels:
 		
-	solution.append(jsonA)
+	#solution.append(jsonA)
 	#ding=solution[0]['rings']['ring0']['prototyp0'][1]['pixel']['pixels']['px0ID']
 	#print(type(ding[0]), type(ding[1]))
 	#with open('solution.txt', 'w') as out2:
 	#    out2.writelines(["%s\n" % item  for item in solution])
 	with open('data.json', 'w') as outfile:  
-	    json.dump(solution, outfile)
+	    json.dump(jsonA, outfile)
 	#print(solution)
 	#print(type(solution), data.dtype, type(dframe), type(h2som))
 	
-	jsonData= json.dumps(solution)
+	jsonData= json.dumps(jsonA)
 	
 	return jsonData
 	
 	
 ### Spectral workflow
-path = "../datasets/barley_101.h5"
+path = "/home/kwuellems/datasets/barley101.h5"
 dframe, data = read_data(path)
 ### For spatial workflow add:
 #data = data.T.copy(order="C")
-#print(data)
+print(data.shape)
 h2som = calc_h2som(data)
 membs = calc_memb(data, h2som, 0)
 json = createJson(h2som, data, dframe)
