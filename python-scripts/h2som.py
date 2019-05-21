@@ -86,7 +86,6 @@ def spectral_cluster(data, bmu_matches, dframe):
 
     # Iterate over each prototype
     for i in proto_idx:
-        print(i)
         # Find indices in bmu that matches a specific prototype, i.e. indices of pixels that match a specific prototype
         idx = np.where(bmu_matches == i)[0]
         # Get x and y coordinates of the matching pixels
@@ -104,15 +103,15 @@ def getPixelsForRing(data, bmu_matches, dframe,ring):
     
     proto_idx = np.array(range(np.amax(bmu_matches+1)))
     #print(proto_idx[0])
-    print("Rings Prtotyp start index:")
-    print(ring[0]-1)
-    if proto_idx[0] != int(ring[0]-1):
-        proto_idx += ring[0]-1
-    print("Bmu_mbms mit start offset")    
-    print(proto_idx[0])
+    #print("Rings Prtotyp start index:")
+    #print(ring[0]-1)
+    #if proto_idx[0] != int(ring[0]-1):
+     #   proto_idx += ring[0]-1
+    #print("Bmu_mbms mit start offset")    
+    #print(proto_idx[0])
     allResults=[]
     pixelIDs ={}
-    pixels = {}
+    pixels = []
     
     for i in proto_idx:
         #print(i)
@@ -120,22 +119,25 @@ def getPixelsForRing(data, bmu_matches, dframe,ring):
         idx = np.where(bmu_matches == i)[0]
         #print("indexinPrototyp"+str(len(idx)))
         # Get x and y coordinates of the matching pixels
+       
         seg_x = grid_x[idx]
+     
         seg_y = grid_y[idx]
+    
         
         result = list(zip(seg_x, seg_y))
+        #print("Pixels:"+str(i))
+        #print(result)
         for k in range(0,len(result)-1):
-            pixelIDs["px"+str(k)+"ID"] = result[k]
+            pixelIDs["px"+str(k)+"ID"] = (int(result[k][0]),int(result[k][1]))
         #print(pixelIDs)
-        pixels["pixels"] = pixelIDs
+        pixels.append(pixelIDs)
         pixelIDs = {}
         #print("prototyp"+str(i))
         #print(pixels)
         allResults.append(pixels)
-        pixels = {}
-        #print("PIIXXXXXXXEEEEL"+str(pixels))
         #allResults["protottyp"+str(i)] = allResultsPerProto
-    #print(len(allResults))
+    print(len(allResults))
     return allResults
         
 
@@ -199,30 +201,57 @@ def createJson(h2som, data, dframe):
 	# Get each Ring
 	for ring in h2som._rings:
 		membs = calc_memb(data, h2som, ring_idx)
+		#print("ALLE PIXEL IN RING: "+str(ring_idx))
 		pixelsPerPrototype = getPixelsForRing(data, membs, dframe,ring)
 		ring_idx +=1
 
 		
-		print("Range Rings:")
-		print(ring[0]-1,ring[1]-1)
-		print("Anzahl der berechneten Prototypen mit pixels")
-		print(len(pixelsPerPrototype))
+		#print("Range Rings:")
+		#print(ring[0]-1,ring[1]-1)
+		#print("Anzahl der berechneten Prototypen mit pixels")
+		#print(len(pixelsPerPrototype))
+		#print(pixelsPerPrototype[0])
 		# get the Prototypes of the ring
+		prototyp_idx = 0
 		for k in range(ring[0],ring[1]+1):
-			print("prototyp"+str(k-1)	)
 			# set the pos of the Prototype
 			posRings["pos"] = [posX[k-1], posY[k-1]]
-			#pixelRings["pixel"] = pixelsPerPrototype[k-1]
+			#print(type(pixelsPerPrototype[prototyp_idx]))
+			pixelRings["pixel"] = pixelsPerPrototype[prototyp_idx]
+			
 			coefficientsRings["coefficients"] = []
 			# add pos and coefficient to the prototype
 			prototypX["prototyp"+str(k-1)] = posRings, pixelRings, coefficientsRings
+			prototyp_idx += 1
 		# add prtotype to the ring
+	    
 		ringY["ring"+str(i)]=prototypX
 		prototypX = {}
+		pixelRings = {}
+		coefficientsRings = {}
+		posRings = {}
 		i +=1
 	jsonA["rings"] = ringY
+	#ring_idx_for_Pixels = 1
+	#pixels_Pixels = {}
+	#for ring in h2som._rings:
+	 #   membsPixel = calc_memb(data, h2som, ring_idx_for_Pixels)
+	 #   pixels_Pixels = getPixelsForRing(data,membsPixel, dframe, ring)
+	 #   ring_idx_for_Pixels += 1
+	    #for y in pixels_Pixels:
+		
 	solution.append(jsonA)
+	#ding=solution[0]['rings']['ring0']['prototyp0'][1]['pixel']['pixels']['px0ID']
+	#print(type(ding[0]), type(ding[1]))
+	#with open('solution.txt', 'w') as out2:
+	#    out2.writelines(["%s\n" % item  for item in solution])
+	with open('data.json', 'w') as outfile:  
+	    json.dump(solution, outfile)
+	#print(solution)
+	#print(type(solution), data.dtype, type(dframe), type(h2som))
+	
 	jsonData= json.dumps(solution)
+	
 	return jsonData
 	
 	
@@ -233,9 +262,10 @@ dframe, data = read_data(path)
 #data = data.T.copy(order="C")
 #print(data)
 h2som = calc_h2som(data)
-membs = calc_memb(data, h2som, 1)
-
+membs = calc_memb(data, h2som, 0)
 json = createJson(h2som, data, dframe)
 #print(json)
+
+
 spectral_cluster(data, membs, dframe)
 #plot_poincare_structure(h2som)
