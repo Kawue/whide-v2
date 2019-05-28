@@ -1,16 +1,16 @@
 <template>
-  <BottombarWidget v-bind:side="side" v-bind:initialExpanded="initialExpanded">
+  <TopbarWidget v-bind:side="side" v-bind:initialExpanded="initialExpanded">
     <div>Options</div>
-  </BottombarWidget>
+  </TopbarWidget>
 </template>
 
 <script>
-import BottombarWidget from './BottombarWidget'
+import TopbarWidget from './TopbarWidget'
 export default {
   props: ['initialExpanded'],
   name: 'Options',
-  extends: BottombarWidget,
-  components: { BottombarWidget },
+  extends: TopbarWidget,
+  components: { TopbarWidget },
   data () {
     return {
     }
@@ -24,10 +24,10 @@ export default {
 </script>
 
 <style scoped lang="scss">
-  .BottombarWidget {
+  .TopbarWidget {
     background-color: aqua;
   }
-  .BottombarWidget {
+  .TobarWidget {
     &.expanded {
       width: 200px !important;
     }

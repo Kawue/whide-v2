@@ -14,7 +14,7 @@ export default {
     return {}
   },
   created () {
-    console.log('Bottombar')
+    console.log('Topbar')
   }
 }
 </script>

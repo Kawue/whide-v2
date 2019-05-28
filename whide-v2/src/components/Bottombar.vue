@@ -8,7 +8,7 @@
 <script>
 import Bookmarks from './Bookmarks'
 export default {
-  name: 'SidebarBottom',
+  name: 'Bottombar',
   components: { Bookmarks },
   data () {
     return {}
@@ -22,7 +22,7 @@ export default {
 <style scoped lang="scss">
   .bottombar {
     position: absolute;
-    bottom: 4vh;
+    bottom: 0;
     z-index: 102;
     background-color: yellow;
   }

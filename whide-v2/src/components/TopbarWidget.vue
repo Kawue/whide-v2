@@ -1,18 +1,18 @@
 <template>
-    <div class="bottombarWidget" v-bind:class="{ expanded: isExpanded }">
+  <div class="topbarWidget" v-bind:class="{ expanded: isExpanded }">
       <span v-on:click="toggleView()" v-bind:class="getExpandUpIconClass()">
         <v-icon name="arrow-up" v-if="showExpandUpIcon()"></v-icon>
         <v-icon name="arrow-down" v-if="showExpandDownIcon()"></v-icon>
       </span>
-      <div class="content">
+    <div class="content">
       <slot></slot>
     </div>
-    </div>
+  </div>
 </template>
 
 <script>
 export default {
-  name: 'BottombarWidget',
+  name: 'TopbarWidget',
   props: {
     side: {
       type: String,
@@ -47,7 +47,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-  .bottombarWidget {
+  .topbarWidget {
     position: absolute;
     height: 20px;
     width: 7vw;
@@ -56,21 +56,19 @@ export default {
     max-width: 80vw;
     overflow: hidden;
     background-color: white;
-    bottom: 0;
 
-  &.expanded {
-     height: 200px;
-     width: 30vw;
-     left: 15vw !important;
-     position: absolute;
-    bottom: 0;
-  .content {
-    display: block;
-  }
-  }
+    &.expanded {
+      height: 200px;
+      width: 30vw;
+      left: 15vw !important;
+      position: absolute;
+      .content {
+        display: block;
+      }
+    }
 
-  .content {
-    display: none;
-  }
+    .content {
+      display: none;
+    }
   }
 </style>
