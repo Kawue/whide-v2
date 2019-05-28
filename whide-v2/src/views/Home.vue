@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <SidebarLeft />
+    <SidebarLeft  v-if="showPanels" />
     <SidebarRight />
     <Topbar />
     <Bottombar />
@@ -15,6 +15,7 @@ import SidebarLeft from '@/components/SidebarLeft'
 import SidebarRight from '@/components/SidebarRight'
 import Bottombar from '../components/Bottombar'
 import Topbar from '../components/Topbar'
+import Store from '@/store'
 
 export default {
   name: 'home',
@@ -24,6 +25,16 @@ export default {
     SidebarLeft,
     MainPlane,
     Bottombar
+  },
+  data: function () {
+    return {
+      showPanels: false
+    }
+  },
+  mounted: function () {
+    console.log('home component mounted')
+    Store.dispatch('fetchData')
+    this.showPanels = true
   }
 }
 </script>

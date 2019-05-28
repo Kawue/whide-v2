@@ -20,10 +20,8 @@ export default {
 <style scoped lang="scss">
   .sidebarWidget {
     background-color: gold;
-  }
-  .sidebarWidget {
-    &.expanded {
-      width: 200px !important;
+    &.expended {
+      right:100px;
     }
   }
 </style>

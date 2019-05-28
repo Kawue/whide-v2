@@ -1,10 +1,6 @@
 <template>
   <div class="sidebar">
-  <div class="row">
-    <div class="col-sm">
       <ColorPicker side="right" v-bind:initialExpanded="false"></ColorPicker>
-    </div>
-  </div>
   </div>
 </template>
 
@@ -26,18 +22,8 @@ export default {
 <style scoped lang="scss">
   .sidebar {
     position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
+    right: 20px;
     z-index: 101;
-    background-color: violet;
-    .row {
-      padding: 0;
-      margin: 0;
-      .col-sm {
-        padding: 0;
-        margin: 0;
-      }
-    }
+    background-color: yellow;
   }
 </style>

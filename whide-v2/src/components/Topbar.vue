@@ -22,7 +22,7 @@ export default {
 <style scoped lang="scss">
   .topbar {
     position: absolute;
-    top: 10px;
+    top: 0;
     z-index: 102;
     background-color: yellow;
     &.expanded {

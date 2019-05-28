@@ -1,6 +1,5 @@
 <template>
     <div class="mainPlane">
-      <h1>MAINPLANE</h1>
     </div>
 </template>
 

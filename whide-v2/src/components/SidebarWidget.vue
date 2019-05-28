@@ -53,14 +53,19 @@ export default {
 
 <style scoped lang="scss">
   .sidebarWidget {
+    position: absolute;
     width: 20px;
-    min-height: 100vh;
-    max-height: 100vh;
+    top: 47.5vh;
+    min-height: 5vh;
+    max-height: 5vh;
     overflow: hidden;
     background-color: white;
 
     &.expanded {
-      width: 200px;
+      top:0;
+      min-height: 100vh;
+      max-height: 100vh;
+      width: 100px;
       .content {
         display: block;
       }
