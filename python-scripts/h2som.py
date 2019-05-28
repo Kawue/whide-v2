@@ -8,6 +8,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from os import listdir, makedirs
 from os.path import join, exists
+import json 
 
 matplotlib.use("TkAgg")
 
@@ -23,6 +24,7 @@ def plot_poincare_structure(h2som):
         pos = list(zip(pos1, pos2))
         plt.plot(pos[0], pos[1])
     plt.show()
+		
 
 
 # Reads hdf5 file and returns a numpy array
@@ -41,7 +43,7 @@ def calc_h2som(data):
 
     # Child node indices of each node as dict. Key = node, value = list of child indices.
     # Indices which are not included: parent index, index of both same level hierarchy neighbors
-    #print(h2som._childs)
+    
 
     # 2D positions in on poincare disc
     #print(h2som._pos)
@@ -54,6 +56,7 @@ def calc_h2som(data):
     
     # H2SOM training
     h2som.cluster()
+    #print(h2som._childs.items())
 
     return h2som
 
@@ -74,8 +77,9 @@ def spectral_cluster(data, bmu_matches, dframe):
     # Create empty image
     grid_x = np.array(dframe.index.get_level_values("grid_x"))
     grid_y = np.array(dframe.index.get_level_values("grid_y"))
+    #print(grid_x)
+    #print(grid_y)
     img = np.zeros((np.amax(grid_y)+1, np.amax(grid_x)+1))
-
     proto_idx = np.array(range(np.amax(bmu_matches+1)))
     #print(proto_idx)
 
@@ -85,12 +89,43 @@ def spectral_cluster(data, bmu_matches, dframe):
         idx = np.where(bmu_matches == i)[0]
         # Get x and y coordinates of the matching pixels
         seg_x = grid_x[idx]
-        seg_y = grid_y[idx]
+        seg_y = grid_y[idx]       
         # Set matching pixels to a prototype specific value
         img[seg_y, seg_x] = i
+        #print(img)
         plt.imshow(img, cmap="tab20")
     plt.show()
 
+def getPixelsForRing(data, bmu_matches, dframe,ring):
+    grid_x = np.array(dframe.index.get_level_values("grid_x"))
+    grid_y = np.array(dframe.index.get_level_values("grid_y"))
+    
+    proto_idx = np.array(range(np.amax(bmu_matches+1)))
+    #Creat empty pixels List for the ID of each pixel
+    pixels = []
+    #Creat empty pixels_dict for the Position of each pixel
+    pixels_dict = {}
+    id = 0
+    for i in proto_idx:
+        # Find indices in bmu that matches a specific prototype, i.e. indices of pixels that match a specific prototype
+        idx = np.where(bmu_matches == i)[0]
+        # Get x and y coordinates of the matching pixels
+        seg_x = grid_x[idx]
+        seg_y = grid_y[idx]
+        #Zip X-Values and Y-Values to one List [(x1,y1),(x2,y2),...]
+        result = list(zip(seg_x, seg_y))
+        pixelIDs = []
+        for k in range(0,len(result)):
+	    #creat all pixel Ids
+            pixelIDs.append("px"+str(id)+"ID")
+	    #creat all x and y coordinate for each pixel Id
+            pixels_dict["px"+str(id)+"ID"] = {}
+            pixels_dict["px"+str(id)+"ID"]["pos"] = (int(result[k][0]),int(result[k][1]))
+            id += 1
+        
+        pixels.append(pixelIDs)
+    return pixels, pixels_dict
+        
 
 # Calculate cluster of images
 def spatial_cluster(data, h2som, bmu_matches, dframe):
@@ -134,14 +169,68 @@ def spatial_cluster(data, h2som, bmu_matches, dframe):
         img = ((img - np.amin(img)) / (np.amax(img) - np.amin(img)))
         plt.imsave(join(cl_path, "proto" + str(i)), img, vmin=0, vmax=1)
 
+def createJson(h2som, data, dframe):
+	
+	posX = h2som._pos[:,0]
+	posY = h2som._pos[:,1]
 
+	json_dict = {}
+	i = 0
+	ring_idx = 1
+	prototyp_dict ={}
+	ring_dict = {}
+	pixels_dict = None
 
+	# Get each Ring
+	pixels_dict = None
+	for ring in h2som._rings:
+		membs = calc_memb(data, h2som, ring_idx)
+		pixelsPerPrototype, pixels_dict = getPixelsForRing(data, membs, dframe,ring)
+		ring_idx +=1
+		# get the Prototypes of the ring
+		prototyp_idx = 0
+		for k in range(ring[0],ring[1]+1):
+			prototyp_dict["prototyp"+str(k-1)] = {}
+			# set the items of the Prototype
+			prototyp_dict["prototyp"+str(k-1)]["pos"] = [posX[k-1], posY[k-1]]
+			prototyp_dict["prototyp"+str(k-1)]["pixel"] = pixelsPerPrototype[prototyp_idx]
+			prototyp_dict["prototyp"+str(k-1)]["coefficients"] = []			
+			prototyp_idx += 1
+			
+		# add prtotype to the ring
+		ring_dict["ring"+str(i)] = prototyp_dict
+		prototyp_dict = {}
+		i +=1
+	#add Ring, Pixels and Mzs to the Json
+	json_dict["rings"] = ring_dict
+	json_dict["pixels"] = pixels_dict
+	json_dict["mzs"] = [x for x in dframe.columns]
+	
+	for key_px, val_px in json_dict["pixels"].items():
+		json_dict["pixels"][key_px]["membership"] = {}
+		for key_ring, val_ring in json_dict["rings"].items():
+			for prot, val_prot in val_ring.items():
+				if key_px in val_prot["pixel"]:
+					json_dict["pixels"][key_px]["membership"][key_ring] = prot
+
+    
+	with open('data.json', 'w') as outfile:  
+	    json.dump(json_dict, outfile)
+	
+	
+	jsonData= json.dumps(json_dict)
+	
+	return jsonData
+	
+	
 ### Spectral workflow
-path = "/home/kwuellems/datasets/barley101.h5"
+path = "../datasets/barley_101.h5"
 dframe, data = read_data(path)
 ### For spatial workflow add:
 #data = data.T.copy(order="C")
 h2som = calc_h2som(data)
-membs = calc_memb(data, h2som, 1)
+membs = calc_memb(data, h2som, 0)
+json = createJson(h2som, data, dframe)
+#print(json)
 spectral_cluster(data, membs, dframe)
 #plot_poincare_structure(h2som)

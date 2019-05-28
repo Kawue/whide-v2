@@ -1,0 +1,31 @@
+{
+	"images": {
+		"ring0": {
+			"childs": {
+				"child0":{
+					"child.item": [1,2,3,...,8],
+					"PixelPosPerItem": [[],[],[],..[]]
+				},
+				"child1":{
+					"child.item": [9,...,13],
+					"PixelPosPerItem": [[],[],[],..[]]
+				},
+				.
+				.
+				.,
+				"childN":{
+					"child.item": [n-x,...,n],
+					"PixelPosPerItem": [[],[],[],..[]]
+				 }
+			}
+		},
+		"ring1": {
+			.
+			.
+			.
+		}
+	},
+	"MZs":{
+		[[...],[...]]
+	}
+}
