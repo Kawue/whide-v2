@@ -13,7 +13,7 @@ export default new Vuex.Store({
     rings: {},
     mzList: {
       showAnnotation: true,
-      asc: false
+      asc: true
     },
     pixels: {},
     data: {}

@@ -62,7 +62,7 @@ export default {
     toggleShowAnnotation: function () {
       store.commit('MZLIST_SHOW_ANNOTATIONS')
     },
-    annotateMzItem: function (mzItem) {
+    annotateMzItem: function () {
 
     }
   }
