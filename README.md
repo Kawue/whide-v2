@@ -12,7 +12,7 @@ npm run serve
 
 - MZ-Liste
 	1. ~~Sortieren~~
-	2. Annotieren
+	2. ~~Annotieren~~
 	3. Anklicken der Masse zeigt Intensitätsbilder
 	4. Anklicken der Masse makiert die MZ-Werte in den Bookmarks
 - Bookmarks
