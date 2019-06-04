@@ -13,7 +13,10 @@ export default new Vuex.Store({
     rings: {},
     mzList: {
       showAnnotation: true,
-      asc: true
+      asc: true,
+      mzItems: []
+    },
+    mzObjects: {
     },
     pixels: {},
     data: {}
@@ -21,7 +24,13 @@ export default new Vuex.Store({
   },
   getters: {
     getMzValues: state => {
-      return state.mzList
+      return Object.keys(state.mzObjects)
+    },
+    getMzAnnotations: state => {
+      return Object.values(state.mzObjects)
+    },
+    getMzObject: state => {
+      return state.mzObjects
     },
     getRings: state => {
       return state.rings
@@ -39,20 +48,25 @@ export default new Vuex.Store({
   mutations: {
     SET_ORIGINAL_DATA: (state, originalData) => {
       state.rings = originalData.rings
-      state.mzList = originalData.mzs
+      state.mzList.mzItems = originalData.mzs
       state.pixels = originalData.pixels
     },
     MZLIST_TOOGLE_ASC: state => {
       state.mzList.asc = !state.mzList.asc
     },
     MZLIST_SORT_MZ: state => {
-      state.mzList = mzService.sortMzList(
-        state.mzList,
-        state.mzList.asc
-      )
+      state.mzObjects = mzService.sortMzList(state.mzObjects, state.mzList.asc)
     },
     MZLIST_SHOW_ANNOTATIONS: state => {
       state.mzList.showAnnotation = !state.mzList.showAnnotation
+    },
+    SET_MZ_OBJECT: state => {
+      state.mzList.mzItems.forEach(function (element) {
+        state.mzObjects[element] = element.toString()
+      })
+    },
+    SET_MZ_ANNOTATION: (state, mzToAnnotated) => {
+      state.mzObjects[mzToAnnotated[0]] = mzToAnnotated[1]
     }
   },
   actions: {

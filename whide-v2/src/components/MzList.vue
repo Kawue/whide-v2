@@ -21,14 +21,78 @@
         </span>
       <select class="list" multiple>
         <option
-          v-for="mzItem in mzs"
-          v-bind:key="mzItem"
-          v-bind:value="mzItem"
-          v-on:dblclick="annotateMzItem(mzItem)"
+          v-for="(key, val) in mzObjects"
+          v-bind:key="key"
+          v-bind:value="key"
+          v-on:dblclick="annotateMzItem(key, val)"
             >
-          {{showAnnotation ? mzItem : mzItem}} <!--first mzItem is the name-->
+          {{showAnnotation ? key : val}} <!--first mzItem is the name-->
         </option>
       </select>
+
+      <b-modal
+        id="nameModal"
+        ref="nameModal"
+        @ok="submitAnnotation"
+        title="Rename m/z Value"
+      >
+        <template slot="default">
+          <b-row>
+            <b-col sm="3" class="align-self-center">
+              <p>m/z Value:</p>
+            </b-col>
+            <b-col sm="9">
+              <p id="annotation-mz-value">{{ nameModalMz.mz }}</p>
+            </b-col>
+            <b-col sm="3" class="align-self-center">
+              <label for="annotation-input">Annotation:</label>
+            </b-col>
+            <b-col sm="9">
+              <b-form ref="form" @submit.stop.prevent="handleSubmit">
+                <b-input
+                  v-model="nameModalMz.name"
+                  placeholder="MZ Name"
+                  required
+                  maxlength="30"
+                  :state="nameModalMz.name.length > 0 ? null : false"
+                  id="annotation-input"
+                  trim
+                  ref="annotationinput"
+                ></b-input>
+              </b-form>
+            </b-col>
+          </b-row>
+          <b-row>
+            <b-col offset-sm="3">
+              <b-form-invalid-feedback
+                :state="nameModalMz.name.length > 0 ? null : false"
+              >
+                The Annotation can't be empty
+              </b-form-invalid-feedback>
+            </b-col>
+          </b-row>
+        </template>
+        <template
+          slot="modal-footer"
+          style="display: block !important;"
+          slot-scope="{ cancel, ok }"
+        >
+          <b-button
+            variant="outline-danger"
+            @click="cancel()"
+            v-bind:disabled="nameModalMz.mz === nameModalMz.name"
+          >
+            Reset
+          </b-button>
+          <b-button
+            variant="success"
+            @click="ok()"
+            v-bind:disabled="nameModalMz.name.length === 0"
+          >
+            Save
+          </b-button>
+        </template>
+      </b-modal>
 
     </SidebarWidget>
 </template>
@@ -42,12 +106,22 @@ export default {
   props: ['initialExpanded'],
   extends: SidebarWidget,
   name: 'mzlist',
+  data: function () {
+    return {
+      localSelectedMz: [],
+      nameModalMz: {
+        name: '',
+        mz: 0
+      }
+    }
+  },
   components: {
     SidebarWidget
   },
   computed: {
     ...mapGetters({
-      mzs: 'getMzValues',
+      mzObjects: 'getMzObject',
+      mzAnnotations: 'getMzAnnotations',
       showAnnotation: 'mzShowAnnotation',
       asc: 'mzAsc'
     })
@@ -62,9 +136,41 @@ export default {
     toggleShowAnnotation: function () {
       store.commit('MZLIST_SHOW_ANNOTATIONS')
     },
-    annotateMzItem: function () {
+    annotateMzItem: function (mzKey, mzVal) {
+      this.nameModalMz = {
+        mz: mzKey,
+        name: mzVal
+      }
+      this.$refs['nameModal'].show()
+      setTimeout(() => {
+        this.$refs['annotationinput'].focus()
+      }, 500)
+    },
+    submitAnnotation: function (bvModalEvt) {
+      bvModalEvt.preventDefault()
+      this.handleSubmit()
+    },
+    handleSubmit: function () {
+      if (!this.$refs.form.checkValidity()) {
+        return
+      }
+      var mzToAnnotate = [this.nameModalMz.mz, this.nameModalMz.name]
+      store.commit('SET_MZ_ANNOTATION', mzToAnnotate)
 
+      this.$nextTick(() => {
+        this.$refs['nameModal'].hide()
+      })
+      setTimeout(() => {
+        this.nameModalMz = {
+          name: '',
+          mz: 0
+        }
+      }, 1000)
     }
+  },
+  created () {
+    store.commit('SET_MZ_OBJECT')
+    console.log('ObjectsCreated')
   }
 
 }
