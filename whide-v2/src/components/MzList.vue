@@ -24,7 +24,7 @@
           v-for="(key, val) in mzObjects"
           v-bind:key="key"
           v-bind:value="key"
-          v-on:dblclick="annotateMzItem(key, val)"
+          v-on:dblclick="annotateMzItem(val, key)"
             >
           {{showAnnotation ? key : val}} <!--first mzItem is the name-->
         </option>
@@ -34,6 +34,7 @@
         id="nameModal"
         ref="nameModal"
         @ok="submitAnnotation"
+        @cancel="handleCancle"
         title="Rename m/z Value"
       >
         <template slot="default">
@@ -42,7 +43,7 @@
               <p>m/z Value:</p>
             </b-col>
             <b-col sm="9">
-              <p id="annotation-mz-value">{{ nameModalMz.mz }}</p>
+              <p id="annotation-mz-value">{{ nameModalMz.mzValue }}</p>
             </b-col>
             <b-col sm="3" class="align-self-center">
               <label for="annotation-input">Annotation:</label>
@@ -80,7 +81,7 @@
           <b-button
             variant="outline-danger"
             @click="cancel()"
-            v-bind:disabled="nameModalMz.mz === nameModalMz.name"
+            v-bind:disabled="nameModalMz.mzValue === nameModalMz.name"
           >
             Reset
           </b-button>
@@ -111,7 +112,7 @@ export default {
       localSelectedMz: [],
       nameModalMz: {
         name: '',
-        mz: 0
+        mzValue: 0
       }
     }
   },
@@ -138,7 +139,7 @@ export default {
     },
     annotateMzItem: function (mzKey, mzVal) {
       this.nameModalMz = {
-        mz: mzKey,
+        mzValue: mzKey,
         name: mzVal
       }
       this.$refs['nameModal'].show()
@@ -154,7 +155,7 @@ export default {
       if (!this.$refs.form.checkValidity()) {
         return
       }
-      var mzToAnnotate = [this.nameModalMz.mz, this.nameModalMz.name]
+      var mzToAnnotate = [this.nameModalMz.mzValue, this.nameModalMz.name]
       store.commit('SET_MZ_ANNOTATION', mzToAnnotate)
 
       this.$nextTick(() => {
@@ -163,9 +164,13 @@ export default {
       setTimeout(() => {
         this.nameModalMz = {
           name: '',
-          mz: 0
+          mzValue: 0
         }
       }, 1000)
+    },
+    handleCancle: function () {
+      var mzResetting = [this.nameModalMz.mzValue, this.nameModalMz.mzValue]
+      store.commit('SET_MZ_ANNOTATION', mzResetting)
     }
   },
   created () {

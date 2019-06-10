@@ -19,7 +19,6 @@ export default {
   },
   methods: {
     hallo: function () {
-      window.alert('Funktion')
     }
   }
 }
