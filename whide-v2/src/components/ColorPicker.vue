@@ -11,8 +11,16 @@ import SidebarWidget from './SidebarWidget'
 export default {
   extends: SidebarWidget,
   name: 'ColorPicker',
+  created () {
+    this.hallo()
+  },
   components: {
     SidebarWidget
+  },
+  methods: {
+    hallo: function () {
+      window.alert('Funktion')
+    }
   }
 }
 </script>
