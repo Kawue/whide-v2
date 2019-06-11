@@ -65,7 +65,7 @@ export default {
       top:0;
       min-height: 100vh;
       max-height: 100vh;
-      width: 100px;
+      width: 40vw;
       .content {
         display: block;
       }

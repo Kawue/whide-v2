@@ -10,7 +10,8 @@ let mzService = new MzService()
 
 export default new Vuex.Store({
   state: {
-    rings: {},
+    rings: {
+    },
     mzList: {
       showAnnotation: true,
       asc: false,

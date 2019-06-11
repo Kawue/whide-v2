@@ -22,7 +22,7 @@ export default {
 <style scoped lang="scss">
   .sidebar {
     position: absolute;
-    right: 20px;
+    right: 40px;
     z-index: 101;
     background-color: yellow;
   }

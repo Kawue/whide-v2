@@ -1,24 +1,39 @@
 <template>
     <SidebarWidget v-bind:side="side" v-bind:initialExpanded="initialExpanded">
       <div>
-        ColorPicker
+        <canvas id="colorwheelCanvas" width="512" height="512">
+        </canvas>
       </div>
     </SidebarWidget>
 </template>
 
 <script>
 import SidebarWidget from './SidebarWidget'
+import * as cw from '../services/colorWheel'
+import { mapGetters } from 'vuex'
+
 export default {
   extends: SidebarWidget,
   name: 'ColorPicker',
-  created () {
-    this.hallo()
-  },
+  created () {},
   components: {
     SidebarWidget
   },
+  computed: {
+    ...mapGetters({
+      rings: 'getRings'
+    })
+  },
+  mounted () {
+    cw.createColorWheel()
+    //  this.getPos('ring0')
+  },
   methods: {
-    hallo: function () {
+    getPos: function (ring) {
+      console.log(this.rings['ring0'])
+      // for (let prototyp of Object.keys(this.rings['ring0'])) {
+      // console.log(this.rings['ring0'][prototyp]['pos'])
+      // }
     }
   }
 }
@@ -28,7 +43,23 @@ export default {
   .sidebarWidget {
     background-color: gold;
     &.expended {
-      right:100px;
+      right:400px;
     }
   }
+  #colorwheelCanvas {
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 1em;
+    display: block;
+  }
+  .colorDiv {
+    font-family: monospace;
+    padding: 1em;
+    width: 256px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 1em;
+    border-radius: 2px;
+  }
+
 </style>
