@@ -15,7 +15,8 @@ import { mapGetters } from 'vuex'
 export default {
   extends: SidebarWidget,
   name: 'ColorPicker',
-  created () {},
+  created () {
+  },
   components: {
     SidebarWidget
   },
@@ -25,15 +26,18 @@ export default {
     })
   },
   mounted () {
-    cw.createColorWheel()
-    //  this.getPos('ring0')
+    this.getPos('ring0')
   },
   methods: {
-    getPos: function (ring) {
-      console.log(this.rings['ring0'])
-      // for (let prototyp of Object.keys(this.rings['ring0'])) {
-      // console.log(this.rings['ring0'][prototyp]['pos'])
-      // }
+    getPos: function (r) {
+      var pos = []
+      var ring = this.rings[r]
+      Object.keys(ring).forEach(function (p) {
+        var proto = Object.values(ring[p])
+        pos.push(proto[0])
+      })
+      // console.log(pos)
+      cw.createColorWheel(pos)
     }
   }
 }

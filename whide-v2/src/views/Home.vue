@@ -1,21 +1,21 @@
 <template>
   <div class="home">
     <SidebarLeft  v-if="showPanels" />
-    <SidebarRight />
+    <SidebarRight v-if="showPanels"/>
     <Topbar />
     <Bottombar />
-    <MainPlane />
+    <MainPlane v-if="showPanels"/>
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
+import Store from '@/store'
 import MainPlane from '@/components/MainPlane'
 import SidebarLeft from '@/components/SidebarLeft'
 import SidebarRight from '@/components/SidebarRight'
 import Bottombar from '../components/Bottombar'
 import Topbar from '../components/Topbar'
-import Store from '@/store'
 
 export default {
   name: 'home',
