@@ -6,7 +6,7 @@
       </div>
       <div>
         <p>Custom range slider:</p>
-        <input type="range" min="1" v-bind:max="{lengthRings}" v-bind:value="2" class="slider" id="ringGranularity">
+        <input type="range" min="1" v-bind:max="lengthRings" v-bind:value="2" class="slider" id="ringGranularity">
       </div>
     </SidebarWidget>
 </template>
@@ -19,10 +19,12 @@ import { mapGetters } from 'vuex'
 export default {
   extends: SidebarWidget,
   name: 'ColorPicker',
-  props: {
-    lengthRings: Number,
-    midRings: Number,
-    ringGranularity: String
+  data: function () {
+    return {
+      lengthRings: null,
+      midRings: null,
+      ringGranularity: null
+    }
   },
   created () {
   },
@@ -52,7 +54,7 @@ export default {
       cw.createColorWheel(pos)
     },
     setGranulaity: function () {
-      this.lengthRings = this.rings.length
+      this.lengthRings = Object.keys(this.rings).length
       this.midRings = Math.round(this.lengthRings / 2)
     }
   }
