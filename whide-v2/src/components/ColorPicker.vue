@@ -1,8 +1,12 @@
 <template>
     <SidebarWidget v-bind:side="side" v-bind:initialExpanded="initialExpanded">
       <div>
-        <canvas id="colorwheelCanvas" width="512" height="512">
+        <canvas id="colorwheelCanvas" width="256" height="256">
         </canvas>
+      </div>
+      <div>
+        <p>Custom range slider:</p>
+        <input type="range" min="1" v-bind:max="{lengthRings}" v-bind:value="2" class="slider" id="ringGranularity">
       </div>
     </SidebarWidget>
 </template>
@@ -15,6 +19,11 @@ import { mapGetters } from 'vuex'
 export default {
   extends: SidebarWidget,
   name: 'ColorPicker',
+  props: {
+    lengthRings: Number,
+    midRings: Number,
+    ringGranularity: String
+  },
   created () {
   },
   components: {
@@ -26,7 +35,10 @@ export default {
     })
   },
   mounted () {
-    this.getPos('ring0')
+    this.getPos('ring1')
+    this.setGranulaity()
+    console.log(this.lengthRings)
+    console.log(this.midRings)
   },
   methods: {
     getPos: function (r) {
@@ -38,6 +50,10 @@ export default {
       })
       // console.log(pos)
       cw.createColorWheel(pos)
+    },
+    setGranulaity: function () {
+      this.lengthRings = this.rings.length
+      this.midRings = Math.round(this.lengthRings / 2)
     }
   }
 }
@@ -65,5 +81,6 @@ export default {
     margin-bottom: 1em;
     border-radius: 2px;
   }
+
 
 </style>

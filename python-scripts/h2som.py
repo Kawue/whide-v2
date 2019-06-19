@@ -192,7 +192,7 @@ def createJson(h2som, data, dframe):
 		for k in range(ring[0],ring[1]+1):
 			prototyp_dict["prototyp"+str(k-1)] = {}
 			# set the items of the Prototype
-			prototyp_dict["prototyp"+str(k-1)]["pos"] = [posX[k-1], posY[k-1]]
+			prototyp_dict["prototyp"+str(k-1)]["pos"] = [posX[k], posY[k]]
 			prototyp_dict["prototyp"+str(k-1)]["pixel"] = pixelsPerPrototype[prototyp_idx]
 			prototyp_dict["prototyp"+str(k-1)]["coefficients"] = []			
 			prototyp_idx += 1
