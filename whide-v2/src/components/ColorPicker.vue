@@ -6,8 +6,9 @@
       </div>
       <div>
         <p>Custom range slider:</p>
-        <input type="range" min="1" v-bind:max="lengthRings" v-bind:value="2" class="slider" id="ringGranularity">
+         <b-form-input v-model="ringGranularity" v-bind:type="'range'" min="1" v-bind:max="lengthRings" class="slider" id="ringGranularity"></b-form-input>
       </div>
+      <p>{{ringGranularity}}</p>
     </SidebarWidget>
 </template>
 
@@ -23,7 +24,7 @@ export default {
     return {
       lengthRings: null,
       midRings: null,
-      ringGranularity: null
+      ringGranularity: 2
     }
   },
   created () {
