@@ -5,8 +5,8 @@
         </canvas>
       </div>
       <div>
-        <p>Custom range slider:</p>
-         <b-form-input v-model="ringGranularity" v-bind:type="'range'" min="1" v-bind:max="lengthRings" class="slider" id="ringGranularity"></b-form-input>
+        <p>Set Granularity:</p>
+         <b-form-input v-model="ringGranularity" v-bind:type="'range'" min="0" v-bind:max="lengthRings" class="slider" id="ringGranularity" @change="changePos"></b-form-input>
       </div>
       <p>{{ringGranularity}}</p>
     </SidebarWidget>
@@ -24,7 +24,7 @@ export default {
     return {
       lengthRings: null,
       midRings: null,
-      ringGranularity: 2
+      ringGranularity: 0
     }
   },
   created () {
@@ -38,10 +38,9 @@ export default {
     })
   },
   mounted () {
-    this.getPos('ring1')
+    this.getPos('ring0')
     this.setGranulaity()
     console.log(this.lengthRings)
-    console.log(this.midRings)
   },
   methods: {
     getPos: function (r) {
@@ -55,8 +54,10 @@ export default {
       cw.createColorWheel(pos)
     },
     setGranulaity: function () {
-      this.lengthRings = Object.keys(this.rings).length
-      this.midRings = Math.round(this.lengthRings / 2)
+      this.lengthRings = Object.keys(this.rings).length - 1
+    },
+    changePos: function () {
+      this.getPos('ring' + this.ringGranularity.toString())
     }
   }
 }
@@ -84,6 +85,8 @@ export default {
     margin-bottom: 1em;
     border-radius: 2px;
   }
-
+  .slider{
+    width: 200px;
+  }
 
 </style>

@@ -59,7 +59,7 @@ var createColorWheel = function (pos) {
           var angleInDegrees = DEGREES_PER_RADIAN * (Math.atan2(y, x) + Math.PI)
           var distanceFromOrigin = Math.sqrt(distanceFromOriginSquared)
 
-          var color = d3.hsl(angleInDegrees, (distanceFromOrigin / radius), 0.5).rgb()
+          var color = d3.hsl(angleInDegrees, (distanceFromOrigin / radius), 0.7).rgb()
           setPixelColor(image, i, j, color)
         }
       }
