@@ -1,32 +1,24 @@
 <template>
-  <div class="sidebarWidget" v-bind:class="{ expanded: isExpanded }">
+  <div class="sidebarLeft" v-bind:class="{ expanded: isExpanded }">
     <span class="trigger" v-on:click="toggleView()" v-bind:class="getExpandIconClass()">
       <v-icon name="arrow-right" v-if="showExpandRightIcon()"></v-icon>
       <v-icon name="arrow-left" v-if="showExpandLeftIcon()"></v-icon>
     </span>
     <div class="content">
-      <slot></slot>
+      <Mzlist side="left" v-if="isExpanded"></Mzlist>
     </div>
   </div>
 </template>
 
 <script>
+import Mzlist from './MzList'
 export default {
-  name: 'SidebarWidget',
-  props: {
-    side: {
-      type: String,
-      required: true
-    },
-    initialExpanded: {
-      type: Boolean,
-      required: false,
-      default: true
-    }
-  },
+  name: 'Left',
+  components: { Mzlist },
+
   data: function () {
     return {
-      isExpanded: this.initialExpanded
+      isExpanded: false
     }
   },
   methods: {
@@ -42,39 +34,27 @@ export default {
     showExpandRightIcon: function () {
       return this.side === 'right' ? this.isExpanded : !this.isExpanded
     }
-  },
-  created () {
-    console.log('SidebarWidget')
-    console.log(this.initialExpanded)
   }
 }
-
 </script>
 
 <style scoped lang="scss">
-  .sidebarWidget {
+  .sidebarLeft {
+    background-color: slategray;
     position: absolute;
-    width: 20px;
+    width: 25px;
     top: 47.5vh;
-    min-height: 5vh;
-    max-height: 5vh;
+    height: 50px;
+    z-index: 101;
     overflow: hidden;
-    background-color: white;
-
     &.expanded {
       top:0;
-      min-height: 100vh;
-      max-height: 100vh;
-      width: 40vw;
-      .content {
-        display: block;
-      }
-    }
-    .content {
-      display: none;
+      width: 10vw;
+      height: 100vh;
     }
   }
   .trigger {
     vertical-align: middle;
   }
+
 </style>

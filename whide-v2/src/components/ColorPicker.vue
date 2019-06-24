@@ -1,7 +1,7 @@
 <template>
-    <SidebarWidget v-bind:side="side" v-bind:initialExpanded="initialExpanded">
+  <div>
       <div>
-        <canvas id="colorwheelCanvas" width="256" height="256">
+        <canvas id="colorwheelCanvas" width="300" height="300">
         </canvas>
       </div>
       <div>
@@ -9,16 +9,14 @@
          <b-form-input v-model="ringGranularity" v-bind:type="'range'" min="0" v-bind:max="lengthRings" class="slider" id="ringGranularity" @change="changePos"></b-form-input>
       </div>
       <p>{{ringGranularity}}</p>
-    </SidebarWidget>
+  </div>
 </template>
 
 <script>
-import SidebarWidget from './SidebarWidget'
 import * as cw from '../services/colorWheel'
 import { mapGetters } from 'vuex'
 
 export default {
-  extends: SidebarWidget,
   name: 'ColorPicker',
   data: function () {
     return {
@@ -29,9 +27,6 @@ export default {
   },
   created () {
   },
-  components: {
-    SidebarWidget
-  },
   computed: {
     ...mapGetters({
       rings: 'getRings'
@@ -40,7 +35,6 @@ export default {
   mounted () {
     this.getPos('ring0')
     this.setGranulaity()
-    console.log(this.lengthRings)
   },
   methods: {
     getPos: function (r) {
@@ -64,17 +58,12 @@ export default {
 </script>
 
 <style scoped lang="scss">
-  .sidebarWidget {
-    background-color: gold;
-    &.expended {
-      right:400px;
-    }
-  }
   #colorwheelCanvas {
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 1em;
     display: block;
+    top: 5px;
   }
   .colorDiv {
     font-family: monospace;

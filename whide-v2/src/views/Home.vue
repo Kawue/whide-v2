@@ -1,10 +1,10 @@
 <template>
   <div class="home">
-    <SidebarLeft  v-if="showPanels" />
-    <SidebarRight v-if="showPanels"/>
-    <Topbar />
-    <Bottombar />
     <MainPlane v-if="showPanels"/>
+    <left v-if="showPanels" />
+    <right v-if="showPanels" />
+    <top v-if="showPanels" />
+    <bottom v-if="showPanels" />
   </div>
 </template>
 
@@ -12,19 +12,21 @@
 // @ is an alias to /src
 import Store from '@/store'
 import MainPlane from '@/components/MainPlane'
-import SidebarLeft from '@/components/SidebarLeft'
-import SidebarRight from '@/components/SidebarRight'
-import Bottombar from '../components/Bottombar'
-import Topbar from '../components/Topbar'
+
+import Left from '../components/Left'
+import Right from '../components/Right'
+import Top from '../components/Top'
+import Bottom from '../components/Bottom'
 
 export default {
   name: 'home',
   components: {
-    Topbar,
-    SidebarRight,
-    SidebarLeft,
-    MainPlane,
-    Bottombar
+    Bottom,
+    Top,
+    Right,
+    Left,
+    MainPlane
+
   },
   data: function () {
     return {

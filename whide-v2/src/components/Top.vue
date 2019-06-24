@@ -1,32 +1,23 @@
 <template>
-    <div class="bottombarWidget" v-bind:class="{ expanded: isExpanded }">
+  <div class="topbarWidget" v-bind:class="{ expanded: isExpanded }">
       <span v-on:click="toggleView()" v-bind:class="getExpandUpIconClass()">
         <v-icon name="arrow-up" v-if="showExpandUpIcon()"></v-icon>
         <v-icon name="arrow-down" v-if="showExpandDownIcon()"></v-icon>
       </span>
-      <div class="content">
-      <slot></slot>
+    <div class="content">
+      <options side="top" v-if="isExpanded"></options>
     </div>
-    </div>
+  </div>
 </template>
 
 <script>
+import Options from './Options'
 export default {
-  name: 'BottombarWidget',
-  props: {
-    side: {
-      type: String,
-      required: true
-    },
-    initialExpanded: {
-      type: Boolean,
-      required: false,
-      default: true
-    }
-  },
+  name: 'Top',
+  components: { Options },
   data: function () {
     return {
-      isExpanded: this.initialExpanded
+      isExpanded: false
     }
   },
   methods: {
@@ -47,7 +38,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-  .bottombarWidget {
+  .topbarWidget {
     position: absolute;
     height: 20px;
     width: 7vw;
@@ -55,15 +46,14 @@ export default {
     min-width: 5vw;
     max-width: 80vw;
     overflow: hidden;
-    background-color: white;
-    bottom: 0;
+    background-color: slategray;
+    z-index: 101;
 
   &.expanded {
      height: 200px;
      width: 30vw;
-     left: 15vw !important;
+     left: 15vw;
      position: absolute;
-    bottom: 0;
   .content {
     display: block;
   }

@@ -1,5 +1,5 @@
 <template>
-    <SidebarWidget v-bind:side="side" v-bind:initialExpanded="initialExpanded">
+  <div>
       <div>MZs</div>
       <span
         style="float: left;margin-left: 15px; color: #dc3b9e"
@@ -94,18 +94,14 @@
           </b-button>
         </template>
       </b-modal>
-
-    </SidebarWidget>
+  </div>
 </template>
 
 <script>
-import SidebarWidget from './SidebarWidget'
 import { mapGetters } from 'vuex'
 import store from '../store'
 
 export default {
-  props: ['initialExpanded'],
-  extends: SidebarWidget,
   name: 'mzlist',
   data: function () {
     return {
@@ -115,9 +111,6 @@ export default {
         mzValue: 0
       }
     }
-  },
-  components: {
-    SidebarWidget
   },
   computed: {
     ...mapGetters({
@@ -175,14 +168,12 @@ export default {
   },
   created () {
     store.commit('SET_MZ_OBJECT')
-    console.log('ObjectsCreated')
   }
 
 }
 
 </script>
 <style scoped lang="scss">
-
   .list {
     padding: 0;
     font-size: 0.9em;

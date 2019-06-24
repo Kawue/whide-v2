@@ -1,32 +1,23 @@
 <template>
-  <div class="topbarWidget" v-bind:class="{ expanded: isExpanded }">
+  <div class="bottombarWidget" v-bind:class="{ expanded: isExpanded }">
       <span v-on:click="toggleView()" v-bind:class="getExpandUpIconClass()">
         <v-icon name="arrow-up" v-if="showExpandUpIcon()"></v-icon>
         <v-icon name="arrow-down" v-if="showExpandDownIcon()"></v-icon>
       </span>
     <div class="content">
-      <slot></slot>
-    </div>
+      <Bookmarks side="up" v-if="isExpanded"></Bookmarks>
+      </div>
   </div>
 </template>
 
 <script>
+import Bookmarks from './Bookmarks'
 export default {
-  name: 'TopbarWidget',
-  props: {
-    side: {
-      type: String,
-      required: true
-    },
-    initialExpanded: {
-      type: Boolean,
-      required: false,
-      default: true
-    }
-  },
+  name: 'Bottom',
+  components: { Bookmarks },
   data: function () {
     return {
-      isExpanded: this.initialExpanded
+      isExpanded: false
     }
   },
   methods: {
@@ -34,7 +25,7 @@ export default {
       this.isExpanded = !this.isExpanded
     },
     getExpandUpIconClass: function () {
-      return this.side === 'up' ? 'float-up' : 'float-down'
+      return this.side === 'up' ? 'float-down' : 'float-up'
     },
     showExpandUpIcon: function () {
       return this.side === 'up' ? !this.isExpanded : this.isExpanded
@@ -47,21 +38,24 @@ export default {
 </script>
 
 <style scoped lang="scss">
-  .topbarWidget {
+  .bottombarWidget {
     position: absolute;
     height: 20px;
     width: 7vw;
     left: 43vw;
     min-width: 5vw;
     max-width: 80vw;
+    z-index: 101;
     overflow: hidden;
-    background-color: white;
+    background-color: slategray;
+    bottom: 0;
 
     &.expanded {
       height: 200px;
       width: 30vw;
       left: 15vw !important;
       position: absolute;
+      bottom: 0;
       .content {
         display: block;
       }

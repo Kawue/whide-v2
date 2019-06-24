@@ -17,21 +17,42 @@ var createColorWheel = function (pos) {
   var radius = Math.min(halfWidth, halfHeight)
   var radiusSquared = radius * radius
 
-  renderColorWheel(bgImage)
+  var color = renderColorWheel(bgImage)
 
   context.clearRect(0, 0, canvas.width, canvas.height)
   context.putImageData(bgImage, 0, 0)
 
   pos.forEach(function (it) {
-    renderColorMarker(it)
+    renderColorMarker(bgImage, it, color)
   })
+  function rgbToHex (rgb) {
+    var hex = Number(rgb).toString(16)
+    if (hex.length < 2) {
+      hex = '0' + hex
+    }
+    return hex
+  }
 
-  function renderColorMarker (position) {
+  function fullColorHex (r, g, b) {
+    var red = rgbToHex(r)
+    var green = rgbToHex(g)
+    var blue = rgbToHex(b)
+    return red + green + blue
+  }
+
+  function renderColorMarker (image, position, color) {
+    // console.log(color)
     var markerRadius = 6
     var x = position[0]
     var y = position[1]
-    var i = (x + 0.01) * 100 + halfWidth
-    var j = (y + 0.01) * 100 + halfHeight
+    var i = x * 100 + halfWidth
+    var j = y * 100 + halfHeight
+
+    var NUM_CHANNELS = 4
+    var rowByteOffset = y * image.width * NUM_CHANNELS
+    var colByteOffset = x * NUM_CHANNELS
+    var pixelByteOffset = rowByteOffset + colByteOffset
+    var posColor = fullColorHex(image.data[pixelByteOffset + 0], image.data[pixelByteOffset + 1], image.data[pixelByteOffset + 2])
 
     context.save()
     context.lineWidth = 1
@@ -42,6 +63,8 @@ var createColorWheel = function (pos) {
     context.beginPath()
     context.arc(i, j, markerRadius - 0.5, 0, TWO_PI, false)
     context.strokeStyle = 'white'
+    context.fillStyle = posColor
+    context.fill()
     context.stroke()
     context.restore()
   }
@@ -59,11 +82,12 @@ var createColorWheel = function (pos) {
           var angleInDegrees = DEGREES_PER_RADIAN * (Math.atan2(y, x) + Math.PI)
           var distanceFromOrigin = Math.sqrt(distanceFromOriginSquared)
 
-          var color = d3.hsl(angleInDegrees, (distanceFromOrigin / radius), 0.7).rgb()
-          setPixelColor(image, i, j, color)
+          var color = d3.hsl(angleInDegrees, (distanceFromOrigin / radius), 0.5).rgb()
+          setPixelColor(image, i, j, color, 200)
         }
       }
     }
+    return color
   }
 
   function setPixelColor (image, x, y, color, alpha) {
