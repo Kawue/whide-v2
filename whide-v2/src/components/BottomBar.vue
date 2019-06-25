@@ -1,8 +1,8 @@
 <template>
   <div class="bottombarWidget" v-bind:class="{ expanded: isExpanded }">
       <span v-on:click="toggleView()" v-bind:class="getExpandUpIconClass()">
-        <v-icon name="arrow-up" v-if="showExpandUpIcon()"></v-icon>
-        <v-icon name="arrow-down" v-if="showExpandDownIcon()"></v-icon>
+        <v-icon name="arrow-down" v-if="showExpandUpIcon()"></v-icon>
+        <v-icon name="arrow-up" v-if="showExpandDownIcon()"></v-icon>
       </span>
     <div class="content">
       <Bookmarks side="up" v-if="isExpanded"></Bookmarks>
@@ -52,8 +52,9 @@ export default {
 
     &.expanded {
       height: 200px;
-      width: 30vw;
-      left: 15vw !important;
+      width: 100%;
+      left:0;
+      right:0;
       position: absolute;
       bottom: 0;
       .content {
