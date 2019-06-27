@@ -3,8 +3,6 @@ import * as d3 from 'd3'
 var createColorWheel = function (pos) {
   'use strict'
   var DEGREES_PER_RADIAN = 180 / Math.PI
-  // var RADIANS_PER_DEGREE = Math.PI / 180
-  var TWO_PI = 2 * Math.PI
 
   var canvas = document.getElementById('colorwheelCanvas')
   var context = canvas.getContext('2d')
@@ -25,20 +23,6 @@ var createColorWheel = function (pos) {
   pos.forEach(function (it) {
     renderColorMarker(bgImage, it, color)
   })
-  function rgbToHex (rgb) {
-    var hex = Number(rgb).toString(16)
-    if (hex.length < 2) {
-      hex = '0' + hex
-    }
-    return hex
-  }
-
-  function fullColorHex (r, g, b) {
-    var red = rgbToHex(r)
-    var green = rgbToHex(g)
-    var blue = rgbToHex(b)
-    return red + green + blue
-  }
 
   function renderColorMarker (image, position, color) {
     // console.log(color)
@@ -48,38 +32,21 @@ var createColorWheel = function (pos) {
     var i = parseInt(x * 100 + halfWidth)
     var j = parseInt(y * 100 + halfHeight)
 
-    let canvas = document.getElementById("colorwheelCanvas")
+    let canvas = document.getElementById('colorwheelCanvas')
     let ctx = canvas.getContext('2d')
-    let ctxData = ctx.getImageData(0,0, canvas.width, canvas.height).data
+    let ctxData = ctx.getImageData(0, 0, canvas.width, canvas.height).data
     var NUM_CHANNELS = 4
     var rowByteOffset = j * canvas.width * NUM_CHANNELS
     var colByteOffset = i * NUM_CHANNELS
     var pixelByteOffset = rowByteOffset + colByteOffset
-    var posColor = ctxData.slice(pixelByteOffset, pixelByteOffset+4) //fullColorHex(image.data[pixelByteOffset + 0], image.data[pixelByteOffset + 1], image.data[pixelByteOffset + 2])
+    var posColor = ctxData.slice(pixelByteOffset, pixelByteOffset + 4)
 
-    /*
-    context.save()
-    context.lineWidth = 1
-    context.beginPath()
-    context.arc(i, j, markerRadius + 0.5, 0, TWO_PI, false)
-    context.strokeStyle = 'black'
-    context.stroke()
-    context.beginPath()
-    context.arc(i, j, markerRadius - 0.5, 0, TWO_PI, false)
-    context.strokeStyle = 'white'
-    context.fillStyle = d3.rgb(posColor[0], posColor[1], posColor[2], posColor[3])
-    context.fill()
-    context.stroke()
-    context.restore()
-    */
-
-    d3.select("#colorwheelContainer")
-      .append("circle")
-      .attr("cx", i)
-      .attr("cy", j)
-      .attr("r", markerRadius)
-      .style("fill", "rgba("+posColor[0].toString() + "," + posColor[1].toString() + "," + posColor[2].toString() + "," + posColor[3].toString() + ")")
-
+    d3.select('#colorwheelContainer')
+      .append('circle')
+      .attr('cx', i)
+      .attr('cy', j)
+      .attr('r', markerRadius)
+      .style('fill', 'rgba(' + posColor[0].toString() + ',' + posColor[1].toString() + ',' + posColor[2].toString() + ',' + posColor[3].toString() + ')')
   }
 
   function renderColorWheel (image) {
@@ -100,21 +67,21 @@ var createColorWheel = function (pos) {
         }
       }
     }
-    
-    let colorwheelContainer = d3.select("#colorwheelCanvas").select(function() { return this.parentNode;})
-    let offset = parseInt(d3.select("#colorwheelCanvas").style("margin-left")) + parseInt(d3.select(".trigger").style("width"))
-    colorwheelContainer.append("svg")
-      .attr("id", "colorwheelContainer")
-      .attr("width", canvas.width + "px")
-      .attr("height", canvas.height + "px")
-      .attr("stroke", "black")
-      .attr("stroke-width", 1 + "px")
-      .style("position", "absolute")
-      .style("margin-left", "auto")
-      .style("left", offset + "px")
-      .style("top", 0)
-      .style("z-index", 101)
-  
+
+    let colorwheelContainer = d3.select('#colorwheelCanvas').select(function () { return this.parentNode })
+    let offset = parseInt(d3.select('#colorwheelCanvas').style('margin-left')) + parseInt(d3.select('.trigger').style('width'))
+    colorwheelContainer.append('svg')
+      .attr('id', 'colorwheelContainer')
+      .attr('width', canvas.width + 'px')
+      .attr('height', canvas.height + 'px')
+      .attr('stroke', 'black')
+      .attr('stroke-width', 1 + 'px')
+      .style('position', 'absolute')
+      .style('margin-left', 'auto')
+      .style('left', offset + 'px')
+      .style('top', 0)
+      .style('z-index', 101)
+
     return color
   }
 
