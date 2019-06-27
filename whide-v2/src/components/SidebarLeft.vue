@@ -1,7 +1,7 @@
 <template>
-  <div class="sidebarLeft" v-bind:class="{ expanded: isExpanded }">
-    <span class="trigger" v-on:click="toggleView()" v-bind:class="getExpandIconClass()">
-      <v-icon name="arrow-right" v-if="showExpandRightIcon()"></v-icon>
+  <div @mouseleave="toggleView" @mouseenter="toggleView" class="sidebarLeft" v-bind:class="{ expanded: isExpanded }">
+    <span class="trigger"  v-on:click="toggleView()" v-bind:class="getExpandIconClass()">
+      <v-icon name="arrow-right"  v-if="showExpandRightIcon()"></v-icon>
       <v-icon name="arrow-left" v-if="showExpandLeftIcon()"></v-icon>
     </span>
     <div class="content">
@@ -18,7 +18,8 @@ export default {
 
   data: function () {
     return {
-      isExpanded: false
+      isExpanded: false,
+      clickExpanded: false
     }
   },
   methods: {
@@ -33,6 +34,11 @@ export default {
     },
     showExpandRightIcon: function () {
       return this.side === 'right' ? this.isExpanded : !this.isExpanded
+    },
+    expandView: function () {
+      if (!this.clickExpanded) {
+        this.isExpanded = !this.isExpanded
+      }
     }
   }
 }

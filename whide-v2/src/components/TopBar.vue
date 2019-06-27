@@ -1,11 +1,18 @@
 <template>
-  <div class="topbarWidget" v-bind:class="{ expanded: isExpanded }">
+  <div
+    @mouseleave="toggleView"
+    @mouseenter="toggleView"
+    class="topbarWidget"
+    v-bind:class="{ expanded: isExpanded }">
       <span v-on:click="toggleView()" v-bind:class="getExpandUpIconClass()">
         <v-icon name="arrow-up" v-if="showExpandUpIcon()"></v-icon>
         <v-icon name="arrow-down" v-if="showExpandDownIcon()"></v-icon>
       </span>
     <div class="content">
-      <options side="top" v-if="isExpanded"></options>
+      <options
+        side="top"
+        v-if="isExpanded">
+      </options>
     </div>
   </div>
 </template>
@@ -48,12 +55,15 @@ export default {
     overflow: hidden;
     background-color: slategray;
     z-index: 101;
-
-  &.expanded {
+    border-radius: 0 0 10px 0;
+    &.expanded {
      height: 200px;
      width: 30vw;
      left: 15vw;
      position: absolute;
+      background-color: #3e3f40;
+      border-right: 1px solid #737374;
+      border-bottom: 1px solid #737374;
   .content {
     display: block;
   }

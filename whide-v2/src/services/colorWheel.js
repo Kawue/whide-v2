@@ -53,7 +53,8 @@ var createColorWheel = function (pos) {
     var colByteOffset = x * NUM_CHANNELS
     var pixelByteOffset = rowByteOffset + colByteOffset
     var posColor = fullColorHex(image.data[pixelByteOffset + 0], image.data[pixelByteOffset + 1], image.data[pixelByteOffset + 2])
-
+    // var posColor = 'rgb(color.r,color.g,color.b)'
+    // console.log(posColor)
     context.save()
     context.lineWidth = 1
     context.beginPath()
@@ -63,7 +64,7 @@ var createColorWheel = function (pos) {
     context.beginPath()
     context.arc(i, j, markerRadius - 0.5, 0, TWO_PI, false)
     context.strokeStyle = 'white'
-    context.fillStyle = posColor
+    context.fillStyle = 'orange'
     context.fill()
     context.stroke()
     context.restore()
@@ -102,6 +103,7 @@ var createColorWheel = function (pos) {
     image.data[pixelByteOffset + 1] = color.g
     image.data[pixelByteOffset + 2] = color.b
     image.data[pixelByteOffset + 3] = alpha
+    // console.log(image.data[pixelByteOffset + 0])
   }
 }
 export { createColorWheel }

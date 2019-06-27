@@ -2,7 +2,7 @@
   <div>
       <div>MZs</div>
       <span
-        style="float: left;margin-left: 15px; color: #dc3b9e"
+        style="float: left;margin-left: 30px; color: white"
         v-on:click="toggleShowAnnotation"
         v-b-tooltip.hover.top="'Show Annotations'"
       >
@@ -12,7 +12,7 @@
         </span>
       <span
         v-on:click="toggleAsc(); sortMZ()"
-        style="float: right; padding: 2px"
+        style="float: right; margin-right: 30px; padding: 2px; color :white"
         v-b-tooltip.hover.top="'Sort'"
       >
         <v-icon
@@ -184,5 +184,8 @@ export default {
   }
   .options {
     background-color: darkgray;
+  }
+  .v-icon {
+    color: white;
   }
 </style>
