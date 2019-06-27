@@ -20,7 +20,8 @@ export default new Vuex.Store({
     mzObjects: {
     },
     pixels: {},
-    data: {}
+    data: {},
+    pos: {}
 
   },
   getters: {
@@ -68,6 +69,9 @@ export default new Vuex.Store({
     },
     SET_MZ_ANNOTATION: (state, mzToAnnotated) => {
       state.mzObjects[mzToAnnotated[0]] = mzToAnnotated[1]
+    },
+    SET_POS_COLOR: (state, pos) => {
+      state.pos = pos
     }
   },
   actions: {

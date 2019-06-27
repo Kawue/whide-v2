@@ -1,4 +1,5 @@
 import * as d3 from 'd3'
+import store from '../store'
 
 var createColorWheel = function (pos) {
   'use strict'
@@ -17,15 +18,22 @@ var createColorWheel = function (pos) {
 
   var color = renderColorWheel(bgImage)
 
+  var posDict = []
+
   context.clearRect(0, 0, canvas.width, canvas.height)
   context.putImageData(bgImage, 0, 0)
 
   pos.forEach(function (it) {
-    renderColorMarker(bgImage, it, color)
+    let posColor = null
+    posColor = renderColorMarker(it)
+    posDict.push({
+      key: it,
+      value: posColor
+    })
   })
+  store.commit('SET_POS_COLOR', posDict)
 
-  function renderColorMarker (image, position, color) {
-    // console.log(color)
+  function renderColorMarker (position) {
     var markerRadius = 6
     var x = position[0]
     var y = position[1]
@@ -41,12 +49,14 @@ var createColorWheel = function (pos) {
     var pixelByteOffset = rowByteOffset + colByteOffset
     var posColor = ctxData.slice(pixelByteOffset, pixelByteOffset + 4)
 
+    let colorOfPos = 'rgba(' + posColor[0].toString() + ',' + posColor[1].toString() + ',' + posColor[2].toString() + ',' + posColor[3].toString() + ')'
     d3.select('#colorwheelContainer')
       .append('circle')
       .attr('cx', i)
       .attr('cy', j)
       .attr('r', markerRadius)
-      .style('fill', 'rgba(' + posColor[0].toString() + ',' + posColor[1].toString() + ',' + posColor[2].toString() + ',' + posColor[3].toString() + ')')
+      .style('fill', colorOfPos)
+    return colorOfPos
   }
 
   function renderColorWheel (image) {
