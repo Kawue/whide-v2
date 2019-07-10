@@ -13,17 +13,17 @@
       <p>Change Position of the Wheel</p>
       <b-row>
         <b-col></b-col>
-        <b-col><b-button variant="info" size="sm">Up</b-button></b-col>
+        <b-col><b-button id="up" variant="info" size="sm">Up</b-button></b-col>
         <b-col></b-col>
       </b-row>
       <b-row>
-        <b-col><b-button variant="info" size="sm">Left</b-button></b-col>
-        <b-col><b-button variant="info" size="sm">Default</b-button></b-col>
-        <b-col><b-button variant="info" size="sm">Right</b-button></b-col>
+        <b-col><b-button id="left" variant="info" size="sm">Left</b-button></b-col>
+        <b-col><b-button id="default " variant="info" size="sm">Default</b-button></b-col>
+        <b-col><b-button id="right" variant="info" size="sm">Right</b-button></b-col>
       </b-row>
       <b-row>
         <b-col></b-col>
-        <b-col><b-button variant="info" size="sm">Down</b-button></b-col>
+        <b-col><b-button id="down" variant="info" size="sm">Down</b-button></b-col>
         <b-col></b-col>
       </b-row>
     </div>
