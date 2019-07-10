@@ -1,35 +1,8 @@
-<template>
-  <div>
-    <div  v-for="(chart,index) in charts" v-bind:key="index">
-      <v-chart
-        v-bind:data="chart.series.data"
-        v-bind:name="chart.title.text"
-        v-bind:options="{responsive: false, maintainAspectRatio: false}"
-        v-bind:class="echarts">
-      </v-chart>
-    </div>
-  </div>
-</template>
-<script>
-import Echarts from 'vue-echarts'
-import 'echarts/lib/chart/bar'
-import 'echarts/lib/component/tooltip'
-import { mapGetters } from 'vuex'
-
-export default {
-  components: {
-    'v-chart': Echarts
-  },
-  computed: {
-    ...mapGetters({
-      bookmarks: 'getBookmarks',
-      charts: 'getBookmarkChart'
-    })
-  },
-  name: 'Bookmarks'
-  /* data () {
+class BookmarkService {
+  createBookmarkObject (color) {
     return {
       bar: {
+        backgroundColor: color,
         title: {
           text: 'kann Ich lesen'
         },
@@ -71,17 +44,6 @@ export default {
         ]
       }
     }
-  }, */
-}
-
-</script>
-
-<style scoped lang="scss">
-  .echarts {
-    height: 45vh;
-    width: 10vw;
-    z-index: 102;
-    left: 40px;
   }
-
-</style>
+}
+export default BookmarkService

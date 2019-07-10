@@ -16,7 +16,7 @@ var createColorWheel = function (pos) {
   var radius = Math.min(halfWidth, halfHeight)
   var radiusSquared = radius * radius
 
-  var color = renderColorWheel(bgImage)
+  renderColorWheel(bgImage)
 
   var posDict = []
 
@@ -49,13 +49,23 @@ var createColorWheel = function (pos) {
     var pixelByteOffset = rowByteOffset + colByteOffset
     var posColor = ctxData.slice(pixelByteOffset, pixelByteOffset + 4)
 
-    let colorOfPos = 'rgba(' + posColor[0].toString() + ',' + posColor[1].toString() + ',' + posColor[2].toString() + ',' + posColor[3].toString() + ')'
+    var colorOfPos = 'rgba(' + posColor[0].toString() + ',' + posColor[1].toString() + ',' + posColor[2].toString() + ',' + posColor[3].toString() + ')'
     d3.select('#colorwheelContainer')
       .append('circle')
       .attr('cx', i)
       .attr('cy', j)
       .attr('r', markerRadius)
       .style('fill', colorOfPos)
+      .on('click', function () {
+        let dict = {}
+        pos = {
+          startPos: position,
+          currentPos: position
+        }
+        dict.color = colorOfPos
+        dict.pos = pos
+        store.commit('SET_CHOOSED_BOOKMARKS', dict)
+      })
     return colorOfPos
   }
 

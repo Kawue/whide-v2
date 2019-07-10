@@ -1,5 +1,5 @@
 <template>
-  <div @mouseleave="toggleView" @mouseenter="toggleView" class="sidebarLeft" v-bind:class="{ expanded: isExpanded }">
+  <div @mouseleave="mouseleave"  class="sidebarLeft" v-bind:class="{ expanded: isExpanded , getExpandedClass}">
     <span class="trigger"  v-on:click="toggleView()" v-bind:class="getExpandIconClass()">
       <v-icon name="arrow-right"  v-if="showExpandRightIcon()"></v-icon>
       <v-icon name="arrow-left" v-if="showExpandLeftIcon()"></v-icon>
@@ -19,7 +19,9 @@ export default {
   data: function () {
     return {
       isExpanded: false,
-      clickExpanded: false
+      clickExpanded: false,
+      tabLocken: null,
+      tabActive: null
     }
   },
   methods: {
@@ -35,10 +37,16 @@ export default {
     showExpandRightIcon: function () {
       return this.side === 'right' ? this.isExpanded : !this.isExpanded
     },
-    expandView: function () {
-      if (!this.clickExpanded) {
-        this.isExpanded = !this.isExpanded
+    mouseleave: function () {
+      if (event.relatedTarget === null) {
+        return
       }
+      if (this.tabLocked === null) {
+        this.tabActive = null
+      }
+    },
+    getExpandedClass: function () {
+      return this.showOptionsContent() ? 'expanded' : ''
     }
   }
 }

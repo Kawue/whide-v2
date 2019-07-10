@@ -15,7 +15,8 @@
 <script>
 import * as cw from '../services/colorWheel'
 import { mapGetters } from 'vuex'
-import * as d3 from "d3"
+import * as d3 from 'd3'
+import store from '../store'
 
 export default {
   name: 'ColorPicker',
@@ -45,15 +46,18 @@ export default {
         var proto = Object.values(ring[p])
         pos.push(proto[0])
       })
-      // console.log(pos)
       cw.createColorWheel(pos)
     },
     setGranulaity: function () {
       this.lengthRings = Object.keys(this.rings).length - 1
     },
     changePos: function () {
-      d3.select("#colorwheelContainer").remove()
+      d3.select('#colorwheelContainer').remove()
       this.getPos('ring' + this.ringGranularity.toString())
+    },
+    choosedBookmark: function (pos, color) {
+      console.log('add')
+      store.commit('SET_CHOOSED_BOOKMARKS', pos, color)
     }
   }
 }

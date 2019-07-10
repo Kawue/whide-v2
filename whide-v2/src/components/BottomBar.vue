@@ -1,5 +1,5 @@
 <template>
-  <div @mouseleave="toggleView" @mouseenter="toggleView" class="bottombarWidget" v-bind:class="{ expanded: isExpanded }">
+  <div @mouseleave= "nothing" @mouseenter="nothing" class="bottombarWidget" v-bind:class="{ expanded: isExpanded }">
       <span v-on:click="toggleView()" v-bind:class="getExpandUpIconClass()">
         <v-icon name="arrow-down" v-if="showExpandUpIcon()"></v-icon>
         <v-icon name="arrow-up" v-if="showExpandDownIcon()"></v-icon>
@@ -32,6 +32,9 @@ export default {
     },
     showExpandDownIcon: function () {
       return this.side === 'up' ? this.isExpanded : !this.isExpanded
+    },
+    nothing: function () {
+      return null
     }
   }
 }
@@ -51,7 +54,7 @@ export default {
     bottom: 0;
 
     &.expanded {
-      height: 200px;
+      height: 45vh;
       min-width: 100vw;
       left:0;
       right:0;

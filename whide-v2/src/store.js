@@ -3,10 +3,12 @@ import Vuex from 'vuex'
 
 import ApiService from './services/ApiService'
 import MzService from './services/MzService'
+import BookmarkService from './services/BookmarkService'
 
 Vue.use(Vuex)
 let apiService = new ApiService()
 let mzService = new MzService()
+let bookmarkService = new BookmarkService()
 
 export default new Vuex.Store({
   state: {
@@ -19,6 +21,8 @@ export default new Vuex.Store({
     },
     mzObjects: {
     },
+    choosedBookmarks: [],
+    choosedBookmarkChart: null,
     pixels: {},
     data: {},
     pos: {}
@@ -45,6 +49,16 @@ export default new Vuex.Store({
     },
     mzAsc: state => {
       return state.mzList.asc
+    },
+    getBookmarks: state => {
+      return state.choosedBookmarks
+    },
+    getBookmarkChart: state => {
+      let bars = []
+      state.choosedBookmarks.forEach(function (elem) {
+        bars.push(bookmarkService.createBookmarkObject(elem['color']))
+      })
+      return bars
     }
   },
   mutations: {
@@ -72,6 +86,21 @@ export default new Vuex.Store({
     },
     SET_POS_COLOR: (state, pos) => {
       state.pos = pos
+    },
+    SET_CHOOSED_BOOKMARKS: (state, posDict) => {
+      if (state.choosedBookmarks.length === 0) {
+        state.choosedBookmarks.push(posDict)
+        return null
+      }
+      state.choosedBookmarks.forEach(function (elem) {
+        if (elem['pos']['startPos'][0] === posDict['pos']['startPos'][0] && elem['pos']['startPos'][1] === posDict['pos']['startPos'][1]) {
+          let index = state.choosedBookmarks.indexOf(elem)
+          if (index > -1) {
+            state.choosedBookmarks.splice(index, 1)
+          }
+        }
+      })
+      state.choosedBookmarks.push(posDict)
     }
   },
   actions: {
