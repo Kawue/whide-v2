@@ -9,13 +9,31 @@
          <b-form-input v-model="ringGranularity" v-bind:type="'range'" min="0" v-bind:max="lengthRings" class="slider" id="ringGranularity" @change="changePos"></b-form-input>
       </div>
       <p>{{ringGranularity}}</p>
+    <div>
+      <p>Change Position of the Wheel</p>
+      <b-row>
+        <b-col></b-col>
+        <b-col><b-button variant="info" size="sm">Up</b-button></b-col>
+        <b-col></b-col>
+      </b-row>
+      <b-row>
+        <b-col><b-button variant="info" size="sm">Left</b-button></b-col>
+        <b-col><b-button variant="info" size="sm">Default</b-button></b-col>
+        <b-col><b-button variant="info" size="sm">Right</b-button></b-col>
+      </b-row>
+      <b-row>
+        <b-col></b-col>
+        <b-col><b-button variant="info" size="sm">Down</b-button></b-col>
+        <b-col></b-col>
+      </b-row>
+    </div>
   </div>
 </template>
 
 <script>
 import * as cw from '../services/colorWheel'
 import { mapGetters } from 'vuex'
-import * as d3 from "d3"
+import * as d3 from 'd3'
 
 export default {
   name: 'ColorPicker',
@@ -52,7 +70,7 @@ export default {
       this.lengthRings = Object.keys(this.rings).length - 1
     },
     changePos: function () {
-      d3.select("#colorwheelContainer").remove()
+      d3.select('#colorwheelContainer').remove()
       this.getPos('ring' + this.ringGranularity.toString())
     }
   }
