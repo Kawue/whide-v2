@@ -1,13 +1,13 @@
 <template>
   <div>
+    <table>
     <div  v-for="(chart,index) in charts" v-bind:key="index">
-      <v-chart
-        v-bind:data="chart.series.data"
-        v-bind:name="chart.title.text"
-        v-bind:options="{responsive: false, maintainAspectRatio: false}"
-        v-bind:class="echarts">
+      <th class="column">
+      <v-chart v-bind:options="getChartOption(chart)" class="echarts">
       </v-chart>
+      </th>
     </div>
+    </table>
   </div>
 </template>
 <script>
@@ -26,62 +26,77 @@ export default {
       charts: 'getBookmarkChart'
     })
   },
-  name: 'Bookmarks'
-  /* data () {
-    return {
-      bar: {
-        title: {
-          text: 'kann Ich lesen'
-        },
-        tooltip: {
-          trigger: 'axis'
-        },
-        legend: {
-          data: ['2011年', '2012年']
-        },
-        toolbox: {
-          show: true,
-          feature: {
-            mark: { show: true },
-            dataView: { show: true, readOnly: false },
-            magicType: { show: true, type: ['line', 'bar'] },
-            restore: { show: true },
-            saveAsImage: { show: true }
-          }
-        },
-        calculable: true,
-        xAxis: [
-          {
-            type: 'value',
-            boundaryGap: [0, 0.5]
-          }
-        ],
-        yAxis: [
-          {
-            type: 'category',
-            data: ['1', '2', '3', '4', '5']
-          }
-        ],
-        series: [
-          {
-            name: '2011年',
-            type: 'bar',
-            data: [5, 10, 20, 30, 40]
-          }
-        ]
+  name: 'Bookmarks',
+  methods: {
+    getChartOption: function (chart) {
+      console.log(chart)
+      return {
+        bar: {
+          backgroundColor: chart.bar.backgroundColor,
+          title: {
+            text: chart.bar.title
+          },
+          tooltip: {
+            trigger: chart.bar.tooltip.trigger
+          },
+          legend: {
+            data: chart.bar.legend.data
+          },
+          toolbox: {
+            show: chart.bar.toolbox.show,
+            feature: {
+              mark: {show: chart.bar.toolbox.feature.mark},
+              dataView: {
+                show: chart.bar.toolbox.feature.dataView.show,
+                readOnly: chart.bar.toolbox.feature.dataView.show
+              },
+              magicType: {
+                show: chart.bar.toolbox.feature.magicType.show,
+                type: chart.bar.toolbox.feature.magicType.type
+              },
+              restore: {show: chart.bar.toolbox.feature.restore.show},
+              saveAsImage: {show: chart.bar.toolbox.feature.saveAsImage.show}
+            }
+          },
+          calculable: chart.bar.calculable,
+          xAxis: [
+            {
+              type: chart.bar.xAxis.type,
+              boundaryGap: chart.bar.xAxis.boundaryGap
+            }
+          ],
+          yAxis: [
+            {
+              type: chart.bar.yAxis.type,
+              data: chart.bar.yAxis.data
+            }
+          ],
+          series: [
+            {
+              name: chart.bar.series.name,
+              type: chart.bar.series.type,
+              data: chart.bar.series.data
+            }
+          ]
+        }
       }
     }
-  }, */
+  }
 }
 
 </script>
 
 <style scoped lang="scss">
   .echarts {
+    position: relative;
     height: 45vh;
     width: 10vw;
     z-index: 102;
-    left: 40px;
+    left: auto;
+  }
+  .column{
+    border: darkslateblue;
+    z-index: 102;
   }
 
 </style>

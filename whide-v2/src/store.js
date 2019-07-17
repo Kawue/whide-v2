@@ -22,7 +22,7 @@ export default new Vuex.Store({
     mzObjects: {
     },
     choosedBookmarks: [],
-    choosedBookmarkChart: null,
+    bars: [],
     pixels: {},
     data: {},
     pos: {}
@@ -54,11 +54,10 @@ export default new Vuex.Store({
       return state.choosedBookmarks
     },
     getBookmarkChart: state => {
-      let bars = []
       state.choosedBookmarks.forEach(function (elem) {
-        bars.push(bookmarkService.createBookmarkObject(elem['color']))
+        state.bars.push(bookmarkService.createBookmarkObject(elem['color']))
       })
-      return bars
+      return state.bars
     }
   },
   mutations: {

@@ -3,9 +3,7 @@ class BookmarkService {
     return {
       bar: {
         backgroundColor: color,
-        title: {
-          text: 'kann Ich lesen'
-        },
+        title: 'kann Ich lesen',
         tooltip: {
           trigger: 'axis'
         },
@@ -35,13 +33,7 @@ class BookmarkService {
             data: ['1', '2', '3', '4', '5']
           }
         ],
-        series: [
-          {
-            name: '2011年',
-            type: 'bar',
-            data: [5, 10, 20, 30, 40]
-          }
-        ]
+        data: [5, 10, 20, 30, 40]
       }
     }
   }
