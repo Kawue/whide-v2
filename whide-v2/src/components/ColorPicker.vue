@@ -54,10 +54,6 @@ export default {
     changePos: function () {
       d3.select('#colorwheelContainer').remove()
       this.getPos('ring' + this.ringGranularity.toString())
-    },
-    choosedBookmark: function (pos, color) {
-      console.log('add')
-      store.commit('SET_CHOOSED_BOOKMARKS', pos, color)
     }
   }
 }

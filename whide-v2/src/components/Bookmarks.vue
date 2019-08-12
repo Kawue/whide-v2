@@ -2,10 +2,8 @@
   <div>
     <table>
     <div  v-for="(chart,index) in charts" v-bind:key="index">
-      <th class="column">
       <v-chart v-bind:options="getChartOption(chart)" class="echarts">
       </v-chart>
-      </th>
     </div>
     </table>
   </div>
@@ -32,7 +30,7 @@ export default {
       console.log(chart)
       return {
         bar: {
-          backgroundColor: chart.bar.backgroundColor,
+          // backgroundColor: chart.bar.backgroundColor,
           title: {
             text: chart.bar.title
           },
@@ -45,7 +43,7 @@ export default {
           toolbox: {
             show: chart.bar.toolbox.show,
             feature: {
-              mark: {show: chart.bar.toolbox.feature.mark},
+              mark: { show: chart.bar.toolbox.feature.mark },
               dataView: {
                 show: chart.bar.toolbox.feature.dataView.show,
                 readOnly: chart.bar.toolbox.feature.dataView.show
@@ -54,8 +52,8 @@ export default {
                 show: chart.bar.toolbox.feature.magicType.show,
                 type: chart.bar.toolbox.feature.magicType.type
               },
-              restore: {show: chart.bar.toolbox.feature.restore.show},
-              saveAsImage: {show: chart.bar.toolbox.feature.saveAsImage.show}
+              restore: { show: chart.bar.toolbox.feature.restore.show },
+              saveAsImage: { show: chart.bar.toolbox.feature.saveAsImage.show }
             }
           },
           calculable: chart.bar.calculable,
@@ -73,9 +71,9 @@ export default {
           ],
           series: [
             {
-              name: chart.bar.series.name,
-              type: chart.bar.series.type,
-              data: chart.bar.series.data
+              name: 'name',
+              type: 'bar',
+              data: chart.bar.data
             }
           ]
         }

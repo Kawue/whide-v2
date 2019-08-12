@@ -22,6 +22,7 @@ export default new Vuex.Store({
     mzObjects: {
     },
     choosedBookmarks: [],
+    choosedBookmarksColor: [],
     bars: [],
     pixels: {},
     data: {},
@@ -87,19 +88,16 @@ export default new Vuex.Store({
       state.pos = pos
     },
     SET_CHOOSED_BOOKMARKS: (state, posDict) => {
+      let currentColor = Object.keys(posDict)
       if (state.choosedBookmarks.length === 0) {
+        state.choosedBookmarksColor.push(currentColor[0])
         state.choosedBookmarks.push(posDict)
         return null
       }
-      state.choosedBookmarks.forEach(function (elem) {
-        if (elem['pos']['startPos'][0] === posDict['pos']['startPos'][0] && elem['pos']['startPos'][1] === posDict['pos']['startPos'][1]) {
-          let index = state.choosedBookmarks.indexOf(elem)
-          if (index > -1) {
-            state.choosedBookmarks.splice(index, 1)
-          }
-        }
-      })
-      state.choosedBookmarks.push(posDict)
+      if (!state.choosedBookmarksColor.includes(currentColor[0])) {
+        state.choosedBookmarksColor.push(currentColor[0])
+        state.choosedBookmarks.push(posDict)
+      }
     }
   },
   actions: {

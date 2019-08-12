@@ -62,8 +62,9 @@ var createColorWheel = function (pos) {
           startPos: position,
           currentPos: position
         }
-        dict.color = colorOfPos
-        dict.pos = pos
+        dict[colorOfPos] = pos
+        // dict.color = colorOfPos
+        // dict.pos = pos
         store.commit('SET_CHOOSED_BOOKMARKS', dict)
       })
     return colorOfPos
