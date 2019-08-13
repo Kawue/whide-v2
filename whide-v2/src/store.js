@@ -53,13 +53,15 @@ export default new Vuex.Store({
     },
     getBookmarks: state => {
       return state.choosedBookmarks
-    },
-    getBookmarkChart: state => {
+    }
+    /* getBookmarkChart: state => {
       state.choosedBookmarks.forEach(function (elem) {
-        state.bars.push(bookmarkService.createBookmarkObject(elem['color']))
+        state.bars.push(bookmarkService.createBookmarkObject(elem))
       })
       return state.bars
     }
+
+     */
   },
   mutations: {
     SET_ORIGINAL_DATA: (state, originalData) => {
@@ -87,16 +89,18 @@ export default new Vuex.Store({
     SET_POS_COLOR: (state, pos) => {
       state.pos = pos
     },
-    SET_CHOOSED_BOOKMARKS: (state, posDict) => {
-      let currentColor = Object.keys(posDict)
+    SET_CHOOSED_BOOKMARKS: (state, prototypePosDict) => {
+      let prototypId = Object.keys(prototypePosDict)
+      let currentColor = Object.keys(prototypePosDict[prototypId])
+      // console.log(currentColor)
       if (state.choosedBookmarks.length === 0) {
         state.choosedBookmarksColor.push(currentColor[0])
-        state.choosedBookmarks.push(posDict)
+        state.choosedBookmarks.push(prototypePosDict)
         return null
       }
       if (!state.choosedBookmarksColor.includes(currentColor[0])) {
         state.choosedBookmarksColor.push(currentColor[0])
-        state.choosedBookmarks.push(posDict)
+        state.choosedBookmarks.push(prototypePosDict)
       }
     }
   },

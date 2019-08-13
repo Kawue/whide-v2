@@ -41,12 +41,17 @@ export default {
   methods: {
     getPos: function (r) {
       var pos = []
+      let protoId = {}
       var ring = this.rings[r]
       Object.keys(ring).forEach(function (p) {
         var proto = Object.values(ring[p])
-        pos.push(proto[0])
+        // console.log(proto)
+        // console.log(p)
+        protoId[p] = proto[0]
+        // pos.push(proto[0])
       })
-      cw.createColorWheel(pos)
+      // pos.push(protoId)
+      cw.createColorWheel(protoId)
     },
     setGranulaity: function () {
       this.lengthRings = Object.keys(this.rings).length - 1

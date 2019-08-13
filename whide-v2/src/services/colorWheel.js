@@ -1,8 +1,12 @@
 import * as d3 from 'd3'
 import store from '../store'
 
-var createColorWheel = function (pos) {
+var createColorWheel = function (protoId) {
   'use strict'
+  var pos = []
+  Object.keys(protoId).forEach(function (id) {
+    pos.push(Object.values(protoId[id]))
+  })
   var DEGREES_PER_RADIAN = 180 / Math.PI
 
   var canvas = document.getElementById('colorwheelCanvas')
@@ -23,7 +27,15 @@ var createColorWheel = function (pos) {
   context.clearRect(0, 0, canvas.width, canvas.height)
   context.putImageData(bgImage, 0, 0)
 
-  pos.forEach(function (it) {
+  Object.keys(protoId).forEach(function (id) {
+    let posColor = null
+    posColor = renderColorMarker((Object.values(protoId[id])), id)
+    posDict.push({
+      key: id,
+      value: posColor
+    })
+  })
+  /* pos.forEach(function (it) {
     let posColor = null
     posColor = renderColorMarker(it)
     posDict.push({
@@ -31,9 +43,10 @@ var createColorWheel = function (pos) {
       value: posColor
     })
   })
+  */
   store.commit('SET_POS_COLOR', posDict)
 
-  function renderColorMarker (position) {
+  function renderColorMarker (position, id) {
     var markerRadius = 6
     var x = position[0]
     var y = position[1]
@@ -58,14 +71,14 @@ var createColorWheel = function (pos) {
       .style('fill', colorOfPos)
       .on('click', function () {
         let dict = {}
+        let protoDict = {}
         pos = {
           startPos: position,
           currentPos: position
         }
         dict[colorOfPos] = pos
-        // dict.color = colorOfPos
-        // dict.pos = pos
-        store.commit('SET_CHOOSED_BOOKMARKS', dict)
+        protoDict[id] = dict
+        store.commit('SET_CHOOSED_BOOKMARKS', protoDict)
       })
     return colorOfPos
   }
