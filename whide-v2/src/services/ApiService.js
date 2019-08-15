@@ -1,4 +1,4 @@
-import data from '../../../python-scripts/data'
+import data from '../../../backend/data'
 
 class ApiService {
   fetchData () {

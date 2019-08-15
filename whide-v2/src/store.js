@@ -3,6 +3,9 @@ import Vuex from 'vuex'
 
 import ApiService from './services/ApiService'
 import MzService from './services/MzService'
+import axios from 'axios'
+
+const API_URL = 'http://localhost:5000'
 
 Vue.use(Vuex)
 let apiService = new ApiService()
@@ -21,7 +24,8 @@ export default new Vuex.Store({
     },
     pixels: {},
     data: {},
-    pos: {}
+    pos: {},
+    ringCoefficients: []
 
   },
   getters: {
@@ -72,11 +76,37 @@ export default new Vuex.Store({
     },
     SET_POS_COLOR: (state, pos) => {
       state.pos = pos
+    },
+    SET_RING_COEFFICIENTS: (state, coefficients) => {
+      state.ringCoefficients = coefficients
     }
   },
   actions: {
     fetchData: context => {
       context.commit('SET_ORIGINAL_DATA', apiService.fetchData())
+    },
+    simpleHelloWorld: context => {
+      const url = API_URL + '/hello'
+      axios
+        .get(url)
+        .then(response => {
+          window.alert(response.data)
+        })
+        .catch(function () {
+          alert('Error While printing Hello World')
+        })
+    },
+    getRingCoefficients: (context, index) => {
+      let ringIdx = String // noch zu holen durch  merge
+      const url = API_URL + ringIdx + '/getCoefficients/'
+      axios
+        .post(url)
+        .then(response => {
+          context.commit('SET_RING_COEFFICIENTS', response.data)
+        })
+        .catch(function () {
+          alert('Error while getting coefficients')
+        })
     }
   }
 })
