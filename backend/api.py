@@ -3,6 +3,7 @@ from flask import abort
 from flask import request
 from flask_cors import CORS
 import pickle
+import json
 
 def loadCoefficienten():
     h2som = pickle.load(open("ring-1.h2som","rb"))
@@ -16,10 +17,13 @@ def hello_world():
     loadData()
     return 'Hello World!!! wertt'
 
-@app.route('<ringIdx>/getCoefficients/', methods=['POST'])
-def getCoefficienten(ringIdx):
-    h2som = pickle.load(open(str(ringIdx)+".h2som","rb"))
-    return h2som
+@app.route('/coefficients')
+def getCoefficienten():
+    h2som = pickle.load(open(request.args.get('index')+".h2som","rb"))
+    coefficients = {}
+    for i in range(len(h2som)):
+        coefficients['prototyp'+str(i)] = list(h2som[i])
+    return json.dumps(coefficients)
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -35,7 +35,6 @@ export default {
   mounted: function () {
     console.log('home component mounted')
     Store.dispatch('fetchData')
-    Store.dispatch('simpleHelloWorld')
     this.showPanels = true
   }
 }

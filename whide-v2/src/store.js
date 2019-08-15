@@ -25,7 +25,8 @@ export default new Vuex.Store({
     pixels: {},
     data: {},
     pos: {},
-    ringCoefficients: []
+    ringCoefficients: [],
+    ringIdx: String
 
   },
   getters: {
@@ -79,6 +80,9 @@ export default new Vuex.Store({
     },
     SET_RING_COEFFICIENTS: (state, coefficients) => {
       state.ringCoefficients = coefficients
+    },
+    SET_RING_IDX: (state, ringIdx) => {
+      state.ringIdx = ringIdx
     }
   },
   actions: {
@@ -97,10 +101,9 @@ export default new Vuex.Store({
         })
     },
     getRingCoefficients: (context, index) => {
-      let ringIdx = String // noch zu holen durch  merge
-      const url = API_URL + ringIdx + '/getCoefficients/'
+      const url = API_URL + '/coefficients?index=' + index
       axios
-        .post(url)
+        .get(url)
         .then(response => {
           context.commit('SET_RING_COEFFICIENTS', response.data)
         })
