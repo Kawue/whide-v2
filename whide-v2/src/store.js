@@ -4,6 +4,9 @@ import Vuex from 'vuex'
 import ApiService from './services/ApiService'
 import MzService from './services/MzService'
 import BookmarkService from './services/BookmarkService'
+import axios from 'axios'
+
+const API_URL = 'http://localhost:5000'
 
 Vue.use(Vuex)
 let apiService = new ApiService()
@@ -26,7 +29,9 @@ export default new Vuex.Store({
     bars: [],
     pixels: {},
     data: {},
-    pos: {}
+    pos: {},
+    ringCoefficients: [],
+    ringIdx: String
 
   },
   getters: {
@@ -94,11 +99,39 @@ export default new Vuex.Store({
         state.choosedBookmarksColor.push(currentColor[0])
         state.choosedBookmarks.push(prototypePosDict)
       }
+    },
+    SET_RING_COEFFICIENTS: (state, coefficients) => {
+      state.ringCoefficients = coefficients
+    },
+    SET_RING_IDX: (state, ringIdx) => {
+      state.ringIdx = ringIdx
     }
   },
   actions: {
     fetchData: context => {
       context.commit('SET_ORIGINAL_DATA', apiService.fetchData())
+    },
+    simpleHelloWorld: context => {
+      const url = API_URL + '/hello'
+      axios
+        .get(url)
+        .then(response => {
+          window.alert(response.data)
+        })
+        .catch(function () {
+          alert('Error While printing Hello World')
+        })
+    },
+    getRingCoefficients: (context, index) => {
+      const url = API_URL + '/coefficients?index=' + index
+      axios
+        .get(url)
+        .then(response => {
+          context.commit('SET_RING_COEFFICIENTS', response.data)
+        })
+        .catch(function () {
+          alert('Error while getting coefficients')
+        })
     }
   }
 })

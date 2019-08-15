@@ -8,7 +8,8 @@ import matplotlib
 import matplotlib.pyplot as plt
 from os import listdir, makedirs
 from os.path import join, exists
-import json 
+import json
+import pickle
 
 matplotlib.use("TkAgg")
 
@@ -24,7 +25,7 @@ def plot_poincare_structure(h2som):
         pos = list(zip(pos1, pos2))
         plt.plot(pos[0], pos[1])
     plt.show()
-		
+
 
 
 # Reads hdf5 file and returns a numpy array
@@ -43,7 +44,7 @@ def calc_h2som(data):
 
     # Child node indices of each node as dict. Key = node, value = list of child indices.
     # Indices which are not included: parent index, index of both same level hierarchy neighbors
-    
+
 
     # 2D positions in on poincare disc
     #print(h2som._pos)
@@ -53,7 +54,7 @@ def calc_h2som(data):
 
     # H2SOM initialization
     h2som = H2SOM(data)
-    
+
     # H2SOM training
     h2som.cluster()
     #print(h2som._childs.items())
@@ -65,7 +66,8 @@ def calc_memb(data, h2som, ring_idx):
     ring_idx = ring_idx-1
     # Find best matching unit (prototype) for each data point
     # index in bmu_matches = data point index; value in bmu_matches = prototype index
-    bmu_matches = core.bmus(data, h2som._centroids[h2som._rings[ring_idx][0]:h2som._rings[ring_idx][1]+1])   
+    bmu_matches = core.bmus(data, h2som._centroids[h2som._rings[ring_idx][0]:h2som._rings[ring_idx][1]+1])
+    pickle.dump(h2som._centroids[h2som._rings[ring_idx][0]:h2som._rings[ring_idx][1]+1], open("ring"+str(ring_idx)+".h2som", "wb"))
     #print(np.amin(bmu_matches))
     #print(np.amax(bmu_matches))
     #print(bmu_matches)
@@ -89,7 +91,7 @@ def spectral_cluster(data, bmu_matches, dframe):
         idx = np.where(bmu_matches == i)[0]
         # Get x and y coordinates of the matching pixels
         seg_x = grid_x[idx]
-        seg_y = grid_y[idx]       
+        seg_y = grid_y[idx]
         # Set matching pixels to a prototype specific value
         img[seg_y, seg_x] = i
         #print(img)
@@ -99,7 +101,7 @@ def spectral_cluster(data, bmu_matches, dframe):
 def getPixelsForRing(data, bmu_matches, dframe,ring):
     grid_x = np.array(dframe.index.get_level_values("grid_x"))
     grid_y = np.array(dframe.index.get_level_values("grid_y"))
-    
+
     proto_idx = np.array(range(np.amax(bmu_matches+1)))
     #Creat empty pixels List for the ID of each pixel
     pixels = []
@@ -122,10 +124,10 @@ def getPixelsForRing(data, bmu_matches, dframe,ring):
             pixels_dict["px"+str(id)+"ID"] = {}
             pixels_dict["px"+str(id)+"ID"]["pos"] = (int(result[k][0]),int(result[k][1]))
             id += 1
-        
+
         pixels.append(pixelIDs)
     return pixels, pixels_dict
-        
+
 
 # Calculate cluster of images
 def spatial_cluster(data, h2som, bmu_matches, dframe):
@@ -170,7 +172,7 @@ def spatial_cluster(data, h2som, bmu_matches, dframe):
         plt.imsave(join(cl_path, "proto" + str(i)), img, vmin=0, vmax=1)
 
 def createJson(h2som, data, dframe):
-	
+
 	posX = h2som._pos[:,0]
 	posY = h2som._pos[:,1]
 
@@ -194,9 +196,9 @@ def createJson(h2som, data, dframe):
 			# set the items of the Prototype
 			prototyp_dict["prototyp"+str(k-1)]["pos"] = [posX[k], posY[k]]
 			prototyp_dict["prototyp"+str(k-1)]["pixel"] = pixelsPerPrototype[prototyp_idx]
-			prototyp_dict["prototyp"+str(k-1)]["coefficients"] = []			
+			prototyp_dict["prototyp"+str(k-1)]["coefficients"] = []
 			prototyp_idx += 1
-			
+
 		# add prtotype to the ring
 		ring_dict["ring"+str(i)] = prototyp_dict
 		prototyp_dict = {}
@@ -205,7 +207,7 @@ def createJson(h2som, data, dframe):
 	json_dict["rings"] = ring_dict
 	json_dict["pixels"] = pixels_dict
 	json_dict["mzs"] = [x for x in dframe.columns]
-	
+
 	for key_px, val_px in json_dict["pixels"].items():
 		json_dict["pixels"][key_px]["membership"] = {}
 		for key_ring, val_ring in json_dict["rings"].items():
@@ -213,16 +215,16 @@ def createJson(h2som, data, dframe):
 				if key_px in val_prot["pixel"]:
 					json_dict["pixels"][key_px]["membership"][key_ring] = prot
 
-    
-	with open('data.json', 'w') as outfile:  
+
+	with open('data.json', 'w') as outfile:
 	    json.dump(json_dict, outfile)
-	
-	
+
+
 	jsonData= json.dumps(json_dict)
-	
+
 	return jsonData
-	
-	
+
+
 ### Spectral workflow
 path = "../datasets/barley_101.h5"
 dframe, data = read_data(path)
