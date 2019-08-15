@@ -21,7 +21,8 @@ export default new Vuex.Store({
     },
     pixels: {},
     data: {},
-    pos: {}
+    pos: {},
+    ringIdx: String
 
   },
   getters: {
@@ -72,6 +73,9 @@ export default new Vuex.Store({
     },
     SET_POS_COLOR: (state, pos) => {
       state.pos = pos
+    },
+    SET_RING_IDX: (state, ringIdx) => {
+      state.ringIdx = ringIdx
     }
   },
   actions: {

@@ -33,6 +33,7 @@
 <script>
 import * as cw from '../services/colorWheel'
 import { mapGetters } from 'vuex'
+import store from '../store'
 import * as d3 from 'd3'
 
 export default {
@@ -53,6 +54,7 @@ export default {
   },
   mounted () {
     this.getPos('ring0')
+    store.commit('SET_RING_IDX', 'ring0')
     this.setGranulaity()
   },
   methods: {
@@ -71,7 +73,9 @@ export default {
     },
     changePos: function () {
       d3.select('#colorwheelContainer').remove()
-      this.getPos('ring' + this.ringGranularity.toString())
+      let currentRing = 'ring' + this.ringGranularity.toString()
+      this.getPos(currentRing)
+      store.commit('SET_RING_IDX', currentRing)
     }
   }
 }
