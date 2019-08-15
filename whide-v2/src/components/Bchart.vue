@@ -1,5 +1,7 @@
 <template>
-    <div id="graphic" class="chart"></div>
+    <div id="graphic" class="chart">
+      <!--<b-button pill variant="danger" class="deleteButton">X</b-button>-->
+    </div>
 </template>
 
 <script>
@@ -29,7 +31,6 @@ export default {
           backgroundColor = Object.keys(entry[id]).toString()
         }
       })
-      // console.log(Object.keys(this.bookmarks[0][this.prototypeid]).toString())
       let data = [{ 'salesperson': 'Bob', 'sales': 33 }, { 'salesperson': 'Robin', 'sales': 12 }, { 'salesperson': 'Anne', 'sales': 41 }, { 'salesperson': 'Mark', 'sales': 16 }, { 'salesperson': 'Joe', 'sales': 59 }, { 'salesperson': 'Eve', 'sales': 38 }, { 'salesperson': 'Karen', 'sales': 21 }, { 'salesperson': 'Kirsty', 'sales': 25 }, { 'salesperson': 'Chris', 'sales': 30 }, { 'salesperson': 'Lisa', 'sales': 47 }, { 'salesperson': 'Tom', 'sales': 5 }, { 'salesperson': 'Stacy', 'sales': 20 }, { 'salesperson': 'Charles', 'sales': 13 }, { 'salesperson': 'Mary', 'sales': 29 }]
 
       let margin = {
@@ -87,6 +88,13 @@ export default {
       // add the y Axis
       svg.append('g')
         .call(d3.axisLeft(y))
+
+      svg.append('foreignObject')
+        .attr('width', 550)
+        .attr('height', 30)
+        .attr('right', 0)
+        .append('xhtml:div')
+        .html('<button class="deleteButton" style="border-radius: 8px; background-color: red; border: 1px solid red">X</button> ')
     }
   }
 
@@ -96,6 +104,12 @@ export default {
 <style scoped lang="scss">
   .chart{
     display: flex;
+    align-content: flex-end;
+    align-items: flex-end;
     width: 100%;
+  }
+  .deleteButton {
+    border-radius: 8px;
+    background-color: red;
   }
 </style>

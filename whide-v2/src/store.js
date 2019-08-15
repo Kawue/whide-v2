@@ -54,14 +54,6 @@ export default new Vuex.Store({
     getBookmarks: state => {
       return state.choosedBookmarks
     }
-    /* getBookmarkChart: state => {
-      state.choosedBookmarks.forEach(function (elem) {
-        state.bars.push(bookmarkService.createBookmarkObject(elem))
-      })
-      return state.bars
-    }
-
-     */
   },
   mutations: {
     SET_ORIGINAL_DATA: (state, originalData) => {
