@@ -58,6 +58,9 @@ export default new Vuex.Store({
     },
     getBookmarks: state => {
       return state.choosedBookmarks
+    },
+    getRingCoefficients: state => {
+      return state.ringCoefficients
     }
   },
   mutations: {
@@ -101,7 +104,7 @@ export default new Vuex.Store({
       }
     },
     SET_RING_COEFFICIENTS: (state, coefficients) => {
-      state.ringCoefficients = coefficients
+      state.ringCoefficients = bookmarkService.normalizeCoefficients(coefficients)
     },
     SET_RING_IDX: (state, ringIdx) => {
       state.ringIdx = ringIdx

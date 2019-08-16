@@ -1,41 +1,29 @@
 class BookmarkService {
-  createBookmarkObject (color) {
-    return {
-      bar: {
-        backgroundColor: color,
-        title: 'kann Ich lesen',
-        tooltip: {
-          trigger: 'axis'
-        },
-        legend: {
-          data: ['2011年', '2012年']
-        },
-        toolbox: {
-          show: true,
-          feature: {
-            mark: { show: true },
-            dataView: { show: true, readOnly: false },
-            magicType: { show: true, type: ['line', 'bar'] },
-            restore: { show: true },
-            saveAsImage: { show: true }
-          }
-        },
-        calculable: true,
-        xAxis: [
-          {
-            type: 'value',
-            boundaryGap: [0, 0.5]
-          }
-        ],
-        yAxis: [
-          {
-            type: 'category',
-            data: ['1', '2', '3', '4', '5']
-          }
-        ],
-        data: [5, 10, 20, 30, 40]
+  normalizeCoefficients (coefficients) {
+    let max = Number.MIN_SAFE_INTEGER
+    let min = Number.MAX_SAFE_INTEGER
+    let newCoeff = {}
+    for (var pro in coefficients) {
+      let i
+      for (i = 0; i < coefficients[pro].length; i++) {
+        if (coefficients[pro][i] < min) {
+          min = coefficients[pro][i]
+        }
+        if (coefficients[pro][i] > max) {
+          max = coefficients[pro][i]
+        }
       }
     }
+    for (var norPro in coefficients) {
+      let k
+      let newValues = []
+      for (k = 0; k < coefficients[norPro].length; k++) {
+        let val = (1 - 0) * ((coefficients[norPro][k] - min) / (max - min)) + 0
+        newValues.push(val)
+      }
+      newCoeff[norPro] = newValues
+    }
+    return newCoeff
   }
 }
 export default BookmarkService
