@@ -94,7 +94,9 @@ export default {
         .attr('height', 30)
         .attr('right', 0)
         .append('xhtml:div')
-        .html('<button class="deleteButton" style="border-radius: 8px; background-color: red; border: 1px solid red">X</button> ')
+        .append('xhtml:button')
+        .attr('class', 'btn btn-info btn-sm')
+        .html("x")
     }
   }
 
