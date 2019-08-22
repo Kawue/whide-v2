@@ -19,19 +19,20 @@ export default {
     })
   },
   mounted () {
-    this.createChart()
+    let givenPrototypId = this.prototypeid
+    for (const entry of this.bookmarks) {
+      let id = entry['id'].toString()
+      if (id === givenPrototypId) {
+        this.createChart(entry)
+      }
+    }
   },
   methods: {
-    createChart: function () {
-      let backgroundColor = String
-      let givenPrototypId = this.prototypeid
-      this.bookmarks.forEach(function (entry) {
-        let id = Object.keys(entry).toString()
-        if (id === givenPrototypId) {
-          backgroundColor = Object.keys(entry[id]).toString()
-        }
+    createChart: function (bookmark) {
+      let backgroundColor = bookmark['color'].toString()
+      let data = bookmark['mzs'].map(function (x, i) {
+        return { 'mz': x, 'coefficient': bookmark['data'][i] }
       })
-      let data = [{ 'salesperson': 'Bob', 'sales': 33 }, { 'salesperson': 'Robin', 'sales': 12 }, { 'salesperson': 'Anne', 'sales': 41 }, { 'salesperson': 'Mark', 'sales': 16 }, { 'salesperson': 'Joe', 'sales': 59 }, { 'salesperson': 'Eve', 'sales': 38 }, { 'salesperson': 'Karen', 'sales': 21 }, { 'salesperson': 'Kirsty', 'sales': 25 }, { 'salesperson': 'Chris', 'sales': 30 }, { 'salesperson': 'Lisa', 'sales': 47 }, { 'salesperson': 'Tom', 'sales': 5 }, { 'salesperson': 'Stacy', 'sales': 20 }, { 'salesperson': 'Charles', 'sales': 13 }, { 'salesperson': 'Mary', 'sales': 29 }]
 
       let margin = {
         top: 20,
@@ -65,8 +66,8 @@ export default {
       })
 
       // Scale the range of the data in the domains
-      x.domain([0, d3.max(data, function (d) { return d.sales })])
-      y.domain(data.map(function (d) { return d.salesperson }))
+      x.domain([0, d3.max(data, function (d) { return d.coefficient })])
+      y.domain(data.map(function (d) { return d.mz }))
       // y.domain([0, d3.max(data, function(d) { return d.sales; })]);
 
       // append the rectangles for the bar chart
@@ -76,8 +77,8 @@ export default {
         .attr('class', 'bar')
         .style('fill', 'green')
         // .attr("x", function(d) { return x(d.sales); })
-        .attr('width', function (d) { return x(d.sales) })
-        .attr('y', function (d) { return y(d.salesperson) })
+        .attr('width', function (d) { return x(d.coefficient) })
+        .attr('y', function (d) { return y(d.mz) })
         .attr('height', y.bandwidth())
 
       // add the x Axis

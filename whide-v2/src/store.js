@@ -35,9 +35,6 @@ export default new Vuex.Store({
 
   },
   getters: {
-    getMzValues: state => {
-      return Object.keys(state.mzObjects)
-    },
     getMzAnnotations: state => {
       return Object.values(state.mzObjects)
     },
@@ -91,16 +88,26 @@ export default new Vuex.Store({
     },
     SET_CHOOSED_BOOKMARKS: (state, prototypePosDict) => {
       let prototypId = Object.keys(prototypePosDict)
+      let prototypeData = state.ringCoefficients[prototypId[0].toString()]
       let currentColor = Object.keys(prototypePosDict[prototypId])
-      // console.log(currentColor)
+
+      let fullBookmarksDict = {
+        id: prototypId,
+        color: currentColor,
+        data: prototypeData,
+        startPos: prototypePosDict[prototypId][currentColor]['startPos'],
+        currentPos: prototypePosDict[prototypId][currentColor]['currentPos'],
+        mzs: state.mzList.mzItems
+      }
+
       if (state.choosedBookmarks.length === 0) {
         state.choosedBookmarksColor.push(currentColor[0])
-        state.choosedBookmarks.push(prototypePosDict)
+        state.choosedBookmarks.push(fullBookmarksDict)
         return null
       }
       if (!state.choosedBookmarksColor.includes(currentColor[0])) {
         state.choosedBookmarksColor.push(currentColor[0])
-        state.choosedBookmarks.push(prototypePosDict)
+        state.choosedBookmarks.push(fullBookmarksDict)
       }
     },
     SET_RING_COEFFICIENTS: (state, coefficients) => {

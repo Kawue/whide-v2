@@ -1,7 +1,7 @@
 <template>
   <div>
-  <div class="bookmarks" v-for="key in bookmarks" v-bind:key="Object.keys(key)[0]">
-    <bchart v-bind:prototypeid="Object.keys(key)[0]"/>
+  <div class="bookmarks" v-for="key in bookmarks" v-bind:key="key['id'].toString()">
+    <bchart v-bind:prototypeid="key['id'].toString()"/>
   </div>
   </div>
 </template>
