@@ -6,7 +6,7 @@
 
 <script>
 import * as d3 from 'd3'
-import * as d3annotate from '../../../node_modules/d3-svg-annotation'
+import * as d3annotate from 'd3-svg-annotation'
 import { mapGetters } from 'vuex'
 import store from '../store'
 
@@ -49,13 +49,26 @@ export default {
         .range([height, 0])
         .padding(0.1)
 
-      let min = d3.min(data, function (d) { return d.coefficient })
-      let max = d3.max(data, function (d) { return d.coefficient })
+      let dataMin = d3.min(data, function (d) { return d.coefficient })
+      let dataMax = d3.max(data, function (d) { return d.coefficient })
+      let barWidthMin = 10
+      let barWidthMax = width
 
-      var x = d3.scaleLinear()
-        .domain([min, max])
-        .range([min, width])
 
+      
+
+      let barWidthScaler = d3.scaleLinear()
+        .domain([dataMin, dataMax])
+        .range([barWidthMin, barWidthMax])
+
+
+      let barHeightMin = 1
+      let barHeightMax = height/data.length
+      
+      let barHeightScaler = d3.scaleLinear()
+        .domain([dataMin, dataMax])
+        .range([barHeightMin, barHeightMax])
+      
       // append the svg object to the body of the page
       // append a 'group' element to 'svg'
       // moves the 'group' element to the top left margin
@@ -77,18 +90,34 @@ export default {
       // y.domain([0, d3.max(data, function(d) { return d.sales; })]);
 
       const tooltipType = d3annotate.annotationCallout
-      const annotationProtperties = [{
+      const annotationsProp = [{
         note: {
-          label: 'wut'
+          label: "Longer text to show text wrapping",
+          bgPadding: 20,
+          title: "Annotations :)"
         },
-        dx: 200,
-        dy: 200
-      }]
+        //can use x, y directly instead of data
+        data: { date: "18-Sep-09", close: 185.02 },
+        className: "show-bg",
+        x: 150,
+        y: 150,
+        dy: 137,
+        dx: 162
+      },
+      ]
+      const type = d3annotate.annotationLabel
       const makeAnnotations = d3annotate.annotation()
-        .type(tooltipType)
-        .annotations(annotationProtperties)
+        .editMode(true)
+        //also can set and override in the note.padding property
+        //of the annotation object
+        .notePadding(15)
+        .type(type)
+        .annotations(annotationsProp)
 
       // append the rectangles for the bar chart
+      
+
+      let test = function(){console.log("hover")}
 
       svg.selectAll('.bar')
         .data(data)
@@ -96,17 +125,26 @@ export default {
         .attr('class', 'bar')
         .style('fill', 'green')
         // .attr("x", function(d) { return x(d.sales); })
-        .attr('width', function (d) { return x(d.coefficient) })
+        .attr('width', function (d) { return barWidthScaler(d.coefficient) })
         .attr('y', function (d) { return y(d.mz) })
-        .attr('height', function (d) { return x(0.03 * d.coefficient) }) // scale bar size
-        .append('g')
-        .attr('class', 'annotation-group')
-        .call(makeAnnotations)
+        .attr('height', function (d) { return barHeightScaler(d.coefficient) }) // scale bar size
+        .on("mouseover", function(d){
+          d3.select(this.parentNode)
+            .append('g')
+            .attr('class', 'annotation-group')
+            .call(makeAnnotations);
+            
+          debugger})
+        .on("mouseout", function(d){d3.select(this.parentNode).select('.annotation-group').remove()})
+        
+      
+
+
 
       // add the x Axis
       svg.append('g')
         .attr('transform', 'translate(0,' + height + ')')
-        .call(d3.axisBottom(x).tickValues([0.2, 0.4, 0.6, 0.8]))
+        .call(d3.axisBottom(barWidthScaler).tickValues([0.2, 0.4, 0.6, 0.8]))
 
       // add the y Axis
       // svg.append('g').call(d3.axisLeft(y))
