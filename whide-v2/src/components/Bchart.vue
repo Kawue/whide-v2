@@ -127,7 +127,8 @@ export default {
         // .attr("x", function(d) { return x(d.sales); })
         .attr('width', function (d) { return barWidthScaler(d.coefficient) })
         .attr('y', function (d) { return y(d.mz) })
-        .attr('height', function (d) { return barHeightScaler(d.coefficient) }) // scale bar size
+        //.attr('height', function (d) { return barHeightScaler(d.coefficient) }) // scale bar size
+        .attr('height', function (d) { return 10 }) // scale bar size
         .on("mouseover", function(d){
           d3.select(this.parentNode)
             .append('g')
