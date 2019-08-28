@@ -26,7 +26,6 @@ export default new Vuex.Store({
     },
     choosedBookmarks: [],
     choosedBookmarksColor: [],
-    bars: [],
     pixels: {},
     data: {},
     pos: {},
@@ -108,6 +107,15 @@ export default new Vuex.Store({
       if (!state.choosedBookmarksColor.includes(currentColor[0])) {
         state.choosedBookmarksColor.push(currentColor[0])
         state.choosedBookmarks.push(fullBookmarksDict)
+      }
+    },
+    DELETE_CHOOSED_BOOKMARK: (state, prototypeId) => {
+      for (var i = 0; i < state.choosedBookmarks.length; i++) {
+        //console.log(state.choosedBookmarks[i]['id'].toString())
+         if (state.choosedBookmarks[0]['id'].toString() === prototypeId.toString()) {
+          state.choosedBookmarks.splice(i, 1)
+          state.choosedBookmarksColor.splice(i, 1)
+        }
       }
     },
     SET_RING_COEFFICIENTS: (state, coefficients) => {

@@ -35,15 +35,6 @@ var createColorWheel = function (protoId) {
       value: posColor
     })
   })
-  /* pos.forEach(function (it) {
-    let posColor = null
-    posColor = renderColorMarker(it)
-    posDict.push({
-      key: it,
-      value: posColor
-    })
-  })
-  */
   store.commit('SET_POS_COLOR', posDict)
 
   function renderColorMarker (position, id) {
