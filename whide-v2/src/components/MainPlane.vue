@@ -1,6 +1,5 @@
 <template>
     <div class="mainPlane">
-      <h1>MAINPLANE</h1>
     </div>
 </template>
 
@@ -18,7 +17,7 @@ export default {
   left: 0px;
   right: 0px;
   bottom: 0px;
-  background-color: crimson;
+  background-color: darkslateblue;
   z-index: 100;
   color: white;
 }
