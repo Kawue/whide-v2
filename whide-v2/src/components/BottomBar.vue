@@ -1,5 +1,7 @@
 <template>
-  <div @mouseleave="toggleView" @mouseenter="toggleView" class="bottombarWidget" v-bind:class="{ expanded: isExpanded }">
+  <div class="bottombar">
+  <div id="dragbar" onmousedown="darg()"></div>
+  <div @mouseleave= "nothing" @mouseenter="nothing" class="bottombarWidget" v-bind:class="{ expanded: isExpanded }">
       <span v-on:click="toggleView()" v-bind:class="getExpandUpIconClass()">
         <v-icon name="arrow-down" v-if="showExpandUpIcon()"></v-icon>
         <v-icon name="arrow-up" v-if="showExpandDownIcon()"></v-icon>
@@ -7,6 +9,7 @@
     <div class="content">
       <Bookmarks side="up" v-if="isExpanded"></Bookmarks>
       </div>
+  </div>
   </div>
 </template>
 
@@ -17,7 +20,8 @@ export default {
   components: { Bookmarks },
   data: function () {
     return {
-      isExpanded: false
+      isExpanded: false,
+      dragging: false
     }
   },
   methods: {
@@ -32,6 +36,20 @@ export default {
     },
     showExpandDownIcon: function () {
       return this.side === 'up' ? this.isExpanded : !this.isExpanded
+    },
+    nothing: function () {
+      return null
+    },
+    drag: function () {
+      this.dragging = true
+      let ghostbar = createElement('div',
+        { id: 'ghostbar',
+          css: {
+            height: main.outerHeight(),
+            top: main.offset().top,
+            left: main.offset().left
+          }
+        }).appendTo('body')
     }
   }
 }
@@ -49,9 +67,10 @@ export default {
     overflow: hidden;
     background-color: slategray;
     bottom: 0;
+    float: bottom;
 
     &.expanded {
-      height: 200px;
+      height: 45vh;
       min-width: 100vw;
       left:0;
       right:0;
@@ -66,4 +85,21 @@ export default {
       display: none;
     }
   }
+  #dragbar{
+    background-color:black;
+    height:100px;
+    float: bottom;
+    width: 100%;
+    cursor: col-resize;
+    z-index: 101;
+  }
+
+  #ghostbar{
+    width:100%;
+    background-color:#000;
+    opacity:0.5;
+    position:absolute;
+    cursor: col-resize;
+    z-index:999}
+
 </style>

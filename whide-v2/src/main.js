@@ -9,6 +9,7 @@ import 'vue-awesome/icons'
 import Icon from 'vue-awesome/components/Icon'
 
 Vue.component('v-icon', Icon)
+
 Vue.use(BootstrapVue)
 Vue.config.productionTip = false
 

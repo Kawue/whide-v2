@@ -46,18 +46,18 @@ export default {
   mounted () {
     this.getPos('ring0')
     store.commit('SET_RING_IDX', 'ring0')
+    store.dispatch('getRingCoefficients', 'ring0')
     this.setGranulaity()
   },
   methods: {
     getPos: function (r) {
-      var pos = []
+      let protoId = {}
       var ring = this.rings[r]
       Object.keys(ring).forEach(function (p) {
         var proto = Object.values(ring[p])
-        pos.push(proto[0])
+        protoId[p] = proto[0]
       })
-      // console.log(pos)
-      cw.createColorWheel(pos)
+      cw.createColorWheel(protoId)
     },
     setGranulaity: function () {
       this.lengthRings = Object.keys(this.rings).length - 1
@@ -67,6 +67,7 @@ export default {
       let currentRing = 'ring' + this.ringGranularity.toString()
       this.getPos(currentRing)
       store.commit('SET_RING_IDX', currentRing)
+      store.dispatch('getRingCoefficients', currentRing)
     },
     moveUp: function () {
       store.commit('MOEBIUS', (0, 1))

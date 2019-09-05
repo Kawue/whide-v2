@@ -1,5 +1,5 @@
 <template>
-  <div  class="sidebarRight" v-bind:class="{ expanded: isExpanded }">
+  <div class="sidebarRight" v-bind:class="{ expanded: isExpanded }">
     <span class="trigger" v-on:click="toggleView()" v-bind:class="getExpandIconClass()">
       <v-icon name="arrow-left" v-if="showExpandRightIcon()"></v-icon>
       <v-icon name="arrow-right" v-if="showExpandLeftIcon()"></v-icon>
