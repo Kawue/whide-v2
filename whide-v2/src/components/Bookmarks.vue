@@ -20,9 +20,23 @@ export default {
   },
   name: 'Bookmarks'
 }
-
 </script>
 
 <style scoped lang="scss">
 
+  #dragbar{
+    background-color:black;
+    height:100%;
+    float: bottom;
+    width: 3px;
+    cursor: col-resize;
+  }
+
+  #ghostbar{
+    width:3px;
+    background-color:#000;
+    opacity:0.5;
+    position:absolute;
+    cursor: col-resize;
+    z-index:999}
 </style>

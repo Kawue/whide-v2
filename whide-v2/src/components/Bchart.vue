@@ -37,55 +37,35 @@ export default {
       })
 
       let margin = {
-        top: 25,
+        top: 20,
         right: 25,
-        bottom: 25,
+        bottom: 2,
         left: 25
       }
       let width = 300 - margin.left - margin.right
       let height = 385 - margin.top - margin.bottom
 
       let yScalAxis = d3.scaleBand()
-        .range([height, 0])
-        .padding(0.1)
+        .range([height, 40])
+        // .padding(0.1)
 
       let dataMin = d3.min(data, function (d) { return d.coefficient })
       let dataMax = d3.max(data, function (d) { return d.coefficient })
-      let barWidthMin = 10
+      // let barWidthMin = 10
       let barWidthMax = width
 
       let xScaleAxis = d3.scaleLinear()
         .domain([dataMin, dataMax])
         .range([0, barWidthMax + (barWidthMax * 0.05)])
 
-      let barHeightMin = 1
-      let barHeightMax = height / data.length
-
-      let barHeightScaler = d3.scaleLinear()
-        .domain([dataMin, dataMax])
-        .range([barHeightMin, barHeightMax])
-
-      const annotationsProp = [{
-        note: {
-          label: 'Longer text to show text wrapping'
-        },
-        x: 150,
-        y: 150,
-        dy: 20,
-        dx: 20,
-        color: 'grey',
-        type: d3annotate.annotationCalloutElbow
-      }
-      ]
-      const makeAnnotations = d3annotate.annotation()
-        .annotations(annotationsProp)
+      // let barHeightMin = 1
+      let barHeightMax = height / data.map((d) => d.coefficient).reduce((a, b) => a + b, 0)
 
       let svg = d3.select('#graphic').append('svg')
         .attr('width', 25 + 'vw') //  margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom)
         .style('background-color', backgroundColor)
         .on('mouseenter', function () {
-          console.log(this)
           d3.select(this)
             .append('g')
             .attr('class', 'annotation-group')
@@ -104,22 +84,37 @@ export default {
 
       svg
         .append('g')
+        .attr('transform', 'translate(' + margin.left + ',0)')
         .attr('class', 'hist-rects')
+        .style('padding-left', '1')
         .selectAll('.bar')
         .data(data)
         .enter().append('rect')
         .attr('class', 'bar')
-        .style('fill', 'green')
-        // .attr("x", function(d) { return x(d.sales); })
+        .style('fill', 'grey')
+        .style('stroke', 'black')
+        .style('stroke-width', '1')
         .attr('width', function (d) { return xScaleAxis(d.coefficient) })
         .attr('y', function (d) { return yScalAxis(d.mz) })
-        // .attr('height', function (d) { return barHeightScaler(d.coefficient) }) // scale bar size
-        .attr('height', function (d) { return 7 }) // scale bar size
-        .on('mouseover', () => {
-          console.log('Mouse over')
+        .attr('height', function (d) { return d.coefficient * barHeightMax })
+        .attr('height', function (d) { return 2 }) // scale bar size
+      // scale bar size
+        .on('mouseover', function (d) {
+          const property = [{
+            note: {
+              label: d.mz
+            },
+            x: margin.left + xScaleAxis(d.coefficient),
+            y: yScalAxis(d.mz),
+            dy: 30 - yScalAxis(d.mz),
+            dx: 240 - xScaleAxis(d.coefficient),
+            color: 'black',
+            type: d3annotate.annotationCalloutElbow
+          }]
           svg
             .select('.annotation-group')
-            .call(makeAnnotations)
+            .call(d3annotate.annotation()
+              .annotations(property))
         })
         .on('mouseout', () => {
           svg
@@ -129,19 +124,21 @@ export default {
 
       // add the x Axis
       svg.append('g')
-        .attr('transform', 'translate(0,' + height + ')')
+        .attr('class', 'x_axis')
+        .attr('transform', 'translate(' + margin.left + ',' + height + ')')
         .call(d3.axisBottom(xScaleAxis)
           .tickValues([dataMin, dataMax / 2, dataMax]))
 
       // add the y Axis
       svg.append('g')
+        .attr('class', 'y_axis')
+        .attr('transform', 'translate(' + margin.left + ',0)')
         .call(d3.axisLeft(yScalAxis))
         .selectAll('text').remove()
 
       svg.append('foreignObject')
-        .attr('width', 350)
+        .attr('width', 30)
         .attr('height', 30)
-        .attr('right', 0)
         .append('xhtml:div')
         .append('xhtml:button')
         .attr('class', 'btn btn-info btn-sm')
@@ -165,11 +162,8 @@ export default {
     bottom: 0;
     margin-left: 0.5vw;
   }
-  .deleteButton {
-    border-radius: 8px;
-    background-color: red;
-  }
-  .div.tooltip {
+
+  .tooltip {
     position: absolute;
     text-align: center;
     width: 60px;
@@ -181,4 +175,4 @@ export default {
     border-radius: 8px;
     pointer-events: none;
   }
-</style>
+  </style>
