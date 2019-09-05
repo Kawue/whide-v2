@@ -9,23 +9,13 @@
          <b-form-input v-model="ringGranularity" v-bind:type="'range'" min="0" v-bind:max="lengthRings" class="slider" id="ringGranularity" @change="changePos"></b-form-input>
       </div>
       <p>{{ringGranularity}}</p>
-    <div>
+    <div class="position-g">
       <p>Change Position of the Wheel</p>
-      <b-row>
-        <b-col></b-col>
-        <b-col><b-button id="up" variant="info" size="sm">Up</b-button></b-col>
-        <b-col></b-col>
-      </b-row>
-      <b-row>
-        <b-col><b-button id="left" variant="info" size="sm">Left</b-button></b-col>
-        <b-col><b-button id="default " variant="info" size="sm">Default</b-button></b-col>
-        <b-col><b-button id="right" variant="info" size="sm">Right</b-button></b-col>
-      </b-row>
-      <b-row>
-        <b-col></b-col>
-        <b-col><b-button id="down" variant="info" size="sm">Down</b-button></b-col>
-        <b-col></b-col>
-      </b-row>
+      <b-button id="up" variant="info" size="sm" onclick="moveUp()">Up</b-button>
+      <b-button id="left" variant="info" size="sm" onclick="moveLeft()">Left</b-button>
+      <b-button id="default " variant="info" size="sm" onclick="setDefault()">Default</b-button>
+      <b-button id="right" variant="info" size="sm" onclick="moveRight()">Right</b-button>
+      <b-button id="down" variant="info" size="sm" onclick="moveDown()">Down</b-button>
     </div>
   </div>
 </template>
@@ -42,7 +32,8 @@ export default {
     return {
       lengthRings: null,
       midRings: null,
-      ringGranularity: 0
+      ringGranularity: 0,
+      focusMoveSpeed: 0.01
     }
   },
   created () {
@@ -76,6 +67,21 @@ export default {
       let currentRing = 'ring' + this.ringGranularity.toString()
       this.getPos(currentRing)
       store.commit('SET_RING_IDX', currentRing)
+    },
+    moveUp: function () {
+      store.commit('MOEBIUS', (0, 1))
+    },
+    moveRight: function () {
+      store.commit('MOEBIUS', (1, 0))
+    },
+    moveLeft: function () {
+      store.commit('MOEBIUS', (-1, 0))
+    },
+    moveDown: function () {
+      store.commit('MOEBIUS', (0, -1))
+    },
+    setDefault: function () {
+      store.commit('SET_DEFAULT_POSITION')
     }
   }
 }
@@ -100,6 +106,27 @@ export default {
   }
   .slider{
     width: 200px;
+  }
+  .position-g{
+    height: 200px;
+    width: 200px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  #up {
+    margin-top: 0;
+  }
+  #down {
+    margin-bottom: 0;
+  }
+  #default {
+    text-align: center;
+  }
+  #left {
+    margin-left: 0;
+  }
+  #right {
+    margin-right: 0;
   }
 
 </style>
