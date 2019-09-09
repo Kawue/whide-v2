@@ -11,11 +11,19 @@
       <p>{{ringGranularity}}</p>
     <div class="position-g">
       <p>Change Position of the Wheel</p>
-      <b-button id="up" variant="info" size="sm" v-on:click="moveUp()">Up</b-button>
-      <b-button id="left" variant="info" size="sm" v-on:click="moveLeft()">Left</b-button>
-      <b-button id="default " variant="info" size="sm" v-on:click="setDefault()">Default</b-button>
-      <b-button id="right" variant="info" size="sm" v-on:click="moveRight()">Right</b-button>
-      <b-button id="down" variant="info" size="sm" v-on:click="moveDown()">Down</b-button>
+      <div class="controlls">
+        <div class="topControll">
+          <b-button id="up" variant="info" size="sm" v-on:click="moveUp()">Up</b-button>
+        </div>
+        <div class="midControll">
+          <b-button id="left" variant="info" size="sm" v-on:click="moveLeft()">Left</b-button>
+          <b-button id="default " variant="info" size="sm" v-on:click="setDefault()">Default</b-button>
+          <b-button id="right" variant="info" size="sm" v-on:click="moveRight()">Right</b-button>
+        </div>
+        <div class="bottomControll">
+          <b-button id="down" variant="info" size="sm" v-on:click="moveDown()">Down</b-button>
+        </div>
+        </div>
     </div>
   </div>
 </template>
@@ -47,7 +55,12 @@ export default {
     this.setGranulaity()
     store.subscribe(mutation => {
       if (mutation.type === 'SET_MOEBIUS') {
-        this.changePos()
+        d3.select('#colorwheelContainer').remove()
+        this.getPos(this.prototypesPosition)
+      }
+      if (mutation.type === 'SET_DEFAULT_POSITION') {
+        d3.select('#colorwheelContainer').remove()
+        this.getPos(this.prototypesPosition)
       }
     })
   },
@@ -67,19 +80,19 @@ export default {
       store.dispatch('getRingCoefficients', currentRing)
     },
     moveUp: function () {
-      let up = { 'x': 0, 'y': 1, 'ring': 'ring' + this.ringGranularity.toString() }
+      let up = { 'x': 0, 'y': -1 }
       store.commit('SET_MOEBIUS', up)
     },
     moveRight: function () {
-      let right = { 'x': 1, 'y': 0, 'ring': 'ring' + this.ringGranularity.toString() }
+      let right = { 'x': 1, 'y': 0 }
       store.commit('SET_MOEBIUS', right)
     },
     moveLeft: function () {
-      let left = { 'x': -1, 'y': 0, 'ring': 'ring' + this.ringGranularity.toString() }
+      let left = { 'x': -1, 'y': 0 }
       store.commit('SET_MOEBIUS', left)
     },
     moveDown: function () {
-      let down = { 'x': 0, 'y': -1, 'ring': 'ring' + this.ringGranularity.toString() }
+      let down = { 'x': 0, 'y': 1 }
       store.commit('SET_MOEBIUS', down)
     },
     setDefault: function () {
@@ -115,20 +128,25 @@ export default {
     margin-left: auto;
     margin-right: auto;
   }
-  #up {
-    margin-top: 0;
+  .controlls {
+    display: flex;
+    flex-direction: column;
+    b-button {
+      display: inline-block;
+    }
   }
-  #down {
-    margin-bottom: 0;
+  .topControll {
+    display: flex;
+    justify-content: center;
   }
-  #default {
-    text-align: center;
+  .midControll {
+    display: flex;
+    justify-content: center;
   }
-  #left {
-    margin-left: 0;
-  }
-  #right {
-    margin-right: 0;
+  .bottomControll {
+    display: flex;
+    justify-content: center;
+
   }
 
 </style>

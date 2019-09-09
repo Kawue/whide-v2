@@ -131,22 +131,22 @@ var createColorWheel = function (protoId) {
 }
 
 var moebiustransformation = function (ringPos, direction) {
-  let FOCUS_MOVE_SPEED = 0.01
-  let newRingPos = {}
-  Object.keys(ringPos).forEach(function (ring) {
-    let protoDict = {}
-    Object.keys(ringPos[ring]).forEach(function (prototype) {
-      let newX = ringPos[ring][prototype]['currentPos'][0] + FOCUS_MOVE_SPEED * direction['x']
-      let newY = ringPos[ring][prototype]['currentPos'][1] + FOCUS_MOVE_SPEED * direction['y']
-      let proPos = {
-        'currentPos': [newX, newY],
-        'startPos': ringPos[ring][prototype]['startPos']
-      }
-      protoDict[prototype] = proPos
-    })
-    newRingPos[ring] = protoDict
+  let FOCUS_MOVE_SPEED = 0.05
+  let protoDict = {}
+  Object.keys(ringPos).forEach(function (prototype) {
+    // console.log(ringPos[prototype]['currentPos'][1])
+    // console.log(ringPos[prototype]['currentPos'][1])
+    // console.log(ringPos[prototype]['currentPos'][1] + FOCUS_MOVE_SPEED * direction['x'])
+    let newX = ringPos[prototype]['currentPos'][0] + FOCUS_MOVE_SPEED * direction['x']
+    let newY = ringPos[prototype]['currentPos'][1] + FOCUS_MOVE_SPEED * direction['y']
+    let proPos = {
+      'currentPos': [newX, newY],
+      'startPos': ringPos[prototype]['startPos']
+    }
+    protoDict[prototype] = proPos
+    // console.log(newX)
+    // console.log(newY)
   })
-  console.log(newRingPos)
-  return newRingPos
+  return protoDict
 }
 export { createColorWheel, moebiustransformation }

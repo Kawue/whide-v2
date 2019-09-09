@@ -150,22 +150,20 @@ export default new Vuex.Store({
       state.prototypesPosition = protoDict
     },
     SET_MOEBIUS: (state, xAndY) => {
+      // console.log(state.prototypesPosition)
       state.prototypesPosition = moebiustransformation(state.prototypesPosition, xAndY)
+      // console.log(state.prototypesPosition)
     },
     SET_DEFAULT_POSITION: (state) => {
-      let posDict = {}
-      Object.keys(state.prototypesPosition).forEach(function (ring) {
-        let protoDict = {}
-        Object.keys(state.prototypesPosition[ring]).forEach(function (prototype) {
-          let proPos = {
-            'currentPos': state.prototypesPosition[ring][prototype]['startPos'],
-            'startPos': state.prototypesPosition[ring][prototype]['startPos']
-          }
-          protoDict[prototype] = proPos
-        })
-        posDict[ring] = protoDict
+      let protoDict = {}
+      Object.keys(state.prototypesPosition).forEach(function (prototype) {
+        let proPos = {
+          'currentPos': state.prototypesPosition[prototype]['startPos'],
+          'startPos': state.prototypesPosition[prototype]['startPos']
+        }
+        protoDict[prototype] = proPos
       })
-      state.prototypesPosition = posDict
+      state.prototypesPosition = protoDict
     }
   },
   actions: {
