@@ -5,6 +5,7 @@ import ApiService from './services/ApiService'
 import MzService from './services/MzService'
 import BookmarkService from './services/BookmarkService'
 import axios from 'axios'
+import { moebiustransformation } from './services/colorWheel'
 
 const API_URL = 'http://localhost:5000'
 
@@ -16,7 +17,7 @@ let bookmarkService = new BookmarkService()
 export default new Vuex.Store({
   state: {
     rings: {},
-    ringsPos: {},
+    prototypesPosition: {},
     mzList: {
       showAnnotation: true,
       asc: false,
@@ -28,7 +29,7 @@ export default new Vuex.Store({
     choosedBookmarksColor: [],
     pixels: {},
     data: {},
-    pos: {},
+    // pos: {},
     ringCoefficients: [],
     ringIdx: String
 
@@ -40,8 +41,8 @@ export default new Vuex.Store({
     getMzObject: state => {
       return state.mzObjects
     },
-    getRings: state => {
-      return state.ringsPos
+    getPrototypesPosition: state => {
+      return state.prototypesPosition
     },
     getPixels: state => {
       return state.pixels
@@ -57,6 +58,12 @@ export default new Vuex.Store({
     },
     getRingCoefficients: state => {
       return state.ringCoefficients
+    },
+    getRingIdx: state => {
+      return state.ringIdx
+    },
+    getNumberOfRings: state => {
+      return (Object.keys(state.rings).length)
     }
   },
   mutations: {
@@ -64,19 +71,15 @@ export default new Vuex.Store({
       state.rings = originalData.rings
       state.mzList.mzItems = originalData.mzs
       state.pixels = originalData.pixels
-      let posDict = {}
-      Object.keys(originalData.rings).forEach(function (ring) {
-        let protoDict = {}
-        Object.keys(originalData.rings[ring]).forEach(function (prototype) {
-          let proPos = {
-            'currentPos': originalData.rings[ring][prototype]['pos'],
-            'startPos': originalData.rings[ring][prototype]['pos']
-          }
-          protoDict[prototype] = proPos
-        })
-        posDict[ring] = protoDict
+      let protoDict = {}
+      Object.keys(originalData.rings[state.ringIdx]).forEach(function (prototype) {
+        let proPos = {
+          'currentPos': originalData.rings[state.ringIdx][prototype]['pos'],
+          'startPos': originalData.rings[state.ringIdx][prototype]['pos']
+        }
+        protoDict[prototype] = proPos
       })
-      state.ringsPos = posDict
+      state.prototypesPosition = protoDict
     },
     MZLIST_TOOGLE_ASC: state => {
       state.mzList.asc = !state.mzList.asc
@@ -99,26 +102,24 @@ export default new Vuex.Store({
       state.pos = pos
     },
     SET_CHOOSED_BOOKMARKS: (state, prototypePosDict) => {
-      let prototypId = Object.keys(prototypePosDict)
-      let prototypeData = state.ringCoefficients[prototypId[0].toString()]
-      let currentColor = Object.keys(prototypePosDict[prototypId])
-
+      let prototypId = prototypePosDict['id']
+      let prototypeData = state.ringCoefficients[prototypId.toString()]
+      let currentColor = prototypePosDict['color']
       let fullBookmarksDict = {
         id: prototypId,
         color: currentColor,
         data: prototypeData,
-        startPos: prototypePosDict[prototypId][currentColor]['startPos'],
-        currentPos: prototypePosDict[prototypId][currentColor]['currentPos'],
+        startPos: prototypePosDict['startPos'],
+        currentPos: prototypePosDict['currentPos'],
         mzs: state.mzList.mzItems
       }
-
       if (state.choosedBookmarks.length === 0) {
-        state.choosedBookmarksColor.push(currentColor[0])
+        state.choosedBookmarksColor.push(currentColor)
         state.choosedBookmarks.push(fullBookmarksDict)
         return null
       }
-      if (!state.choosedBookmarksColor.includes(currentColor[0])) {
-        state.choosedBookmarksColor.push(currentColor[0])
+      if (!state.choosedBookmarksColor.includes(currentColor)) {
+        state.choosedBookmarksColor.push(currentColor)
         state.choosedBookmarks.push(fullBookmarksDict)
       }
     },
@@ -136,10 +137,40 @@ export default new Vuex.Store({
     },
     SET_RING_IDX: (state, ringIdx) => {
       state.ringIdx = ringIdx
+    },
+    SET_PROTOTYPES_POSITION: (state) => {
+      let protoDict = {}
+      Object.keys(state.rings[state.ringIdx]).forEach(function (prototype) {
+        let proPos = {
+          'currentPos': state.rings[state.ringIdx][prototype]['pos'],
+          'startPos': state.rings[state.ringIdx][prototype]['pos']
+        }
+        protoDict[prototype] = proPos
+      })
+      state.prototypesPosition = protoDict
+    },
+    SET_MOEBIUS: (state, xAndY) => {
+      state.prototypesPosition = moebiustransformation(state.prototypesPosition, xAndY)
+    },
+    SET_DEFAULT_POSITION: (state) => {
+      let posDict = {}
+      Object.keys(state.prototypesPosition).forEach(function (ring) {
+        let protoDict = {}
+        Object.keys(state.prototypesPosition[ring]).forEach(function (prototype) {
+          let proPos = {
+            'currentPos': state.prototypesPosition[ring][prototype]['startPos'],
+            'startPos': state.prototypesPosition[ring][prototype]['startPos']
+          }
+          protoDict[prototype] = proPos
+        })
+        posDict[ring] = protoDict
+      })
+      state.prototypesPosition = posDict
     }
   },
   actions: {
     fetchData: context => {
+      context.commit('SET_RING_IDX', 'ring0')
       context.commit('SET_ORIGINAL_DATA', apiService.fetchData())
     },
     simpleHelloWorld: context => {

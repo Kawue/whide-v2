@@ -3,10 +3,13 @@ import store from '../store'
 
 var createColorWheel = function (protoId) {
   'use strict'
-  var pos = []
+  /* var pos = []
   Object.keys(protoId).forEach(function (id) {
-    pos.push(Object.values(protoId[id]))
+    console.log(protoId[id]['currentPos'])
+    pos.push(protoId[id]['currentPos'])
   })
+
+   */
   var DEGREES_PER_RADIAN = 180 / Math.PI
 
   var canvas = document.getElementById('colorwheelCanvas')
@@ -35,15 +38,14 @@ var createColorWheel = function (protoId) {
       position: Object.values(protoId[id])
     }
   })
-  store.commit('SET_POS_COLOR', posDict)
+  // store.commit('SET_POS_COLOR', posDict)
 
   function renderColorMarker (position, id) {
     var markerRadius = 6
-    var x = position[0]
-    var y = position[1]
+    var x = position[0][0]
+    var y = position[0][1]
     var i = parseInt(x * 100 + halfWidth)
     var j = parseInt(y * 100 + halfHeight)
-
     let canvas = document.getElementById('colorwheelCanvas')
     let ctx = canvas.getContext('2d')
     let ctxData = ctx.getImageData(0, 0, canvas.width, canvas.height).data
@@ -63,13 +65,15 @@ var createColorWheel = function (protoId) {
       .on('click', function () {
         let dict = {}
         let protoDict = {}
-        pos = {
+        let pos = {
           startPos: position,
           currentPos: position
         }
         dict[colorOfPos] = pos
         protoDict[id] = dict
-        store.commit('SET_CHOOSED_BOOKMARKS', protoDict)
+        protoId[id]['id'] = id
+        protoId[id]['color'] = colorOfPos
+        store.commit('SET_CHOOSED_BOOKMARKS', protoId[id])
       })
     return colorOfPos
   }
@@ -125,4 +129,24 @@ var createColorWheel = function (protoId) {
     // console.log(image.data[pixelByteOffset + 0])
   }
 }
-export { createColorWheel }
+
+var moebiustransformation = function (ringPos, direction) {
+  let FOCUS_MOVE_SPEED = 0.01
+  let newRingPos = {}
+  Object.keys(ringPos).forEach(function (ring) {
+    let protoDict = {}
+    Object.keys(ringPos[ring]).forEach(function (prototype) {
+      let newX = ringPos[ring][prototype]['currentPos'][0] + FOCUS_MOVE_SPEED * direction['x']
+      let newY = ringPos[ring][prototype]['currentPos'][1] + FOCUS_MOVE_SPEED * direction['y']
+      let proPos = {
+        'currentPos': [newX, newY],
+        'startPos': ringPos[ring][prototype]['startPos']
+      }
+      protoDict[prototype] = proPos
+    })
+    newRingPos[ring] = protoDict
+  })
+  console.log(newRingPos)
+  return newRingPos
+}
+export { createColorWheel, moebiustransformation }

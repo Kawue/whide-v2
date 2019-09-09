@@ -11,11 +11,11 @@
       <p>{{ringGranularity}}</p>
     <div class="position-g">
       <p>Change Position of the Wheel</p>
-      <b-button id="up" variant="info" size="sm" onclick="moveUp()">Up</b-button>
-      <b-button id="left" variant="info" size="sm" onclick="moveLeft()">Left</b-button>
-      <b-button id="default " variant="info" size="sm" onclick="setDefault()">Default</b-button>
-      <b-button id="right" variant="info" size="sm" onclick="moveRight()">Right</b-button>
-      <b-button id="down" variant="info" size="sm" onclick="moveDown()">Down</b-button>
+      <b-button id="up" variant="info" size="sm" v-on:click="moveUp()">Up</b-button>
+      <b-button id="left" variant="info" size="sm" v-on:click="moveLeft()">Left</b-button>
+      <b-button id="default " variant="info" size="sm" v-on:click="setDefault()">Default</b-button>
+      <b-button id="right" variant="info" size="sm" v-on:click="moveRight()">Right</b-button>
+      <b-button id="down" variant="info" size="sm" v-on:click="moveDown()">Down</b-button>
     </div>
   </div>
 </template>
@@ -32,54 +32,55 @@ export default {
     return {
       lengthRings: null,
       midRings: null,
-      ringGranularity: 0,
-      focusMoveSpeed: 0.01
+      ringGranularity: 0
     }
-  },
-  created () {
   },
   computed: {
     ...mapGetters({
-      rings: 'getRings'
+      prototypesPosition: 'getPrototypesPosition',
+      numberOfRings: 'getNumberOfRings'
     })
   },
   mounted () {
     this.getPos('ring0')
-    store.commit('SET_RING_IDX', 'ring0')
     store.dispatch('getRingCoefficients', 'ring0')
     this.setGranulaity()
+    store.subscribe(mutation => {
+      if (mutation.type === 'SET_MOEBIUS') {
+        this.changePos()
+      }
+    })
   },
   methods: {
-    getPos: function (r) {
-      let protoId = {}
-      var ring = this.rings[r]
-      Object.keys(ring).forEach(function (p) {
-        var proto = Object.values(ring[p])
-        protoId[p] = proto[0]
-      })
-      cw.createColorWheel(protoId)
+    getPos: function () {
+      cw.createColorWheel(this.prototypesPosition)
     },
     setGranulaity: function () {
-      this.lengthRings = Object.keys(this.rings).length - 1
+      this.lengthRings = this.numberOfRings - 1
     },
     changePos: function () {
       d3.select('#colorwheelContainer').remove()
       let currentRing = 'ring' + this.ringGranularity.toString()
-      this.getPos(currentRing)
       store.commit('SET_RING_IDX', currentRing)
+      store.commit('SET_PROTOTYPES_POSITION')
+      this.getPos()
       store.dispatch('getRingCoefficients', currentRing)
     },
     moveUp: function () {
-      store.commit('MOEBIUS', (0, 1))
+      let up = { 'x': 0, 'y': 1, 'ring': 'ring' + this.ringGranularity.toString() }
+      store.commit('SET_MOEBIUS', up)
     },
     moveRight: function () {
-      store.commit('MOEBIUS', (1, 0))
+      let right = { 'x': 1, 'y': 0, 'ring': 'ring' + this.ringGranularity.toString() }
+      store.commit('SET_MOEBIUS', right)
     },
     moveLeft: function () {
-      store.commit('MOEBIUS', (-1, 0))
+      let left = { 'x': -1, 'y': 0, 'ring': 'ring' + this.ringGranularity.toString() }
+      store.commit('SET_MOEBIUS', left)
     },
     moveDown: function () {
-      store.commit('MOEBIUS', (0, -1))
+      let down = { 'x': 0, 'y': -1, 'ring': 'ring' + this.ringGranularity.toString() }
+      store.commit('SET_MOEBIUS', down)
     },
     setDefault: function () {
       store.commit('SET_DEFAULT_POSITION')
