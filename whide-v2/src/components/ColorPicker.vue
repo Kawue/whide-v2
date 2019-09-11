@@ -13,15 +13,15 @@
       <p>Change Position of the Wheel</p>
       <div class="controlls">
         <div class="topControll">
-          <b-button id="up" variant="info" size="sm" v-on:click="moveUp()">Up</b-button>
+          <b-button id="up" variant="info" size="sm" v-on:click="moveUp()" v-on:keyup="moveUp()">Up</b-button>
         </div>
         <div class="midControll">
-          <b-button id="left" variant="info" size="sm" v-on:click="moveLeft()">Left</b-button>
-          <b-button id="default " variant="info" size="sm" v-on:click="setDefault()">Default</b-button>
-          <b-button id="right" variant="info" size="sm" v-on:click="moveRight()">Right</b-button>
+          <b-button id="left" variant="info" size="sm" v-on:click="moveLeft()" v-on:keypress.left="moveLeft()">Left</b-button>
+          <b-button id="default " variant="info" size="sm" v-on:click="setDefault()" >Default</b-button>
+          <b-button id="right" variant="info" size="sm" v-on:click="moveRight()" v-on:keypress.right="moveRight()">Right</b-button>
         </div>
         <div class="bottomControll">
-          <b-button id="down" variant="info" size="sm" v-on:click="moveDown()">Down</b-button>
+          <b-button id="down" variant="info" size="sm" v-on:click="moveDown()" v-on:keydown="moveDown()">Down</b-button>
         </div>
         </div>
     </div>
