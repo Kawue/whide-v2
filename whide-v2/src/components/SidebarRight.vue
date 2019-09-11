@@ -11,30 +11,30 @@
 </template>
 
 <script>
-import ColorPicker from './ColorPicker'
+import ColorPicker from './ColorPicker';
 export default {
   name: 'Right',
   components: { ColorPicker },
   data: function () {
     return {
       isExpanded: true
-    }
+    };
   },
   methods: {
     toggleView: function () {
-      this.isExpanded = !this.isExpanded
+      this.isExpanded = !this.isExpanded;
     },
     getExpandIconClass: function () {
-      return this.side === 'right' ? 'float-right' : 'float-left'
+      return this.side === 'right' ? 'float-right' : 'float-left';
     },
     showExpandLeftIcon: function () {
-      return this.side === 'right' ? !this.isExpanded : this.isExpanded
+      return this.side === 'right' ? !this.isExpanded : this.isExpanded;
     },
     showExpandRightIcon: function () {
-      return this.side === 'right' ? this.isExpanded : !this.isExpanded
+      return this.side === 'right' ? this.isExpanded : !this.isExpanded;
     }
   }
-}
+};
 </script>
 
 <style scoped lang="scss">
@@ -47,10 +47,12 @@ export default {
     height: 50px;
     right: 0;
     overflow: hidden;
+    border-style: solid;
+    border-bottom-left-radius: 20px;
   &.expanded {
      top:0;
-     width: 35vw;
-     height: 75vh;
+     width: 450px;
+     height: auto;
    }
   }
   .trigger {

@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import Bookmarks from './Bookmarks'
+import Bookmarks from './Bookmarks';
 export default {
   name: 'Bottom',
   components: { Bookmarks },
@@ -22,26 +22,26 @@ export default {
     return {
       isExpanded: false,
       dragging: false
-    }
+    };
   },
   methods: {
     toggleView: function () {
-      this.isExpanded = !this.isExpanded
+      this.isExpanded = !this.isExpanded;
     },
     getExpandUpIconClass: function () {
-      return this.side === 'up' ? 'float-down' : 'float-up'
+      return this.side === 'up' ? 'float-down' : 'float-up';
     },
     showExpandUpIcon: function () {
-      return this.side === 'up' ? !this.isExpanded : this.isExpanded
+      return this.side === 'up' ? !this.isExpanded : this.isExpanded;
     },
     showExpandDownIcon: function () {
-      return this.side === 'up' ? this.isExpanded : !this.isExpanded
+      return this.side === 'up' ? this.isExpanded : !this.isExpanded;
     },
     nothing: function () {
-      return null
+      return null;
     },
     drag: function () {
-      this.dragging = true
+      this.dragging = true;
       let ghostbar = createElement('div',
         { id: 'ghostbar',
           css: {
@@ -49,10 +49,10 @@ export default {
             top: main.offset().top,
             left: main.offset().left
           }
-        }).appendTo('body')
+        }).appendTo('body');
     }
   }
-}
+};
 </script>
 
 <style scoped lang="scss">
@@ -68,6 +68,7 @@ export default {
     background-color: slategray;
     bottom: 0;
     float: bottom;
+    border-style: solid;
 
     &.expanded {
       height: 45vh;
