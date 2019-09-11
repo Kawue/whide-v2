@@ -62,7 +62,7 @@ export default {
       let barHeightMax = height / data.map((d) => d.coefficient).reduce((a, b) => a + b, 0)
 
       let svg = d3.select('#graphic').append('svg')
-        .attr('width', 25 + 'vw') //  margin.left + margin.right)
+        .attr('width', 20 + 'vw') //  margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom)
         .style('background-color', backgroundColor)
         .on('mouseenter', function () {

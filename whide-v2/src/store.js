@@ -18,6 +18,7 @@ export default new Vuex.Store({
   state: {
     rings: {},
     prototypesPosition: {},
+    focus: {},
     mzList: {
       showAnnotation: true,
       asc: false,
@@ -124,13 +125,17 @@ export default new Vuex.Store({
       }
     },
     DELETE_CHOOSED_BOOKMARK: (state, prototypeId) => {
-      for (var i = 0; i < state.choosedBookmarks.length; i++) {
-        // console.log(state.choosedBookmarks[i]['id'].toString())
-        if (state.choosedBookmarks[0]['id'].toString() === prototypeId.toString()) {
-          state.choosedBookmarks.splice(i, 1)
-          state.choosedBookmarksColor.splice(i, 1)
+      let currentChoosedBookmarks = state.choosedBookmarks
+      let currentChoosedBookmarksColor = state.choosedBookmarksColor
+      for (var i = 0; i < currentChoosedBookmarks.length; i++) {
+        console.log(currentChoosedBookmarks[i]['id'])
+        if (currentChoosedBookmarks[i]['id'].toString() === prototypeId.toString()) {
+          currentChoosedBookmarks.splice(i, 1)
+          currentChoosedBookmarksColor.splice(i, 1)
         }
       }
+      state.choosedBookmarks = currentChoosedBookmarks
+      state.choosedBookmarksColor = currentChoosedBookmarksColor
     },
     SET_RING_COEFFICIENTS: (state, coefficients) => {
       state.ringCoefficients = bookmarkService.normalizeCoefficients(coefficients)
@@ -151,7 +156,7 @@ export default new Vuex.Store({
     },
     SET_MOEBIUS: (state, xAndY) => {
       // console.log(state.prototypesPosition)
-      state.prototypesPosition = moebiustransformation(state.prototypesPosition, xAndY)
+      state.prototypesPosition = moebiustransformation(state.prototypesPosition, xAndY, state.focus)
       // console.log(state.prototypesPosition)
     },
     SET_DEFAULT_POSITION: (state) => {
@@ -164,12 +169,22 @@ export default new Vuex.Store({
         protoDict[prototype] = proPos
       })
       state.prototypesPosition = protoDict
+    },
+    SET_FOCUS_DEFAULT: (state) => {
+      state.focus = {
+        'x': 0,
+        'y': 0
+      }
+    },
+    SET_MOVED_FOCUS: (state, focus) => {
+      state.focus = focus
     }
   },
   actions: {
     fetchData: context => {
       context.commit('SET_RING_IDX', 'ring0')
       context.commit('SET_ORIGINAL_DATA', apiService.fetchData())
+      context.commit('SET_FOCUS_DEFAULT')
     },
     simpleHelloWorld: context => {
       const url = API_URL + '/hello'

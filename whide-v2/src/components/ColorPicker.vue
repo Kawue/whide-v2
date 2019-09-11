@@ -97,6 +97,7 @@ export default {
     },
     setDefault: function () {
       store.commit('SET_DEFAULT_POSITION')
+      store.commit('SET_FOCUS_DEFAULT')
     }
   }
 }

@@ -130,13 +130,83 @@ var createColorWheel = function (protoId) {
   }
 }
 
-var moebiustransformation = function (ringPos, direction) {
-  let FOCUS_MOVE_SPEED = 0.05
+var moebiustransformation = function (ringPos, direction, midPoint) {
+  const FOCUS_MOVE_SPEED = 0.05
+  const RECTIFICATION_FACTOR = 0.4
+  const RECTIFICATION_FACTOR_X_2 = RECTIFICATION_FACTOR * 2
+  const RECTIFICATION_FACTOR_POW2_X_4 = RECTIFICATION_FACTOR * RECTIFICATION_FACTOR * 4
+  let focus = midPoint
+
+  function moveFocus (x, y) {
+    let defaultPoint = {
+      'x': 0,
+      'y': 0
+    }
+    let movedFocus = {
+      'x': focus['x'] + x,
+      'y': focus['y'] + y
+    }
+
+    let a = defaultPoint['x'] - movedFocus['x']
+    let b = defaultPoint['y'] - movedFocus['y']
+    let distance = Math.sqrt(a * a + b * b)
+
+    if (distance <= 1) {
+      focus = {
+        'x': movedFocus['x'],
+        'y': movedFocus['y']
+      }
+    }
+  }
+
+  moveFocus(FOCUS_MOVE_SPEED * direction['x'], FOCUS_MOVE_SPEED * direction['y'])
+
+  let nx = Number
+  let ny = Number
+
+  let id = Number
+
+  let gamma = Number
+  let beta = Number
+
+  // focus coordinates
+  let ar = focus['x']
+  let ai = focus['y']
+
+  let fR = Number
+  let fS = Number
+
+  let fA = Number; let fB = Number; let fC = Number; let fD = Number; let fQ = Number
+  let z0r = Number; let z0i = Number; let z1r = Number; let z1i = Number
   let protoDict = {}
   Object.keys(ringPos).forEach(function (prototype) {
-    // console.log(ringPos[prototype]['currentPos'][1])
-    // console.log(ringPos[prototype]['currentPos'][1])
-    // console.log(ringPos[prototype]['currentPos'][1] + FOCUS_MOVE_SPEED * direction['x'])
+    z0r = ringPos[prototype]['currentPos'][0]
+    z0i = ringPos[prototype]['currentPos'][1]
+
+    // distance between point.x and focus.x
+    fA = z0r - ar
+    // 1 - (point.x * focus.x) - (point.y * focus.y)
+    fB = 1 - ar * z0r - ai * z0i
+    // distance between point.y and focus.y
+    fC = z0i - ai
+    // f.y * p.x - f.x * p.y
+    fD = ai * z0r - ar * z0i
+    fQ = fB * fB + fD * fD
+
+    z1r = (fA * fB + fC * fD) / fQ
+    z1i = (fC * fB - fA * fD) / fQ
+
+    fR = z1r * z1r + z1i * z1i
+
+    if (fR === 0) { fS = 1.0 } else {
+      fS = 1 / (RECTIFICATION_FACTOR_X_2 * fR) * (fR - 1 + Math.sqrt(fR * fR - 2 * fR + 1 + RECTIFICATION_FACTOR_POW2_X_4 * fR))
+    }
+    let proPos = {
+      'currentPos': [z1r * fS, z1i * fS],
+      'startPos': ringPos[prototype]['startPos']
+    }
+    protoDict[prototype] = proPos
+    /*
     let newX = ringPos[prototype]['currentPos'][0] + FOCUS_MOVE_SPEED * direction['x']
     let newY = ringPos[prototype]['currentPos'][1] + FOCUS_MOVE_SPEED * direction['y']
     let proPos = {
@@ -144,9 +214,11 @@ var moebiustransformation = function (ringPos, direction) {
       'startPos': ringPos[prototype]['startPos']
     }
     protoDict[prototype] = proPos
-    // console.log(newX)
-    // console.log(newY)
+
+     */
   })
+
+  store.commit('SET_MOVED_FOCUS', focus)
   return protoDict
 }
 export { createColorWheel, moebiustransformation }
