@@ -1,29 +1,36 @@
 class BookmarkService {
   normalizeCoefficients (coefficients) {
-    let max = Number.MIN_SAFE_INTEGER
-    let min = Number.MAX_SAFE_INTEGER
-    let newCoeff = {}
-    for (var pro in coefficients) {
-      let i
+    let max = Number.MIN_SAFE_INTEGER;
+    let min = Number.MAX_SAFE_INTEGER;
+    let newCoeff = {};
+    for (const pro in coefficients) {
+      let i;
       for (i = 0; i < coefficients[pro].length; i++) {
         if (coefficients[pro][i] < min) {
-          min = coefficients[pro][i]
+          min = coefficients[pro][i];
         }
         if (coefficients[pro][i] > max) {
-          max = coefficients[pro][i]
+          max = coefficients[pro][i];
         }
       }
     }
     for (var norPro in coefficients) {
-      let k
-      let newValues = []
+      let k;
+      let newValues = [];
       for (k = 0; k < coefficients[norPro].length; k++) {
-        let val = (1 - 0) * ((coefficients[norPro][k] - min) / (max - min)) + 0
-        newValues.push(val)
+        let val = (1 - 0) * ((coefficients[norPro][k] - min) / (max - min)) + 0;
+        newValues.push(val);
       }
-      newCoeff[norPro] = newValues
+      newCoeff[norPro] = newValues;
     }
-    return newCoeff
+    return newCoeff;
+  }
+  changePrototypeColor (newColors, choosedBookmarks) {
+    let choosedPrototypes = Object.keys(choosedBookmarks);
+    choosedPrototypes.forEach(function (p) {
+      choosedBookmarks[p]['color'] = newColors[p]['color'];
+    });
+    return choosedBookmarks;
   }
 }
-export default BookmarkService
+export default BookmarkService;

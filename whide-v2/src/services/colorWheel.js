@@ -3,25 +3,18 @@ import store from '../store';
 
 var createColorWheel = function (protoId) {
   'use strict';
-  /* var pos = []
-  Object.keys(protoId).forEach(function (id) {
-    console.log(protoId[id]['currentPos'])
-    pos.push(protoId[id]['currentPos'])
-  })
+  const DEGREES_PER_RADIAN = 180 / Math.PI;
 
-   */
-  var DEGREES_PER_RADIAN = 180 / Math.PI;
+  const canvas = document.getElementById('colorwheelCanvas');
+  const context = canvas.getContext('2d');
 
-  var canvas = document.getElementById('colorwheelCanvas');
-  var context = canvas.getContext('2d');
+  const bgImage = context.createImageData(canvas.width, canvas.height);
 
-  var bgImage = context.createImageData(canvas.width, canvas.height);
+  const halfWidth = Math.floor(bgImage.width / 2);
+  const halfHeight = Math.floor(bgImage.height / 2);
 
-  var halfWidth = Math.floor(bgImage.width / 2);
-  var halfHeight = Math.floor(bgImage.height / 2);
-
-  var radius = Math.min(halfWidth, halfHeight);
-  var radiusSquared = radius * radius;
+  const radius = Math.min(halfWidth, halfHeight);
+  const radiusSquared = radius * radius;
 
   renderColorWheel(bgImage);
 
@@ -38,24 +31,24 @@ var createColorWheel = function (protoId) {
       position: Object.values(protoId[id])
     };
   });
-  // store.commit('SET_POS_COLOR', posDict)
+  store.commit('SET_POS_COLOR', posDict);
 
   function renderColorMarker (position, id) {
-    var markerRadius = 6;
-    var x = position[0][0];
-    var y = position[0][1];
-    var i = parseInt(x * 100 + halfWidth);
-    var j = parseInt(y * 100 + halfHeight);
+    const markerRadius = 6;
+    const x = position[0][0];
+    const y = position[0][1];
+    const i = parseInt(x * 100 + halfWidth);
+    const j = parseInt(y * 100 + halfHeight);
     let canvas = document.getElementById('colorwheelCanvas');
     let ctx = canvas.getContext('2d');
     let ctxData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-    var NUM_CHANNELS = 4;
-    var rowByteOffset = j * canvas.width * NUM_CHANNELS;
-    var colByteOffset = i * NUM_CHANNELS;
-    var pixelByteOffset = rowByteOffset + colByteOffset;
-    var posColor = ctxData.slice(pixelByteOffset, pixelByteOffset + 4);
+    const NUM_CHANNELS = 4;
+    const rowByteOffset = j * canvas.width * NUM_CHANNELS;
+    const colByteOffset = i * NUM_CHANNELS;
+    const pixelByteOffset = rowByteOffset + colByteOffset;
+    const posColor = ctxData.slice(pixelByteOffset, pixelByteOffset + 4);
 
-    var colorOfPos = 'rgba(' + posColor[0].toString() + ',' + posColor[1].toString() + ',' + posColor[2].toString() + ',' + posColor[3].toString() + ')';
+    let colorOfPos = 'rgba(' + posColor[0].toString() + ',' + posColor[1].toString() + ',' + posColor[2].toString() + ',' + posColor[3].toString() + ')';
     d3.select('#colorwheelContainer')
       .append('circle')
       .attr('cx', i)
@@ -79,17 +72,17 @@ var createColorWheel = function (protoId) {
   }
 
   function renderColorWheel (image) {
-    var i, j;
+    let i, j;
     for (j = 0; j < image.height; j++) {
       for (i = 0; i < image.width; i++) {
-        var x = i - halfWidth;
-        var y = j - halfHeight;
+        const x = i - halfWidth;
+        const y = j - halfHeight;
 
-        var distanceFromOriginSquared = x * x + y * y;
-        var withinDisc = (distanceFromOriginSquared <= radiusSquared);
+        const distanceFromOriginSquared = x * x + y * y;
+        const withinDisc = (distanceFromOriginSquared <= radiusSquared);
         if (withinDisc) {
-          var angleInDegrees = DEGREES_PER_RADIAN * (Math.atan2(y, x) + Math.PI);
-          var distanceFromOrigin = Math.sqrt(distanceFromOriginSquared);
+          const angleInDegrees = DEGREES_PER_RADIAN * (Math.atan2(y, x) + Math.PI);
+          const distanceFromOrigin = Math.sqrt(distanceFromOriginSquared);
 
           var color = d3.hsl(angleInDegrees, (distanceFromOrigin / radius), 0.5).rgb();
           setPixelColor(image, i, j, color, 200);

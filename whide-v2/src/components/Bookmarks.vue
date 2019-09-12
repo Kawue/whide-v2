@@ -6,8 +6,8 @@
   </div>
 </template>
 <script>
-import { mapGetters } from 'vuex'
-import Bchart from './Bchart'
+import { mapGetters } from 'vuex';
+import Bchart from './Bchart';
 
 export default {
   components: {
@@ -19,7 +19,7 @@ export default {
     })
   },
   name: 'Bookmarks'
-}
+};
 </script>
 
 <style scoped lang="scss">
