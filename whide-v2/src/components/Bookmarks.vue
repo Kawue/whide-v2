@@ -2,6 +2,7 @@
   <div>
   <div class="bookmarks" v-for="key in bookmarks" v-bind:key="key['id'].toString()">
     <bchart v-bind:prototypeid="key['id'].toString()"/>
+    {{updateBookmarks}}
   </div>
   </div>
 </template>
@@ -10,15 +11,23 @@ import { mapGetters } from 'vuex';
 import Bchart from './Bchart';
 
 export default {
+  name: 'Bookmarks',
   components: {
     Bchart
   },
   computed: {
+
     ...mapGetters({
       bookmarks: 'getBookmarks'
     })
+
   },
-  name: 'Bookmarks'
+  methods: {
+    updateBookmarks: function () {
+      let bookmarksNew = this.state.choosedBookmarks;
+      return bookmarksNew;
+    }
+  }
 };
 </script>
 

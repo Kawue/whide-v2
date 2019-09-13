@@ -22,12 +22,8 @@ export default {
   },
   mounted () {
     let givenPrototypId = this.prototypeid;
-    for (const entry of this.bookmarks) {
-      let id = entry['id'].toString();
-      if (id === givenPrototypId) {
-        this.createChart(entry);
-      }
-    }
+    console.log(this.bookmarks[givenPrototypId]);
+    this.createChart(this.bookmarks[givenPrototypId]);
   },
   methods: {
     createChart: function (bookmark) {
