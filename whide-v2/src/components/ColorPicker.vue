@@ -1,7 +1,7 @@
 <template>
   <div>
       <div>
-        <canvas id="colorwheelCanvas" width="400" height="400">
+        <canvas id="colorwheelCanvas" width="310" height="310">
         </canvas>
       </div>
     <div class="colorwheelOptions">

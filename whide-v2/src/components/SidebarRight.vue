@@ -51,7 +51,7 @@ export default {
     border-bottom-left-radius: 20px;
   &.expanded {
      top:0;
-     width: 450px;
+     width: 350px;
      height: auto;
    }
   }

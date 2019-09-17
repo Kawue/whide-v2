@@ -39,17 +39,6 @@ export default {
     },
     nothing: function () {
       return null;
-    },
-    drag: function () {
-      this.dragging = true;
-      let ghostbar = createElement('div',
-        { id: 'ghostbar',
-          css: {
-            height: main.outerHeight(),
-            top: main.offset().top,
-            left: main.offset().left
-          }
-        }).appendTo('body');
     }
   }
 };
@@ -58,7 +47,7 @@ export default {
 <style scoped lang="scss">
   .bottombarWidget {
     position: absolute;
-    height: 20px;
+    height: 40px;
     width: 7vw;
     left: 43vw;
     min-width: 5vw;
@@ -86,21 +75,5 @@ export default {
       display: none;
     }
   }
-  #dragbar{
-    background-color:black;
-    height:100px;
-    float: bottom;
-    width: 100%;
-    cursor: col-resize;
-    z-index: 101;
-  }
-
-  #ghostbar{
-    width:100%;
-    background-color:#000;
-    opacity:0.5;
-    position:absolute;
-    cursor: col-resize;
-    z-index:999}
 
 </style>
