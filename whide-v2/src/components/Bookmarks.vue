@@ -1,13 +1,13 @@
 <template>
   <div>
-  <div class="bookmarks" v-for="key in bookmarks" v-bind:key="key['id'].toString()">
-    <bchart v-bind:prototypeid="key['id'].toString()"/>
-    {{updateBookmarks}}
+  <div class="bookmarks" v-for="key in ids" v-bind:key="key.toString()">
+    <bchart v-bind:prototypeid="key.toString()"/>
   </div>
   </div>
 </template>
 <script>
 import { mapGetters } from 'vuex';
+import store from '../store';
 import Bchart from './Bchart';
 
 export default {
@@ -16,18 +16,20 @@ export default {
     Bchart
   },
   computed: {
-
     ...mapGetters({
-      bookmarks: 'getBookmarks'
+      ids: 'getBookmarkIds'
     })
-
-  },
-  methods: {
-    updateBookmarks: function () {
-      let bookmarksNew = this.state.choosedBookmarks;
-      return bookmarksNew;
-    }
   }
+  /*,
+  mounted () {
+    store.subscribe(mutation => {
+      if (mutation.type === 'DELETE_CHOOSED_BOOKMARK') {
+        this.ids = store.state.choosedBookmarksIds;
+      }
+    });
+  }
+
+   */
 };
 </script>
 

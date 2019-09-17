@@ -27,6 +27,7 @@ export default new Vuex.Store({
     mzObjects: {
     },
     choosedBookmarks: {},
+    choosedBookmarksIds: [],
     pixels: {},
     data: {},
     prototypeColor: {},
@@ -64,6 +65,9 @@ export default new Vuex.Store({
     },
     getNumberOfRings: state => {
       return (Object.keys(state.rings).length);
+    },
+    getBookmarkIds: state => {
+      return state.choosedBookmarksIds;
     }
   },
   mutations: {
@@ -116,11 +120,20 @@ export default new Vuex.Store({
       };
       if (!(prototypId in state.choosedBookmarks)) {
         state.choosedBookmarks[prototypId] = fullBookmarksDict;
+        state.choosedBookmarksIds.push(prototypId);
         return null;
       }
     },
     DELETE_CHOOSED_BOOKMARK: (state, prototypeId) => {
+      /* console.log(state.choosedBookmarksIds);
+      const indexOfPrototyp = state.choosedBookmarksIds.indexOf(prototypeId);
+      console.log(indexOfPrototyp);
+      let begin = state.choosedBookmarksIds.slice(0, indexOfPrototyp);
+      let end = state.choosedBookmarksIds.slice(indexOfPrototyp + 1, state.choosedBookmarksIds.length);
+      console.log(begin.concat(end));
+       */
       delete state.choosedBookmarks[prototypeId];
+      state.choosedBookmarksIds = Object.keys(state.choosedBookmarks);
     },
     SET_RING_COEFFICIENTS: (state, coefficients) => {
       state.ringCoefficients = bookmarkService.normalizeCoefficients(coefficients);

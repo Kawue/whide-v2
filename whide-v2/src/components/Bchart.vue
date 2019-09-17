@@ -22,8 +22,14 @@ export default {
   },
   mounted () {
     let givenPrototypId = this.prototypeid;
-    console.log(this.bookmarks[givenPrototypId]);
     this.createChart(this.bookmarks[givenPrototypId]);
+    store.subscribe(mutation => {
+      if (mutation.type === 'SET_MOEBIUS') {
+        let backgroundColor = this.bookmarks[givenPrototypId]['color'];
+        d3.select('#' + this.bookmarks[givenPrototypId]['id'])
+          .style('background-color', backgroundColor);
+      }
+    });
   },
   methods: {
     createChart: function (bookmark) {
@@ -58,6 +64,7 @@ export default {
       let barHeightMax = height / data.map((d) => d.coefficient).reduce((a, b) => a + b, 0);
 
       let svg = d3.select('#graphic').append('svg')
+        .attr('id', bookmark['id'])
         .attr('width', 20 + 'vw') //  margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom)
         .style('background-color', backgroundColor)
