@@ -6,7 +6,8 @@
       </div>
     <div class="colorwheelOptions">
        <div class="sliderOptions">
-        <p>Set Granularity:</p>
+        <p v-if="!sliderDisabled">Set Granularity:</p>
+         <p v-else>Clear Bookmarks to set Granularity!</p>
          <b-form-input v-model="ringGranularity" v-bind:type="'range'" :disabled="sliderDisabled" min="0" v-bind:max="lengthRings" class="slider" id="ringGranularity" @change="changePos" ></b-form-input>
       </div>
       <div class="position-g">
