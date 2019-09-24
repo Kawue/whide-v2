@@ -28,6 +28,7 @@ export default new Vuex.Store({
     },
     choosedBookmarks: {},
     choosedBookmarksIds: [],
+    colorSlider: false,
     pixels: {},
     data: {},
     prototypeColor: {},
@@ -68,6 +69,9 @@ export default new Vuex.Store({
     },
     getBookmarkIds: state => {
       return state.choosedBookmarksIds;
+    },
+    getColorSlider: state => {
+      return state.colorSlider;
     }
   },
   mutations: {
@@ -121,6 +125,7 @@ export default new Vuex.Store({
       if (!(prototypId in state.choosedBookmarks)) {
         state.choosedBookmarks[prototypId] = fullBookmarksDict;
         state.choosedBookmarksIds.push(prototypId);
+        state.colorSlider = true;
         return null;
       }
     },
@@ -134,6 +139,9 @@ export default new Vuex.Store({
        */
       delete state.choosedBookmarks[prototypeId];
       state.choosedBookmarksIds = Object.keys(state.choosedBookmarks);
+      if (state.choosedBookmarksIds.length === 0) {
+        state.colorSlider = false;
+      }
     },
     SET_RING_COEFFICIENTS: (state, coefficients) => {
       state.ringCoefficients = bookmarkService.normalizeCoefficients(coefficients);

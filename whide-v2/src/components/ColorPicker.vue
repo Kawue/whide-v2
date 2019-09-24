@@ -7,7 +7,7 @@
     <div class="colorwheelOptions">
        <div class="sliderOptions">
         <p>Set Granularity:</p>
-         <b-form-input v-model="ringGranularity" v-bind:type="'range'" min="0" v-bind:max="lengthRings" class="slider" id="ringGranularity" @change="changePos"></b-form-input>
+         <b-form-input v-model="ringGranularity" v-bind:type="'range'" :disabled="sliderDisabled" min="0" v-bind:max="lengthRings" class="slider" id="ringGranularity" @change="changePos" ></b-form-input>
       </div>
       <div class="position-g">
         <div class="controlls">
@@ -50,13 +50,15 @@ export default {
     return {
       lengthRings: null,
       midRings: null,
-      ringGranularity: 0
+      ringGranularity: 0,
+      disabled: false
     };
   },
   computed: {
     ...mapGetters({
       prototypesPosition: 'getPrototypesPosition',
-      numberOfRings: 'getNumberOfRings'
+      numberOfRings: 'getNumberOfRings',
+      sliderDisabled: 'getColorSlider'
     })
   },
 
