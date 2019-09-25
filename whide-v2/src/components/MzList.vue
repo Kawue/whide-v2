@@ -177,10 +177,11 @@ export default {
   .list {
     padding: 0;
     font-size: 0.9em;
-    min-height: auto;
+    min-height: 93vh;
     width: 100%;
     text-align: center;
     margin-top: 8px;
+
   }
   .options {
     background-color: darkgray;

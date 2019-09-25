@@ -1,6 +1,9 @@
 <template>
-    <div class="mainPlane">
-    </div>
+  <div class="mainPlane">
+    <p align="center">
+      <canvas class="canvasToFill"></canvas>
+    </p>
+  </div>
 </template>
 
 <script>
@@ -21,4 +24,13 @@ export default {
   z-index: 100;
   color: white;
 }
+  .canvasToFill {
+    position: relative;
+    width: 70%;
+    height: 400px;
+    top: 30px;
+    margin-left:190px;
+    margin-right: 350px;
+    background-color: #42b983;
+  }
 </style>
