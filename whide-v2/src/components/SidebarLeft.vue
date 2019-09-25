@@ -64,7 +64,7 @@ export default {
     &.expanded {
       top:0;
       width: 10vw;
-      height: 100vh;
+      height: auto;
     }
   }
   .trigger {

@@ -11,7 +11,7 @@
           ></v-icon>
         </span>
       <span
-        v-on:click="toggleAsc(); sortMZ()"
+        v-on:click="toggleAsc(), sortMZ()"
         style="float: right; margin-right: 30px; padding: 2px; color :white"
         v-b-tooltip.hover.top="'Sort'"
       >
@@ -98,8 +98,8 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import store from '../store'
+import { mapGetters } from 'vuex';
+import store from '../store';
 
 export default {
   name: 'mzlist',
@@ -110,7 +110,7 @@ export default {
         name: '',
         mzValue: 0
       }
-    }
+    };
   },
   computed: {
     ...mapGetters({
@@ -122,55 +122,55 @@ export default {
   },
   methods: {
     toggleAsc: function () {
-      store.commit('MZLIST_TOOGLE_ASC')
+      store.commit('MZLIST_TOOGLE_ASC');
     },
     sortMZ: function () {
-      store.commit('MZLIST_SORT_MZ')
+      store.commit('MZLIST_SORT_MZ');
     },
     toggleShowAnnotation: function () {
-      store.commit('MZLIST_SHOW_ANNOTATIONS')
+      store.commit('MZLIST_SHOW_ANNOTATIONS');
     },
     annotateMzItem: function (mzKey, mzVal) {
       this.nameModalMz = {
         mzValue: mzKey,
         name: mzVal
-      }
-      this.$refs['nameModal'].show()
+      };
+      this.$refs['nameModal'].show();
       setTimeout(() => {
-        this.$refs['annotationinput'].focus()
-      }, 500)
+        this.$refs['annotationinput'].focus();
+      }, 500);
     },
     submitAnnotation: function (bvModalEvt) {
-      bvModalEvt.preventDefault()
-      this.handleSubmit()
+      bvModalEvt.preventDefault();
+      this.handleSubmit();
     },
     handleSubmit: function () {
       if (!this.$refs.form.checkValidity()) {
-        return
+        return;
       }
-      var mzToAnnotate = [this.nameModalMz.mzValue, this.nameModalMz.name]
-      store.commit('SET_MZ_ANNOTATION', mzToAnnotate)
+      var mzToAnnotate = [this.nameModalMz.mzValue, this.nameModalMz.name];
+      store.commit('SET_MZ_ANNOTATION', mzToAnnotate);
 
       this.$nextTick(() => {
-        this.$refs['nameModal'].hide()
-      })
+        this.$refs['nameModal'].hide();
+      });
       setTimeout(() => {
         this.nameModalMz = {
           name: '',
           mzValue: 0
-        }
-      }, 1000)
+        };
+      }, 1000);
     },
     handleCancle: function () {
-      var mzResetting = [this.nameModalMz.mzValue, this.nameModalMz.mzValue]
-      store.commit('SET_MZ_ANNOTATION', mzResetting)
+      var mzResetting = [this.nameModalMz.mzValue, this.nameModalMz.mzValue];
+      store.commit('SET_MZ_ANNOTATION', mzResetting);
     }
   },
   created () {
-    store.commit('SET_MZ_OBJECT')
+    store.commit('SET_MZ_OBJECT');
   }
 
-}
+};
 
 </script>
 <style scoped lang="scss">

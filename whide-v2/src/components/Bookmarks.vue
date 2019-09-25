@@ -1,25 +1,36 @@
 <template>
   <div>
-  <div class="bookmarks" v-for="key in bookmarks" v-bind:key="key['id'].toString()">
-    <bchart v-bind:prototypeid="key['id'].toString()"/>
+  <div class="bookmarks" v-for="key in ids" v-bind:key="key.toString()">
+    <bchart v-bind:prototypeid="key.toString()"/>
   </div>
   </div>
 </template>
 <script>
-import { mapGetters } from 'vuex'
-import Bchart from './Bchart'
+import { mapGetters } from 'vuex';
+import store from '../store';
+import Bchart from './Bchart';
 
 export default {
+  name: 'Bookmarks',
   components: {
     Bchart
   },
   computed: {
     ...mapGetters({
-      bookmarks: 'getBookmarks'
+      ids: 'getBookmarkIds'
     })
-  },
-  name: 'Bookmarks'
-}
+  }
+  /*,
+  mounted () {
+    store.subscribe(mutation => {
+      if (mutation.type === 'DELETE_CHOOSED_BOOKMARK') {
+        this.ids = store.state.choosedBookmarksIds;
+      }
+    });
+  }
+
+   */
+};
 </script>
 
 <style scoped lang="scss">

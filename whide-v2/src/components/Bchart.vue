@@ -5,10 +5,10 @@
 </template>
 
 <script>
-import * as d3 from 'd3'
-import * as d3annotate from 'd3-svg-annotation'
-import { mapGetters } from 'vuex'
-import store from '../store'
+import * as d3 from 'd3';
+import * as d3annotate from 'd3-svg-annotation';
+import { mapGetters } from 'vuex';
+import store from '../store';
 
 export default {
   name: 'Bchart',
@@ -21,65 +21,69 @@ export default {
     })
   },
   mounted () {
-    let givenPrototypId = this.prototypeid
-    for (const entry of this.bookmarks) {
-      let id = entry['id'].toString()
-      if (id === givenPrototypId) {
-        this.createChart(entry)
+    let givenPrototypId = this.prototypeid;
+    this.createChart(this.bookmarks[givenPrototypId]);
+    store.subscribe(mutation => {
+      if (mutation.type === 'SET_MOEBIUS') {
+        let backgroundColor = this.bookmarks[givenPrototypId]['color'];
+        d3.select('#' + this.bookmarks[givenPrototypId]['id'])
+          .style('background-color', backgroundColor);
       }
-    }
+    });
   },
   methods: {
     createChart: function (bookmark) {
-      let backgroundColor = bookmark['color'].toString()
+      let backgroundColor = bookmark['color'].toString();
       let data = bookmark['mzs'].map(function (x, i) {
-        return { 'mz': x, 'coefficient': bookmark['data'][i] }
-      })
+        return { 'mz': x, 'coefficient': bookmark['data'][i] };
+      });
 
       let margin = {
-        top: 20,
+        top: 25,
         right: 25,
         bottom: 2,
         left: 25
-      }
-      let width = 300 - margin.left - margin.right
-      let height = 385 - margin.top - margin.bottom
+      };
+      let width = 300 - margin.left - margin.right;
+      let height = 385 - margin.top - margin.bottom;
 
       let yScalAxis = d3.scaleBand()
-        .range([height, 40])
+        .range([height, 40]);
         // .padding(0.1)
 
-      let dataMin = d3.min(data, function (d) { return d.coefficient })
-      let dataMax = d3.max(data, function (d) { return d.coefficient })
+      let dataMin = d3.min(data, function (d) { return d.coefficient; });
+      let dataMax = d3.max(data, function (d) { return d.coefficient; });
       // let barWidthMin = 10
-      let barWidthMax = width
+      let barWidthMax = width;
 
       let xScaleAxis = d3.scaleLinear()
         .domain([dataMin, dataMax])
-        .range([0, barWidthMax + (barWidthMax * 0.05)])
+        .range([0, barWidthMax + (barWidthMax * 0.05)]);
 
       // let barHeightMin = 1
-      let barHeightMax = height / data.map((d) => d.coefficient).reduce((a, b) => a + b, 0)
+      let barHeightMax = height / data.map((d) => d.coefficient).reduce((a, b) => a + b, 0);
 
       let svg = d3.select('#graphic').append('svg')
-        .attr('width', 25 + 'vw') //  margin.left + margin.right)
+        .attr('id', bookmark['id'])
+        .attr('width', '320px') //  margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom)
+        .style('border-style', 'solid')
         .style('background-color', backgroundColor)
         .on('mouseenter', function () {
           d3.select(this)
             .append('g')
             .attr('class', 'annotation-group')
-            .style('pointer-events', 'none')
+            .style('pointer-events', 'none');
         })
-        .on('mouseleave', function (d) { d3.select(this).select('.annotation-group').remove() })
+        .on('mouseleave', function (d) { d3.select(this).select('.annotation-group').remove(); });
 
       // format the data
       data.forEach(function (d) {
-        d.cefficients = +d.cefficients
-      })
+        d.cefficients = +d.cefficients;
+      });
 
       // Scale the range of the data in the domains
-      yScalAxis.domain(data.map(function (d) { return d.mz }))
+      yScalAxis.domain(data.map(function (d) { return d.mz; }));
       // y.domain([0, d3.max(data, function(d) { return d.sales; })]);
 
       svg
@@ -91,13 +95,13 @@ export default {
         .data(data)
         .enter().append('rect')
         .attr('class', 'bar')
-        .style('fill', 'grey')
+        .style('fill', 'white')
         .style('stroke', 'black')
         .style('stroke-width', '1')
-        .attr('width', function (d) { return xScaleAxis(d.coefficient) })
-        .attr('y', function (d) { return yScalAxis(d.mz) })
-        .attr('height', function (d) { return d.coefficient * barHeightMax })
-        .attr('height', function (d) { return 2 }) // scale bar size
+        .attr('width', function (d) { return xScaleAxis(d.coefficient); })
+        .attr('y', function (d) { return yScalAxis(d.mz); })
+        .attr('height', function (d) { return d.coefficient * barHeightMax; })
+        .attr('height', function (d) { return 2; }) // scale bar size
       // scale bar size
         .on('mouseover', function (d) {
           const property = [{
@@ -107,49 +111,49 @@ export default {
             x: margin.left + xScaleAxis(d.coefficient),
             y: yScalAxis(d.mz),
             dy: 30 - yScalAxis(d.mz),
-            dx: 240 - xScaleAxis(d.coefficient),
+            dx: 220 - xScaleAxis(d.coefficient),
             color: 'black',
             type: d3annotate.annotationCalloutElbow
-          }]
+          }];
           svg
             .select('.annotation-group')
             .call(d3annotate.annotation()
-              .annotations(property))
+              .annotations(property));
         })
         .on('mouseout', () => {
           svg
             .select('.annotations')
-            .remove()
-        })
+            .remove();
+        });
 
       // add the x Axis
       svg.append('g')
         .attr('class', 'x_axis')
         .attr('transform', 'translate(' + margin.left + ',' + height + ')')
         .call(d3.axisBottom(xScaleAxis)
-          .tickValues([dataMin, dataMax / 2, dataMax]))
+          .tickValues([dataMin, dataMax / 2, dataMax]));
 
       // add the y Axis
       svg.append('g')
         .attr('class', 'y_axis')
         .attr('transform', 'translate(' + margin.left + ',0)')
         .call(d3.axisLeft(yScalAxis))
-        .selectAll('text').remove()
+        .selectAll('text').remove();
 
       svg.append('foreignObject')
         .attr('width', 30)
-        .attr('height', 30)
+        .attr('height', 35)
         .append('xhtml:div')
         .append('xhtml:button')
-        .attr('class', 'btn btn-info btn-sm')
+        .attr('class', 'btn btn-outline-dark btn-sm')
         .html('x')
         .on('click', function () {
-          store.commit('DELETE_CHOOSED_BOOKMARK', bookmark['id'].toString())
-        })
+          store.commit('DELETE_CHOOSED_BOOKMARK', bookmark['id'].toString());
+        });
     }
   }
 
-}
+};
 </script>
 
 <style scoped lang="scss">

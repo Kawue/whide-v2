@@ -6,7 +6,7 @@
 <script>
 export default {
   name: 'MainPlane.vue'
-}
+};
 
 </script>
 
@@ -17,7 +17,7 @@ export default {
   left: 0px;
   right: 0px;
   bottom: 0px;
-  background-color: darkslateblue;
+  background-color: whitesmoke;
   z-index: 100;
   color: white;
 }
