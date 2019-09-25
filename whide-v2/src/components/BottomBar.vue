@@ -1,15 +1,14 @@
 <template>
   <div class="bottombar">
-  <div id="dragbar" onmousedown="darg()"></div>
-  <div @mouseleave= "nothing" @mouseenter="nothing" class="bottombarWidget" v-bind:class="{ expanded: isExpanded }">
+      <div @mouseleave= "nothing" @mouseenter="nothing" class="bottombarWidget" v-bind:class="{ expanded: isExpanded }">
       <span v-on:click="toggleView()" v-bind:class="getExpandUpIconClass()">
         <v-icon name="arrow-down" v-if="showExpandUpIcon()"></v-icon>
         <v-icon name="arrow-up" v-if="showExpandDownIcon()"></v-icon>
       </span>
-    <div class="content">
-      <Bookmarks side="up" v-if="isExpanded"></Bookmarks>
+        <div class="content">
+          <Bookmarks side="up" v-if="isExpanded"></Bookmarks>
+        </div>
       </div>
-  </div>
   </div>
 </template>
 
@@ -22,9 +21,21 @@ export default {
     return {
       isExpanded: false,
       dragging: false
+
     }
   },
+  created () {
+    window.addEventListener('resize', this.handleResize)
+    this.handleResize()
+  },
+  destroyed () {
+    window.removeEventListener('resize', this.handleResize)
+  },
   methods: {
+    handleResize () {
+      this.window.width = window.innerWidth
+      this.window.height = window.innerHeight
+    },
     toggleView: function () {
       this.isExpanded = !this.isExpanded
     },
@@ -39,17 +50,6 @@ export default {
     },
     nothing: function () {
       return null
-    },
-    drag: function () {
-      this.dragging = true
-      let ghostbar = createElement('div',
-        { id: 'ghostbar',
-          css: {
-            height: main.outerHeight(),
-            top: main.offset().top,
-            left: main.offset().left
-          }
-        }).appendTo('body')
     }
   }
 }
@@ -85,21 +85,5 @@ export default {
       display: none;
     }
   }
-  #dragbar{
-    background-color:black;
-    height:100px;
-    float: bottom;
-    width: 100%;
-    cursor: col-resize;
-    z-index: 101;
-  }
-
-  #ghostbar{
-    width:100%;
-    background-color:#000;
-    opacity:0.5;
-    position:absolute;
-    cursor: col-resize;
-    z-index:999}
 
 </style>
