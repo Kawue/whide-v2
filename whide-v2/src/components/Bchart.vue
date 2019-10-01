@@ -13,7 +13,9 @@ import store from '../store';
 export default {
   name: 'Bchart',
   props: {
-    prototypeid: String
+    prototypeid: {
+      type: String
+    }
   },
   computed: {
     ...mapGetters({
@@ -150,6 +152,7 @@ export default {
         .html('x')
         .on('click', function () {
           store.commit('DELETE_CHOOSED_BOOKMARK', bookmark['id'].toString());
+          store.dispatch('deleteBookmarks', bookmark['id'].toString());
         });
     }
   }

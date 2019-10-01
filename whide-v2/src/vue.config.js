@@ -3,4 +3,4 @@ module.exports = {
     'vue-echarts',
     'resize-detector'
   ]
-}
+};

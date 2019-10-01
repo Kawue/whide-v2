@@ -8,13 +8,13 @@ export default {
 
   data () {
     return {
-    }
+    };
   },
 
   created () {
-    console.log('Options')
+    console.log('Options');
   }
-}
+};
 </script>
 
 <style scoped lang="scss">

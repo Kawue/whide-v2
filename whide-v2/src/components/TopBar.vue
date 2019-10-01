@@ -18,30 +18,30 @@
 </template>
 
 <script>
-import Options from './Options'
+import Options from './Options';
 export default {
   name: 'Top',
   components: { Options },
   data: function () {
     return {
       isExpanded: false
-    }
+    };
   },
   methods: {
     toggleView: function () {
-      this.isExpanded = !this.isExpanded
+      this.isExpanded = !this.isExpanded;
     },
     getExpandUpIconClass: function () {
-      return this.side === 'up' ? 'float-up' : 'float-down'
+      return this.side === 'up' ? 'float-up' : 'float-down';
     },
     showExpandUpIcon: function () {
-      return this.side === 'up' ? !this.isExpanded : this.isExpanded
+      return this.side === 'up' ? !this.isExpanded : this.isExpanded;
     },
     showExpandDownIcon: function () {
-      return this.side === 'up' ? this.isExpanded : !this.isExpanded
+      return this.side === 'up' ? this.isExpanded : !this.isExpanded;
     }
   }
-}
+};
 </script>
 
 <style scoped lang="scss">

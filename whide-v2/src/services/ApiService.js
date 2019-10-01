@@ -1,9 +1,9 @@
-import data from '../../../backend/data'
+import data from '../../../backend/data';
 
 class ApiService {
   fetchData () {
-    return data
+    return data;
   }
 }
 
-export default ApiService
+export default ApiService;

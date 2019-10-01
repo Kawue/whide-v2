@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import * as d3 from 'd3';
 
 import ApiService from './services/ApiService';
 import MzService from './services/MzService';
@@ -130,15 +131,30 @@ export default new Vuex.Store({
       }
     },
     DELETE_CHOOSED_BOOKMARK: (state, prototypeId) => {
-      /* console.log(state.choosedBookmarksIds);
+      // console.log(state.choosedBookmarksIds);
       const indexOfPrototyp = state.choosedBookmarksIds.indexOf(prototypeId);
       console.log(indexOfPrototyp);
-      let begin = state.choosedBookmarksIds.slice(0, indexOfPrototyp);
-      let end = state.choosedBookmarksIds.slice(indexOfPrototyp + 1, state.choosedBookmarksIds.length);
-      console.log(begin.concat(end));
-       */
+      // let begin = state.choosedBookmarksIds.slice(0, indexOfPrototyp);
+      // let end = state.choosedBookmarksIds.slice(indexOfPrototyp + 1, state.choosedBookmarksIds.length);
+      // console.log(begin.concat(end));
+
       delete state.choosedBookmarks[prototypeId];
-      state.choosedBookmarksIds = Object.keys(state.choosedBookmarks);
+      // Vue.set(state, 'choosedBookmarksIds', Object.keys(state.choosedBookmarks));
+      // state.choosedBookmarksIds = Object.keys(state.choosedBookmarks);
+
+    },
+    DELETE_ITEMS: (state, itemId) => {
+      const index = state.choosedBookmarksIds.indexOf(itemId);
+      console.log(index);
+      let currentIds = state.choosedBookmarksIds;
+      for (let i = 0; i < currentIds.length; i++) {
+        if (i === index) {
+          currentIds.splice(i, 1);
+        }
+      }
+      console.log(currentIds);
+      Vue.set(state, 'choosedBookmarksIds', currentIds);
+      d3.select('#' + itemId).remove();
       if (state.choosedBookmarksIds.length === 0) {
         state.colorSlider = false;
       }
@@ -190,17 +206,6 @@ export default new Vuex.Store({
       context.commit('SET_ORIGINAL_DATA', apiService.fetchData());
       context.commit('SET_FOCUS_DEFAULT');
     },
-    simpleHelloWorld: context => {
-      const url = API_URL + '/hello';
-      axios
-        .get(url)
-        .then(response => {
-          window.alert(response.data);
-        })
-        .catch(function () {
-          alert('Error While printing Hello World');
-        });
-    },
     getRingCoefficients: (context, index) => {
       const url = API_URL + '/coefficients?index=' + index;
       axios
@@ -211,6 +216,9 @@ export default new Vuex.Store({
         .catch(function () {
           alert('Error while getting coefficients');
         });
+    },
+    deleteBookmarks: (context, bookmarkid) => {
+      context.commit('DELETE_ITEMS', bookmarkid);
     }
   }
 });

@@ -1,11 +1,21 @@
 <template>
     <div class="mainPlane">
+      <li class="witz" v-for="item in ids" :key="item" :item="item">
+        {{item}}
+      </li>
     </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 export default {
-  name: 'MainPlane.vue'
+  name: 'MainPlane.vue',
+  computed: {
+    ...mapGetters({
+      ids: 'getBookmarkIds'
+    })
+  }
 };
 
 </script>
@@ -21,4 +31,5 @@ export default {
   z-index: 100;
   color: white;
 }
+  .witz{ color: #42b983}
 </style>

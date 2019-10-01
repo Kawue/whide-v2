@@ -1,10 +1,7 @@
 <template>
   <div>
-    <div class="bookmarks" v-for="key in ids" v-bind:key="key.toString()">
-      <div class="content">
-        <bchart class="chart" v-bind:prototypeid="key.toString()"/>
-      </div>
-    </div>
+    <bchart class="chart" v-for="key in itemsDirect()" :key="key" :prototypeid="key">
+    </bchart>
   </div>
 </template>
 <script>
@@ -21,6 +18,12 @@ export default {
     ...mapGetters({
       ids: 'getBookmarkIds'
     })
+  },
+  methods: {
+    itemsDirect: function () {
+      debugger;
+      return store.state.choosedBookmarksIds;
+    }
   }
   /*,
   mounted () {
@@ -39,20 +42,4 @@ export default {
   .chart{
     overflow: auto;
   }
-
-  #dragbar{
-    background-color:black;
-    height:100%;
-    float: bottom;
-    width: 3px;
-    cursor: col-resize;
-  }
-
-  #ghostbar{
-    width:3px;
-    background-color:#000;
-    opacity:0.5;
-    position:absolute;
-    cursor: col-resize;
-    z-index:999}
 </style>
