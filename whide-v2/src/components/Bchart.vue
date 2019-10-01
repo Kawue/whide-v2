@@ -45,7 +45,7 @@ export default {
         left: 25
       };
       let width = 300 - margin.left - margin.right;
-      let height = 385 - margin.top - margin.bottom;
+      let height = 360 - margin.top - margin.bottom;
 
       let yScalAxis = d3.scaleBand()
         .range([height, 40]);
