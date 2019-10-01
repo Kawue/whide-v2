@@ -1,8 +1,10 @@
 <template>
   <div>
-  <div class="bookmarks" v-for="key in ids" v-bind:key="key.toString()">
-    <bchart v-bind:prototypeid="key.toString()"/>
-  </div>
+    <div class="bookmarks" v-for="key in ids" v-bind:key="key.toString()">
+      <div class="content">
+        <bchart class="chart" v-bind:prototypeid="key.toString()"/>
+      </div>
+    </div>
   </div>
 </template>
 <script>
@@ -34,6 +36,9 @@ export default {
 </script>
 
 <style scoped lang="scss">
+  .chart{
+    overflow: auto;
+  }
 
   #dragbar{
     background-color:black;

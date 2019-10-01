@@ -162,9 +162,9 @@ export default {
     display: flex;
     align-content: flex-end;
     align-items: flex-end;
-    width: 100vw;
     bottom: 0;
     margin-left: 0.5vw;
+    overflow: auto;
   }
 
   .tooltip {

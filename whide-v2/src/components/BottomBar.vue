@@ -69,7 +69,8 @@ export default {
       position: absolute;
       bottom: 0;
       .content {
-        display: block;
+        display: flex;
+        overflow-x: scroll;
       }
     }
 
