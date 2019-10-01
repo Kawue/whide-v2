@@ -67,6 +67,7 @@ export default {
         .attr('id', bookmark['id'])
         .attr('width', '320px') //  margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom)
+        .style('margin-right', '2px')
         .style('border-style', 'solid')
         .style('background-color', backgroundColor)
         .on('mouseenter', function () {
@@ -165,6 +166,7 @@ export default {
     bottom: 0;
     margin-left: 0.5vw;
     overflow: auto;
+    margin-right: 0.5vw;
   }
 
   .tooltip {

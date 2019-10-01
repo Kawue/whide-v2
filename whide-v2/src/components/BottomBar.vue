@@ -55,7 +55,6 @@ export default {
     min-width: 5vw;
     max-width: 80vw;
     z-index: 101;
-    overflow-x: scroll;
     background-color: slategray;
     bottom: 0;
     float: bottom;
@@ -76,6 +75,8 @@ export default {
 
     .content {
       display: none;
+      overflow-x: scroll;
+
     }
   }
 
