@@ -1,8 +1,5 @@
 <template>
     <div class="mainPlane">
-      <li class="witz" v-for="item in ids" :key="item" :item="item">
-        {{item}}
-      </li>
     </div>
 </template>
 

@@ -125,34 +125,24 @@ export default new Vuex.Store({
       };
       if (!(prototypId in state.choosedBookmarks)) {
         state.choosedBookmarks[prototypId] = fullBookmarksDict;
-        state.choosedBookmarksIds.push(prototypId);
+        state.choosedBookmarksIds.push({
+          id: prototypId,
+          value: prototypId
+        });
         state.colorSlider = true;
         return null;
       }
     },
     DELETE_CHOOSED_BOOKMARK: (state, prototypeId) => {
-      // console.log(state.choosedBookmarksIds);
-      const indexOfPrototyp = state.choosedBookmarksIds.indexOf(prototypeId);
-      console.log(indexOfPrototyp);
-      // let begin = state.choosedBookmarksIds.slice(0, indexOfPrototyp);
-      // let end = state.choosedBookmarksIds.slice(indexOfPrototyp + 1, state.choosedBookmarksIds.length);
-      // console.log(begin.concat(end));
-
       delete state.choosedBookmarks[prototypeId];
-      // Vue.set(state, 'choosedBookmarksIds', Object.keys(state.choosedBookmarks));
-      // state.choosedBookmarksIds = Object.keys(state.choosedBookmarks);
-
     },
     DELETE_ITEMS: (state, itemId) => {
-      const index = state.choosedBookmarksIds.indexOf(itemId);
-      console.log(index);
       let currentIds = state.choosedBookmarksIds;
       for (let i = 0; i < currentIds.length; i++) {
-        if (i === index) {
+        if (currentIds[i]['id'] === itemId) {
           currentIds.splice(i, 1);
         }
       }
-      console.log(currentIds);
       Vue.set(state, 'choosedBookmarksIds', currentIds);
       d3.select('#' + itemId).remove();
       if (state.choosedBookmarksIds.length === 0) {

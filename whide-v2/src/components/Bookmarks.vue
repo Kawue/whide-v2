@@ -1,6 +1,6 @@
 <template>
   <div>
-    <bchart class="chart" v-for="key in itemsDirect()" :key="key" :prototypeid="key">
+    <bchart class="chart" v-for="(key, index) in ids"  ref="key" :key="index" :prototypeid="key['id']" >
     </bchart>
   </div>
 </template>
@@ -25,16 +25,6 @@ export default {
       return store.state.choosedBookmarksIds;
     }
   }
-  /*,
-  mounted () {
-    store.subscribe(mutation => {
-      if (mutation.type === 'DELETE_CHOOSED_BOOKMARK') {
-        this.ids = store.state.choosedBookmarksIds;
-      }
-    });
-  }
-
-   */
 };
 </script>
 

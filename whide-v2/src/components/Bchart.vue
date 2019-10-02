@@ -151,8 +151,8 @@ export default {
         .attr('class', 'btn btn-outline-dark btn-sm')
         .html('x')
         .on('click', function () {
-          store.commit('DELETE_CHOOSED_BOOKMARK', bookmark['id'].toString());
           store.dispatch('deleteBookmarks', bookmark['id'].toString());
+          store.commit('DELETE_CHOOSED_BOOKMARK', bookmark['id'].toString());
         });
     }
   }
