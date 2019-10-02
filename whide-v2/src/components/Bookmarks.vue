@@ -7,7 +7,6 @@
 </template>
 <script>
 import { mapGetters } from 'vuex';
-import store from '../store';
 import Bchart from './Bchart';
 
 export default {

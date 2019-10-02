@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import Mzlist from './MzList'
+import Mzlist from './MzList';
 export default {
   name: 'Left',
   components: { Mzlist },
@@ -22,34 +22,34 @@ export default {
       clickExpanded: false,
       tabLocken: null,
       tabActive: null
-    }
+    };
   },
   methods: {
     toggleView: function () {
-      this.isExpanded = !this.isExpanded
+      this.isExpanded = !this.isExpanded;
     },
     getExpandIconClass: function () {
-      return this.side === 'right' ? 'float-right' : 'float-left'
+      return this.side === 'right' ? 'float-right' : 'float-left';
     },
     showExpandLeftIcon: function () {
-      return this.side === 'right' ? !this.isExpanded : this.isExpanded
+      return this.side === 'right' ? !this.isExpanded : this.isExpanded;
     },
     showExpandRightIcon: function () {
-      return this.side === 'right' ? this.isExpanded : !this.isExpanded
+      return this.side === 'right' ? this.isExpanded : !this.isExpanded;
     },
     mouseleave: function () {
       if (event.relatedTarget === null) {
-        return
+        return;
       }
       if (this.tabLocked === null) {
-        this.tabActive = null
+        this.tabActive = null;
       }
     },
     getExpandedClass: function () {
-      return this.showOptionsContent() ? 'expanded' : ''
+      return this.showOptionsContent() ? 'expanded' : '';
     }
   }
-}
+};
 </script>
 
 <style scoped lang="scss">

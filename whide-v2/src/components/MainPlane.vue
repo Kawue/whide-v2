@@ -27,7 +27,7 @@ export default {
   .canvasToFill {
     position: relative;
     width: 70%;
-    height: 400px;
+    height: 700px;
     top: 30px;
     margin-left:190px;
     margin-right: 350px;
