@@ -24,7 +24,7 @@ export default {
   left: 0px;
   right: 0px;
   bottom: 0px;
-  background-color: whitesmoke;
+  background-color: #404040;
   z-index: 100;
   color: white;
 }

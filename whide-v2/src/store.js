@@ -34,7 +34,8 @@ export default new Vuex.Store({
     data: {},
     prototypeColor: {},
     ringCoefficients: [],
-    ringIdx: String
+    ringIdx: String,
+    mzHeight: Number
 
   },
   getters: {
@@ -73,6 +74,9 @@ export default new Vuex.Store({
     },
     getColorSlider: state => {
       return state.colorSlider;
+    },
+    getMzHeight: state => {
+      return state.mzHeight;
     }
   },
   mutations: {
@@ -188,6 +192,9 @@ export default new Vuex.Store({
     },
     SET_MOVED_FOCUS: (state, focus) => {
       state.focus = focus;
+    },
+    SET_MZHEIGHT: (state, height) => {
+      state.mzHeight = height;
     }
   },
   actions: {

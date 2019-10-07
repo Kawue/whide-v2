@@ -39,7 +39,7 @@ export default {
 
 <style scoped lang="scss">
   .sidebarRight {
-    background-color: slategray;
+    background-color: #4f5051;
     position: absolute;
     width: 25px;
     top: 47.5vh;

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="mzComp" id="mzComponent">
       <div>MZs</div>
       <span
         style="float: left;margin-left: 30px; color: white"
@@ -19,7 +19,7 @@
           v-bind:name="asc ? 'sort-amount-up' : 'sort-amount-down'"
         ></v-icon>
         </span>
-      <select class="list" multiple>
+      <select class="list" id="mzlistid" multiple>
         <option
           v-for="(key, val) in mzObjects"
           v-bind:key="key"
@@ -117,7 +117,8 @@ export default {
       mzObjects: 'getMzObject',
       mzAnnotations: 'getMzAnnotations',
       showAnnotation: 'mzShowAnnotation',
-      asc: 'mzAsc'
+      asc: 'mzAsc',
+      height: 'getMzHeight'
     })
   },
   methods: {
@@ -174,10 +175,13 @@ export default {
 
 </script>
 <style scoped lang="scss">
+  .mzComp {
+    height: 100vh;
+  }
   .list {
     padding: 0;
     font-size: 0.9em;
-    min-height: 93vh;
+    height: 93%;
     width: 100%;
     text-align: center;
     margin-top: 8px;

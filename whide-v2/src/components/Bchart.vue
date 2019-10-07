@@ -48,26 +48,27 @@ export default {
       };
       let width = 300 - margin.left - margin.right;
       let height = 360 - margin.top - margin.bottom;
-
-      let yScalAxis = d3.scaleBand()
-        .range([height, 40]);
-        // .padding(0.1)
+      let padding = 0.1; let outerPadding = 0.3;
 
       let dataMin = d3.min(data, function (d) { return d.coefficient; });
       let dataMax = d3.max(data, function (d) { return d.coefficient; });
       // let barWidthMin = 10
       let barWidthMax = width;
-
-      let xScaleAxis = d3.scaleLinear()
-        .domain([dataMin, dataMax])
-        .range([0, barWidthMax + (barWidthMax * 0.05)]);
-
       // let barHeightMin = 1
       let barHeightMax = height / data.map((d) => d.coefficient).reduce((a, b) => a + b, 0);
 
+      let yScalAxis = d3.scaleLinear()
+        .range([0, height - 40]);
+        // let yScalAxis = d3.scaleBand()
+        //  .rangeRound([height, 0]);
+
+      let xScaleAxis = d3.scaleLinear()
+        .domain([dataMin, dataMax])
+        .range([0, barWidthMax + (barWidthMax * 0.05)], padding, outerPadding);
+
       let svg = d3.select('#graphic').append('svg')
         .attr('id', bookmark['id'])
-        .attr('width', '320px') //  margin.left + margin.right)
+        .attr('width', barWidthMax + margin.left + margin.right) //  margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom)
         .style('margin-right', '2px')
         .style('border-style', 'solid')
@@ -80,32 +81,74 @@ export default {
         })
         .on('mouseleave', function (d) { d3.select(this).select('.annotation-group').remove(); });
 
-      // format the data
-      data.forEach(function (d) {
-        d.cefficients = +d.cefficients;
+      let coefficientArray = [];
+      data.forEach(function (e) {
+        coefficientArray.push(e['coefficient']);
       });
 
-      // Scale the range of the data in the domains
-      yScalAxis.domain(data.map(function (d) { return d.mz; }));
-      // y.domain([0, d3.max(data, function(d) { return d.sales; })]);
+      /* data.forEach(function (entry) {
+          var a = alpha(coefficientArray); // scale factor between value and bar width
+          let mid = midi(coefficientArray, a); // mid-point displacement of bar i
+          let w = wi(coefficientArray, a); // width of bar i
 
+         */
+      let a = alpha(coefficientArray);
+      let mid = midi(coefficientArray, a);
+
+      let offset = 0;
+      let offsetsAr = [];
+      let tickvals = [];
+      let heights = [];
+      for (let val of data) {
+        let height = a * (val.coefficient);
+        // console.log(val.mz);
+        // console.log(yScalAxis(height));
+        heights.push(height);
+        let tick = offset + height;
+        // console.log(tick);
+        // console.log(offset);
+        offsetsAr.push(offset);
+        offset += height;
+        tickvals.push(tick);
+      }
+
+      yScalAxis.domain([offsetsAr[0], offsetsAr[offsetsAr.length - 1]]);
+
+      for (let val of data) {
+        let height = a * (val.coefficient);
+        console.log(val.mz);
+        console.log(height);
+        console.log(yScalAxis(height));
+      }
       svg
         .append('g')
-        .attr('transform', 'translate(' + margin.left + ',0)')
+        .attr('transform', 'translate(' + margin.left + ',' + 40 + ')')
         .attr('class', 'hist-rects')
         .style('padding-left', '1')
         .selectAll('.bar')
         .data(data)
         .enter().append('rect')
         .attr('class', 'bar')
+        .attr('y', function (d, i) {
+          // return yScalAxis(d.mz) - (a * d.coefficient) / 2;
+          return yScalAxis(offsetsAr[i]);
+        })
         .style('fill', 'white')
         .style('stroke', 'black')
-        .style('stroke-width', '1')
+        .style('stroke-width', '0.1')
+        .on('mouseenter', function () {
+          d3.select(this)
+            .style('fill', 'orange'); // orange is the new black
+        })
+        .on('mouseleave', function () {
+          d3.select(this)
+            .style('fill', 'white');
+        })
         .attr('width', function (d) { return xScaleAxis(d.coefficient); })
-        .attr('y', function (d) { return yScalAxis(d.mz); })
-        .attr('height', function (d) { return d.coefficient * barHeightMax; })
-        .attr('height', function (d) { return 2; }) // scale bar size
-      // scale bar size
+
+        .attr('height', function (d, i) {
+          return yScalAxis(heights[i]); // scale bar size
+        })
         .on('mouseover', function (d) {
           const property = [{
             note: {
@@ -129,6 +172,15 @@ export default {
             .remove();
         });
 
+      // format the data
+      data.forEach(function (d) {
+        d.coefficient = +d.coefficient;
+      });
+
+      // Scale the range of the data in the domains
+      yScalAxis.domain(data.map(function (d) { return d.mz; }));
+      // y.domain([0, d3.max(data, function(d) { return d.sales; })]);
+
       // add the x Axis
       svg.append('g')
         .attr('class', 'x_axis')
@@ -142,6 +194,7 @@ export default {
         .attr('transform', 'translate(' + margin.left + ',0)')
         .call(d3.axisLeft(yScalAxis))
         .selectAll('text').remove();
+      // });
 
       svg.append('foreignObject')
         .attr('width', 30)
@@ -154,6 +207,24 @@ export default {
           store.dispatch('deleteBookmarks', bookmark['id'].toString());
           store.commit('DELETE_CHOOSED_BOOKMARK', bookmark['id'].toString());
         });
+
+      function alpha (values) {
+        let n = values.length;
+        let total = d3.sum(values);
+        return (width - (n - 1) * padding * width / n - 2 * outerPadding * width / n) / total;
+      }
+      function wi (values, alpha) {
+        return function (i) {
+        };
+      }
+      function midi (values, alpha) {
+        let w = wi(values, alpha);
+        let n = values.length;
+        return function (_, i) {
+          var op = outerPadding * width / n; var p = padding * width / n;
+          return op + d3.sum(values.slice(0, i)) * alpha + i * p + w(i) / 2;
+        };
+      }
     }
   }
 

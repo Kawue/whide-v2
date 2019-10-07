@@ -14,6 +14,8 @@
 
 <script>
 import Bookmarks from './Bookmarks';
+import * as d3 from 'd3';
+
 export default {
   name: 'Bottom',
   components: { Bookmarks },
@@ -29,6 +31,20 @@ export default {
     },
     toggleView: function () {
       this.isExpanded = !this.isExpanded;
+      try {
+        if (this.isExpanded) {
+          // d3.select('.mzComp').attr('height', '20vh important!');
+          document.getElementById('mzComponent').setAttribute('style', 'height:50vh');
+          document.getElementById('mzlistid').setAttribute('style', 'height:85%');
+        } else {
+          document.getElementById('mzComponent').setAttribute('style', 'height:100vh');
+          document.getElementById('mzlistid').setAttribute('style', 'height:93%');
+
+          // d3.select('.mzComp').attr('height', '100vh');
+        }
+      } catch (e) {
+        return null;
+      }
     },
     getExpandUpIconClass: function () {
       return this.side === 'up' ? 'float-down' : 'float-up';
