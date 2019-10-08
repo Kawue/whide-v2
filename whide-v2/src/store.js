@@ -181,13 +181,14 @@ export default new Vuex.Store({
     SET_DEFAULT_POSITION: (state) => {
       let protoDict = {};
       Object.keys(state.prototypesPosition).forEach(function (prototype) {
-        let proPos = {
+        protoDict[prototype] = {
           'currentPos': state.prototypesPosition[prototype]['startPos'],
           'startPos': state.prototypesPosition[prototype]['startPos']
         };
-        protoDict[prototype] = proPos;
       });
       state.prototypesPosition = protoDict;
+      let xAndY = { 'x': 0, 'y': 0 };
+      state.prototypesPosition = moebiustransformation(state.prototypesPosition, xAndY, state.focus);
     },
     SET_FOCUS_DEFAULT: (state) => {
       state.focus = {

@@ -24,8 +24,8 @@ var createColorWheel = function (protoId) {
   context.putImageData(bgImage, 0, 0);
 
   Object.keys(protoId).forEach(function (id) {
-    let posColor = null;
-    posColor = renderColorMarker((Object.values(protoId[id])), id);
+    // let posColor = null;
+    let posColor = renderColorMarker((Object.values(protoId[id])), id);
     posDict[id] = {
       color: posColor,
       position: Object.values(protoId[id])
