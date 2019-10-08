@@ -1,38 +1,43 @@
 <template>
   <div>
-      <div>
-        <canvas id="colorwheelCanvas" width="310" height="310">
-        </canvas>
-      </div>
+    <div>
+      <canvas id="colorwheelCanvas" width="310" height="310">
+      </canvas>
+    </div>
     <div class="colorwheelOptions">
-       <div class="sliderOptions">
+      <div class="sliderOptions">
         <p v-if="!sliderDisabled">Set Granularity:</p>
-         <p v-else>Clear Bookmarks to set Granularity!</p>
-         <b-form-input v-model="ringGranularity" v-bind:type="'range'" :disabled="sliderDisabled" min="0" v-bind:max="lengthRings" class="slider" id="ringGranularity" @change="changePos" ></b-form-input>
+        <p v-else>Clear Bookmarks to set Granularity!</p>
+        <b-form-input v-model="ringGranularity" v-bind:type="'range'" :disabled="sliderDisabled" min="0" v-bind:max="lengthRings" class="slider" id="ringGranularity" @change="changePos" ></b-form-input>
       </div>
-      <div class="position-g">
-        <div class="controlls">
-          <div class="topControll">
-            <b-button id="up" variant="outline-dark" size="sm" v-on:click="moveUp()">
-              <v-icon name="arrow-up"></v-icon>
-            </b-button>
+      <div class="container">
+        <div class="position-g">
+          <div class="controlls">
+            <div class="topControll">
+              <b-button id="up"  size="sm" v-on:click="moveUp()">
+                <v-icon name="arrow-up"></v-icon>
+              </b-button>
+            </div>
+            <div class="midControll">
+              <b-button id="left"  size="sm" v-on:click="moveLeft()" >
+                <v-icon name="arrow-left"></v-icon>
+              </b-button>
+              <b-button id="default "  size="sm" v-on:click="setDefault()" >
+                <v-icon name="redo"></v-icon>
+              </b-button>
+              <b-button id="right"  size="sm" v-on:click="moveRight()">
+                <v-icon name="arrow-right"></v-icon>
+              </b-button>
+            </div>
+            <div class="bottomControll">
+              <b-button id="down"  size="sm" v-on:click="moveDown()">
+                <v-icon name="arrow-down"></v-icon>
+              </b-button>
+            </div>
           </div>
-          <div class="midControll">
-            <b-button id="left" variant="outline-dark" size="sm" v-on:click="moveLeft()" >
-              <v-icon name="arrow-left"></v-icon>
-            </b-button>
-            <b-button id="default " variant="outline-dark" size="sm" v-on:click="setDefault()" >
-              <v-icon name="redo"></v-icon>
-            </b-button>
-            <b-button id="right" variant="outline-dark" size="sm" v-on:click="moveRight()">
-              <v-icon name="arrow-right"></v-icon>
-            </b-button>
-          </div>
-          <div class="bottomControll">
-            <b-button id="down" variant="outline-dark" size="sm" v-on:click="moveDown()">
-              <v-icon name="arrow-down"></v-icon>
-            </b-button>
-         </div>
+        </div>
+        <div class="postionClearAll">
+          <b-button size="sm" v-on:click="clearAllBookmarks()">Clear All</b-button>
         </div>
       </div>
     </div>
@@ -131,6 +136,9 @@ export default {
     setDefault: function () {
       store.commit('SET_DEFAULT_POSITION');
       store.commit('SET_FOCUS_DEFAULT');
+    },
+    clearAllBookmarks: function () {
+      store.commit('CLEAR_ALL_BOOKMARKS');
     }
   }
 };
@@ -160,12 +168,22 @@ export default {
   .slider{
     width: 200px;
   }
+  .container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+  }
   .controlls {
     display: flex;
     flex-direction: column;
     b-button {
       display: inline-block;
     }
+  }
+  .postionClearAll {
+    display: flex;
+    height: 30px;
+    justify-content: center;
   }
   .topControll {
     display: flex;

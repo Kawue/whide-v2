@@ -71,10 +71,12 @@ export default {
     min-width: 5vw;
     max-width: 80vw;
     z-index: 101;
-    background-color: slategray;
+    background-color: #4f5051;
     bottom: 0;
     float: bottom;
     border-style: solid;
+    border-color: orange;
+
 
     &.expanded {
       height: 45vh;

@@ -153,6 +153,11 @@ export default new Vuex.Store({
         state.colorSlider = false;
       }
     },
+    CLEAR_ALL_BOOKMARKS: (state) => {
+      state.choosedBookmarks = {};
+      state.choosedBookmarksIds = [];
+      state.colorSlider = false;
+    },
     SET_RING_COEFFICIENTS: (state, coefficients) => {
       state.ringCoefficients = bookmarkService.normalizeCoefficients(coefficients);
     },

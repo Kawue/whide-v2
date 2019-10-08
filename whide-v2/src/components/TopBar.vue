@@ -53,7 +53,7 @@ export default {
     min-width: 5vw;
     max-width: 80vw;
     overflow: hidden;
-    background-color: slategray;
+    background-color: #4f5051;
     z-index: 101;
     border-radius: 0 0 10px 0;
     &.expanded {

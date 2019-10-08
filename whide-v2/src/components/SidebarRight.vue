@@ -48,6 +48,7 @@ export default {
     right: 0;
     overflow: hidden;
     border-style: solid;
+    border-color: orange;
     border-bottom-left-radius: 20px;
   &.expanded {
      top:0;

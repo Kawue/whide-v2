@@ -1,6 +1,5 @@
 <template>
     <div id="graphic" class="chart">
-      <!--<b-button pill variant="danger" class="deleteButton">X</b-button>-->
     </div>
 </template>
 
@@ -42,9 +41,9 @@ export default {
 
       let margin = {
         top: 25,
-        right: 25,
+        right: 35,
         bottom: 2,
-        left: 25
+        left: 20
       };
       let width = 300 - margin.left - margin.right;
       let height = 360 - margin.top - margin.bottom;
@@ -52,15 +51,10 @@ export default {
 
       let dataMin = d3.min(data, function (d) { return d.coefficient; });
       let dataMax = d3.max(data, function (d) { return d.coefficient; });
-      // let barWidthMin = 10
       let barWidthMax = width;
-      // let barHeightMin = 1
-      let barHeightMax = height / data.map((d) => d.coefficient).reduce((a, b) => a + b, 0);
 
-      let yScalAxis = d3.scaleLinear()
+      let yScaleAxis = d3.scaleLinear()
         .range([0, height - 40]);
-        // let yScalAxis = d3.scaleBand()
-        //  .rangeRound([height, 0]);
 
       let xScaleAxis = d3.scaleLinear()
         .domain([dataMin, dataMax])
@@ -79,47 +73,26 @@ export default {
             .attr('class', 'annotation-group')
             .style('pointer-events', 'none');
         })
-        .on('mouseleave', function (d) { d3.select(this).select('.annotation-group').remove(); });
+        .on('mouseleave', function () { d3.select(this).select('.annotation-group').remove(); });
 
       let coefficientArray = [];
       data.forEach(function (e) {
         coefficientArray.push(e['coefficient']);
       });
 
-      /* data.forEach(function (entry) {
-          var a = alpha(coefficientArray); // scale factor between value and bar width
-          let mid = midi(coefficientArray, a); // mid-point displacement of bar i
-          let w = wi(coefficientArray, a); // width of bar i
-
-         */
       let a = alpha(coefficientArray);
-      let mid = midi(coefficientArray, a);
-
       let offset = 0;
       let offsetsAr = [];
-      let tickvals = [];
       let heights = [];
       for (let val of data) {
         let height = a * (val.coefficient);
-        // console.log(val.mz);
-        // console.log(yScalAxis(height));
         heights.push(height);
-        let tick = offset + height;
-        // console.log(tick);
-        // console.log(offset);
         offsetsAr.push(offset);
         offset += height;
-        tickvals.push(tick);
       }
 
-      yScalAxis.domain([offsetsAr[0], offsetsAr[offsetsAr.length - 1]]);
+      yScaleAxis.domain([offsetsAr[0], offsetsAr[offsetsAr.length - 1]]);
 
-      for (let val of data) {
-        let height = a * (val.coefficient);
-        console.log(val.mz);
-        console.log(height);
-        console.log(yScalAxis(height));
-      }
       svg
         .append('g')
         .attr('transform', 'translate(' + margin.left + ',' + 40 + ')')
@@ -130,12 +103,11 @@ export default {
         .enter().append('rect')
         .attr('class', 'bar')
         .attr('y', function (d, i) {
-          // return yScalAxis(d.mz) - (a * d.coefficient) / 2;
-          return yScalAxis(offsetsAr[i]);
+          return yScaleAxis(offsetsAr[i]);
         })
         .style('fill', 'white')
         .style('stroke', 'black')
-        .style('stroke-width', '0.1')
+        .style('stroke-width', '0.5')
         .on('mouseenter', function () {
           d3.select(this)
             .style('fill', 'orange'); // orange is the new black
@@ -145,20 +117,19 @@ export default {
             .style('fill', 'white');
         })
         .attr('width', function (d) { return xScaleAxis(d.coefficient); })
-
         .attr('height', function (d, i) {
-          return yScalAxis(heights[i]); // scale bar size
+          return yScaleAxis(heights[i]); // scale bar size
         })
-        .on('mouseover', function (d) {
+        .on('mouseover', function (d, i) {
           const property = [{
             note: {
               label: d.mz
             },
             x: margin.left + xScaleAxis(d.coefficient),
-            y: yScalAxis(d.mz),
-            dy: 30 - yScalAxis(d.mz),
-            dx: 220 - xScaleAxis(d.coefficient),
-            color: 'black',
+            y: yScaleAxis(offsetsAr[i]) + 40,
+            dy: 10 - yScaleAxis(offsetsAr[i]),
+            dx: 210 - xScaleAxis(d.coefficient),
+            color: 'orange',
             type: d3annotate.annotationCalloutElbow
           }];
           svg
@@ -177,10 +148,6 @@ export default {
         d.coefficient = +d.coefficient;
       });
 
-      // Scale the range of the data in the domains
-      yScalAxis.domain(data.map(function (d) { return d.mz; }));
-      // y.domain([0, d3.max(data, function(d) { return d.sales; })]);
-
       // add the x Axis
       svg.append('g')
         .attr('class', 'x_axis')
@@ -191,10 +158,9 @@ export default {
       // add the y Axis
       svg.append('g')
         .attr('class', 'y_axis')
-        .attr('transform', 'translate(' + margin.left + ',0)')
-        .call(d3.axisLeft(yScalAxis))
+        .attr('transform', 'translate(' + margin.left + ',' + 40 + ')')
+        .call(d3.axisLeft(yScaleAxis))
         .selectAll('text').remove();
-      // });
 
       svg.append('foreignObject')
         .attr('width', 30)
@@ -213,18 +179,6 @@ export default {
         let total = d3.sum(values);
         return (width - (n - 1) * padding * width / n - 2 * outerPadding * width / n) / total;
       }
-      function wi (values, alpha) {
-        return function (i) {
-        };
-      }
-      function midi (values, alpha) {
-        let w = wi(values, alpha);
-        let n = values.length;
-        return function (_, i) {
-          var op = outerPadding * width / n; var p = padding * width / n;
-          return op + d3.sum(values.slice(0, i)) * alpha + i * p + w(i) / 2;
-        };
-      }
     }
   }
 
@@ -233,7 +187,6 @@ export default {
 
 <style scoped lang="scss">
   .chart{
-    // position: absolute;
     display: flex;
     align-content: flex-end;
     align-items: flex-end;
@@ -251,7 +204,6 @@ export default {
     padding: 2px;
     font: 12px sans-serif;
     background: lightsteelblue;
-    border: 0px;
     border-radius: 8px;
     pointer-events: none;
   }
