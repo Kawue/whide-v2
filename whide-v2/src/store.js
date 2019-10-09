@@ -35,7 +35,8 @@ export default new Vuex.Store({
     prototypeColor: {},
     ringCoefficients: [],
     ringIdx: String,
-    mzHeight: Number
+    mzHeight: Number,
+    lastPrototypeIndex: 0
 
   },
   getters: {
@@ -134,7 +135,6 @@ export default new Vuex.Store({
           value: prototypId
         });
         state.colorSlider = true;
-        return null;
       }
     },
     DELETE_CHOOSED_BOOKMARK: (state, prototypeId) => {
@@ -201,6 +201,9 @@ export default new Vuex.Store({
     },
     SET_MZHEIGHT: (state, height) => {
       state.mzHeight = height;
+    },
+    SET_LASTIDX_OF_COEF: (state, idx) => {
+      state.lastPrototypeIndex = idx + 1;
     }
   },
   actions: {
@@ -210,11 +213,18 @@ export default new Vuex.Store({
       context.commit('SET_FOCUS_DEFAULT');
     },
     getRingCoefficients: (context, index) => {
-      const url = API_URL + '/coefficients?index=' + index;
+      let sendData = {
+        'ringIdx': index,
+        'lastIdx': context.state.lastPrototypeIndex
+      };
+      let lastIdx = context.state.lastPrototypeIndex;
+      console.log(sendData);
+      const url = API_URL + '/coefficients?index=' + index + '&lastIndex=' + lastIdx.toString();
       axios
         .get(url)
         .then(response => {
-          context.commit('SET_RING_COEFFICIENTS', response.data);
+          context.commit('SET_RING_COEFFICIENTS', response.data['coefficients']);
+          context.commit('SET_LASTIDX_OF_COEF', response.data['idx']);
         })
         .catch(function () {
           alert('Error while getting coefficients');

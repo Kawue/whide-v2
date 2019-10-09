@@ -78,11 +78,11 @@ export default {
     store.subscribe(mutation => {
       if (mutation.type === 'SET_MOEBIUS') {
         d3.select('#colorwheelContainer').remove();
-        this.getPos(this.prototypesPosition);
+        this.getPos();
       }
       if (mutation.type === 'SET_DEFAULT_POSITION') {
         d3.select('#colorwheelContainer').remove();
-        this.getPos(this.prototypesPosition);
+        this.getPos();
       }
     });
   },

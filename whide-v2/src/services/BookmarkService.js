@@ -3,7 +3,7 @@ class BookmarkService {
     let max = Number.MIN_SAFE_INTEGER;
     let min = Number.MAX_SAFE_INTEGER;
     let newCoeff = {};
-    for (const pro in coefficients) {
+    for (let pro in coefficients) {
       let i;
       for (i = 0; i < coefficients[pro].length; i++) {
         if (coefficients[pro][i] < min) {
@@ -18,7 +18,7 @@ class BookmarkService {
       let k;
       let newValues = [];
       for (k = 0; k < coefficients[norPro].length; k++) {
-        let val = (1 - 0) * ((coefficients[norPro][k] - min) / (max - min)) + 0;
+        let val = ((coefficients[norPro][k] - min) / (max - min));
         newValues.push(val);
       }
       newCoeff[norPro] = newValues;
