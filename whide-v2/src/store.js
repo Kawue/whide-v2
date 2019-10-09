@@ -36,7 +36,8 @@ export default new Vuex.Store({
     ringCoefficients: [],
     ringIdx: String,
     mzHeight: Number,
-    lastPrototypeIndex: 0
+    lastPrototypeIndex: 0,
+    startingIndizes: [0]
 
   },
   getters: {
@@ -78,6 +79,9 @@ export default new Vuex.Store({
     },
     getMzHeight: state => {
       return state.mzHeight;
+    },
+    getStartingIndizes: state => {
+      return state.startingIndizes;
     }
   },
   mutations: {
@@ -204,6 +208,9 @@ export default new Vuex.Store({
     },
     SET_LASTIDX_OF_COEF: (state, idx) => {
       state.lastPrototypeIndex = idx + 1;
+    },
+    SET_COEFF_INDEX: (state, indizes) => {
+      state.startingIndizes = indizes['indizes'];
     }
   },
   actions: {
@@ -211,20 +218,27 @@ export default new Vuex.Store({
       context.commit('SET_RING_IDX', 'ring0');
       context.commit('SET_ORIGINAL_DATA', apiService.fetchData());
       context.commit('SET_FOCUS_DEFAULT');
+      const url = API_URL + '/coefficientsindex';
+      axios
+        .get(url)
+        .then(response => {
+          context.commit('SET_COEFF_INDEX', response.data);
+        })
+        .catch(function () {
+          alert('Error while getting coefficients Index');
+        });
     },
     getRingCoefficients: (context, index) => {
-      let sendData = {
-        'ringIdx': index,
-        'lastIdx': context.state.lastPrototypeIndex
-      };
-      let lastIdx = context.state.lastPrototypeIndex;
-      console.log(sendData);
+      let ringIdx = context.state.ringIdx;
+      let re = /\d+/;
+      let i = ringIdx.match(re);
+      let startingindizes = context.state.startingIndizes;
+      let lastIdx = startingindizes[parseInt(i.toString())];
       const url = API_URL + '/coefficients?index=' + index + '&lastIndex=' + lastIdx.toString();
       axios
         .get(url)
         .then(response => {
           context.commit('SET_RING_COEFFICIENTS', response.data['coefficients']);
-          context.commit('SET_LASTIDX_OF_COEF', response.data['idx']);
         })
         .catch(function () {
           alert('Error while getting coefficients');
