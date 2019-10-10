@@ -1,6 +1,6 @@
 <template>
   <div>
-    <bchart class="chart" v-for="(key, index) in ids"  ref="key" :key="index" :prototypeid="key['id']" >
+    <bchart class="chart" v-for="(key, index) in ids"  ref="key" :key="key['id']" :prototypeid="key['id']" >
     </bchart>
   </div>
 </template>
@@ -18,12 +18,6 @@ export default {
     ...mapGetters({
       ids: 'getBookmarkIds'
     })
-  },
-  methods: {
-    itemsDirect: function () {
-      debugger;
-      return store.state.choosedBookmarksIds;
-    }
   }
 };
 </script>

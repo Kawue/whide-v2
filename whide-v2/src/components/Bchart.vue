@@ -11,6 +11,12 @@ import store from '../store';
 
 export default {
   name: 'Bchart',
+  data: function () {
+    return {
+      id: undefined
+    };
+  },
+
   props: {
     prototypeid: {
       type: String
@@ -23,12 +29,27 @@ export default {
   },
   mounted () {
     let givenPrototypId = this.prototypeid;
+    this.id = givenPrototypId;
+    console.log('prototypeId: ' + givenPrototypId);
+    console.log('this.bookmarks');
+    console.log(this.bookmarks);
     this.createChart(this.bookmarks[givenPrototypId]);
+    console.log(givenPrototypId);
     store.subscribe(mutation => {
+      console.log(givenPrototypId);
       if (mutation.type === 'SET_MOEBIUS') {
-        let backgroundColor = this.bookmarks[givenPrototypId]['color'];
-        d3.select('#' + this.bookmarks[givenPrototypId]['id'])
-          .style('background-color', backgroundColor);
+        if (Object.keys(this.bookmarks).length !== 0) {
+          debugger;
+          let backgroundColor = this.bookmarks[this.id]['color'];
+          d3.select('#' + this.bookmarks[this.id]['id'])
+            .style('background-color', backgroundColor);
+        }
+      } else if (mutation.type === 'SET_DEFAULT_POSITION') {
+        if (Object.keys(this.bookmarks).length !== 0) {
+          let backgroundColor = this.bookmarks[givenPrototypId]['color'];
+          d3.select('#' + this.bookmarks[givenPrototypId]['id'])
+            .style('background-color', backgroundColor);
+        }
       }
     });
   },
