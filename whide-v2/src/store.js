@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import * as d3 from 'd3';
 
 import ApiService from './services/ApiService';
 import MzService from './services/MzService';
@@ -33,7 +34,10 @@ export default new Vuex.Store({
     data: {},
     prototypeColor: {},
     ringCoefficients: [],
-    ringIdx: String
+    ringIdx: String,
+    mzHeight: Number,
+    lastPrototypeIndex: 0,
+    startingIndizes: [0]
 
   },
   getters: {
@@ -72,6 +76,12 @@ export default new Vuex.Store({
     },
     getColorSlider: state => {
       return state.colorSlider;
+    },
+    getMzHeight: state => {
+      return state.mzHeight;
+    },
+    getStartingIndizes: state => {
+      return state.startingIndizes;
     }
   },
   mutations: {
@@ -124,24 +134,33 @@ export default new Vuex.Store({
       };
       if (!(prototypId in state.choosedBookmarks)) {
         state.choosedBookmarks[prototypId] = fullBookmarksDict;
-        state.choosedBookmarksIds.push(prototypId);
+        state.choosedBookmarksIds.push({
+          id: prototypId,
+          value: prototypId
+        });
         state.colorSlider = true;
-        return null;
       }
     },
     DELETE_CHOOSED_BOOKMARK: (state, prototypeId) => {
-      /* console.log(state.choosedBookmarksIds);
-      const indexOfPrototyp = state.choosedBookmarksIds.indexOf(prototypeId);
-      console.log(indexOfPrototyp);
-      let begin = state.choosedBookmarksIds.slice(0, indexOfPrototyp);
-      let end = state.choosedBookmarksIds.slice(indexOfPrototyp + 1, state.choosedBookmarksIds.length);
-      console.log(begin.concat(end));
-       */
       delete state.choosedBookmarks[prototypeId];
-      state.choosedBookmarksIds = Object.keys(state.choosedBookmarks);
+    },
+    DELETE_ITEMS: (state, itemId) => {
+      let currentIds = state.choosedBookmarksIds;
+      for (let i = 0; i < currentIds.length; i++) {
+        if (currentIds[i]['id'] === itemId) {
+          currentIds.splice(i, 1);
+        }
+      }
+      Vue.set(state, 'choosedBookmarksIds', currentIds);
+      d3.select('#' + itemId).remove();
       if (state.choosedBookmarksIds.length === 0) {
         state.colorSlider = false;
       }
+    },
+    CLEAR_ALL_BOOKMARKS: (state) => {
+      state.choosedBookmarks = {};
+      state.choosedBookmarksIds = [];
+      state.colorSlider = false;
     },
     SET_RING_COEFFICIENTS: (state, coefficients) => {
       state.ringCoefficients = bookmarkService.normalizeCoefficients(coefficients);
@@ -166,13 +185,14 @@ export default new Vuex.Store({
     SET_DEFAULT_POSITION: (state) => {
       let protoDict = {};
       Object.keys(state.prototypesPosition).forEach(function (prototype) {
-        let proPos = {
+        protoDict[prototype] = {
           'currentPos': state.prototypesPosition[prototype]['startPos'],
           'startPos': state.prototypesPosition[prototype]['startPos']
         };
-        protoDict[prototype] = proPos;
       });
       state.prototypesPosition = protoDict;
+      let xAndY = { 'x': 0, 'y': 0 };
+      state.prototypesPosition = moebiustransformation(state.prototypesPosition, xAndY, state.focus);
     },
     SET_FOCUS_DEFAULT: (state) => {
       state.focus = {
@@ -182,6 +202,15 @@ export default new Vuex.Store({
     },
     SET_MOVED_FOCUS: (state, focus) => {
       state.focus = focus;
+    },
+    SET_MZHEIGHT: (state, height) => {
+      state.mzHeight = height;
+    },
+    SET_LASTIDX_OF_COEF: (state, idx) => {
+      state.lastPrototypeIndex = idx + 1;
+    },
+    SET_COEFF_INDEX: (state, indizes) => {
+      state.startingIndizes = indizes['indizes'];
     }
   },
   actions: {
@@ -189,28 +218,34 @@ export default new Vuex.Store({
       context.commit('SET_RING_IDX', 'ring0');
       context.commit('SET_ORIGINAL_DATA', apiService.fetchData());
       context.commit('SET_FOCUS_DEFAULT');
-    },
-    simpleHelloWorld: context => {
-      const url = API_URL + '/hello';
+      const url = API_URL + '/coefficientsindex';
       axios
         .get(url)
         .then(response => {
-          window.alert(response.data);
+          context.commit('SET_COEFF_INDEX', response.data);
         })
         .catch(function () {
-          alert('Error While printing Hello World');
+          alert('Error while getting coefficients Index');
         });
     },
     getRingCoefficients: (context, index) => {
-      const url = API_URL + '/coefficients?index=' + index;
+      let ringIdx = context.state.ringIdx;
+      let re = /\d+/;
+      let i = ringIdx.match(re);
+      let startingindizes = context.state.startingIndizes;
+      let lastIdx = startingindizes[parseInt(i.toString())];
+      const url = API_URL + '/coefficients?index=' + index + '&lastIndex=' + lastIdx.toString();
       axios
         .get(url)
         .then(response => {
-          context.commit('SET_RING_COEFFICIENTS', response.data);
+          context.commit('SET_RING_COEFFICIENTS', response.data['coefficients']);
         })
         .catch(function () {
           alert('Error while getting coefficients');
         });
+    },
+    deleteBookmarks: (context, bookmarkid) => {
+      context.commit('DELETE_ITEMS', bookmarkid);
     }
   }
 });

@@ -1,6 +1,5 @@
 <template>
     <div id="graphic" class="chart">
-      <!--<b-button pill variant="danger" class="deleteButton">X</b-button>-->
     </div>
 </template>
 
@@ -13,7 +12,9 @@ import store from '../store';
 export default {
   name: 'Bchart',
   props: {
-    prototypeid: String
+    prototypeid: {
+      type: String
+    }
   },
   computed: {
     ...mapGetters({
@@ -21,15 +22,25 @@ export default {
     })
   },
   mounted () {
-    let givenPrototypId = this.prototypeid;
-    this.createChart(this.bookmarks[givenPrototypId]);
-    store.subscribe(mutation => {
+    this.createChart(this.bookmarks[this.prototypeid]);
+    this.unsubscribe = store.subscribe(mutation => {
       if (mutation.type === 'SET_MOEBIUS') {
-        let backgroundColor = this.bookmarks[givenPrototypId]['color'];
-        d3.select('#' + this.bookmarks[givenPrototypId]['id'])
-          .style('background-color', backgroundColor);
+        if (Object.keys(this.bookmarks).length !== 0) {
+          let backgroundColor = this.bookmarks[this.prototypeid]['color'];
+          d3.select('#' + this.bookmarks[this.prototypeid]['id'])
+            .style('background-color', backgroundColor);
+        }
+      } else if (mutation.type === 'SET_DEFAULT_POSITION') {
+        if (Object.keys(this.bookmarks).length !== 0) {
+          let backgroundColor = this.bookmarks[this.prototypeid]['color'];
+          d3.select('#' + this.bookmarks[this.prototypeid]['id'])
+            .style('background-color', backgroundColor);
+        }
       }
     });
+  },
+  beforeDestroy () {
+    this.unsubscribe();
   },
   methods: {
     createChart: function (bookmark) {
@@ -39,34 +50,32 @@ export default {
       });
 
       let margin = {
-        top: 20,
-        right: 25,
+        top: 25,
+        right: 35,
         bottom: 2,
-        left: 25
+        left: 20
       };
       let width = 300 - margin.left - margin.right;
-      let height = 385 - margin.top - margin.bottom;
-
-      let yScalAxis = d3.scaleBand()
-        .range([height, 40]);
-        // .padding(0.1)
+      let height = 360 - margin.top - margin.bottom;
+      let padding = 0.1; let outerPadding = 0.3;
 
       let dataMin = d3.min(data, function (d) { return d.coefficient; });
       let dataMax = d3.max(data, function (d) { return d.coefficient; });
-      // let barWidthMin = 10
       let barWidthMax = width;
+
+      let yScaleAxis = d3.scaleLinear()
+        .range([0, height - 40]);
 
       let xScaleAxis = d3.scaleLinear()
         .domain([dataMin, dataMax])
-        .range([0, barWidthMax + (barWidthMax * 0.05)]);
-
-      // let barHeightMin = 1
-      let barHeightMax = height / data.map((d) => d.coefficient).reduce((a, b) => a + b, 0);
+        .range([0, barWidthMax + (barWidthMax * 0.05)], padding, outerPadding);
 
       let svg = d3.select('#graphic').append('svg')
         .attr('id', bookmark['id'])
-        .attr('width', 20 + 'vw') //  margin.left + margin.right)
+        .attr('width', barWidthMax + margin.left + margin.right) //  margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom)
+        .style('margin-right', '2px')
+        .style('border-style', 'solid')
         .style('background-color', backgroundColor)
         .on('mouseenter', function () {
           d3.select(this)
@@ -74,44 +83,63 @@ export default {
             .attr('class', 'annotation-group')
             .style('pointer-events', 'none');
         })
-        .on('mouseleave', function (d) { d3.select(this).select('.annotation-group').remove(); });
+        .on('mouseleave', function () { d3.select(this).select('.annotation-group').remove(); });
 
-      // format the data
-      data.forEach(function (d) {
-        d.cefficients = +d.cefficients;
+      let coefficientArray = [];
+      data.forEach(function (e) {
+        coefficientArray.push(e['coefficient']);
       });
 
-      // Scale the range of the data in the domains
-      yScalAxis.domain(data.map(function (d) { return d.mz; }));
-      // y.domain([0, d3.max(data, function(d) { return d.sales; })]);
+      let a = alpha(coefficientArray);
+      let offset = 0;
+      let offsetsAr = [];
+      let heights = [];
+      for (let val of data) {
+        let height = a * (val.coefficient);
+        heights.push(height);
+        offsetsAr.push(offset);
+        offset += height;
+      }
+
+      yScaleAxis.domain([offsetsAr[0], offsetsAr[offsetsAr.length - 1]]);
 
       svg
         .append('g')
-        .attr('transform', 'translate(' + margin.left + ',0)')
+        .attr('transform', 'translate(' + margin.left + ',' + 40 + ')')
         .attr('class', 'hist-rects')
         .style('padding-left', '1')
         .selectAll('.bar')
         .data(data)
         .enter().append('rect')
         .attr('class', 'bar')
-        .style('fill', 'grey')
+        .attr('y', function (d, i) {
+          return yScaleAxis(offsetsAr[i]);
+        })
+        .style('fill', 'white')
         .style('stroke', 'black')
-        .style('stroke-width', '1')
+        .style('stroke-width', '0.5')
+        .on('mouseenter', function () {
+          d3.select(this)
+            .style('fill', 'orange'); // orange is the new black
+        })
+        .on('mouseleave', function () {
+          d3.select(this)
+            .style('fill', 'white');
+        })
         .attr('width', function (d) { return xScaleAxis(d.coefficient); })
-        .attr('y', function (d) { return yScalAxis(d.mz); })
-        .attr('height', function (d) { return d.coefficient * barHeightMax; })
-        .attr('height', function (d) { return 2; }) // scale bar size
-      // scale bar size
-        .on('mouseover', function (d) {
+        .attr('height', function (d, i) {
+          return yScaleAxis(heights[i]); // scale bar size
+        })
+        .on('mouseover', function (d, i) {
           const property = [{
             note: {
               label: d.mz
             },
             x: margin.left + xScaleAxis(d.coefficient),
-            y: yScalAxis(d.mz),
-            dy: 30 - yScalAxis(d.mz),
-            dx: 240 - xScaleAxis(d.coefficient),
-            color: 'black',
+            y: yScaleAxis(offsetsAr[i]) + 40,
+            dy: 10 - yScaleAxis(offsetsAr[i]),
+            dx: 210 - xScaleAxis(d.coefficient),
+            color: 'orange',
             type: d3annotate.annotationCalloutElbow
           }];
           svg
@@ -125,6 +153,11 @@ export default {
             .remove();
         });
 
+      // format the data
+      data.forEach(function (d) {
+        d.coefficient = +d.coefficient;
+      });
+
       // add the x Axis
       svg.append('g')
         .attr('class', 'x_axis')
@@ -135,20 +168,27 @@ export default {
       // add the y Axis
       svg.append('g')
         .attr('class', 'y_axis')
-        .attr('transform', 'translate(' + margin.left + ',0)')
-        .call(d3.axisLeft(yScalAxis))
+        .attr('transform', 'translate(' + margin.left + ',' + 40 + ')')
+        .call(d3.axisLeft(yScaleAxis))
         .selectAll('text').remove();
 
       svg.append('foreignObject')
-        .attr('width', 25)
-        .attr('height', 25)
+        .attr('width', 30)
+        .attr('height', 35)
         .append('xhtml:div')
         .append('xhtml:button')
         .attr('class', 'btn btn-outline-dark btn-sm')
         .html('x')
         .on('click', function () {
+          store.dispatch('deleteBookmarks', bookmark['id'].toString());
           store.commit('DELETE_CHOOSED_BOOKMARK', bookmark['id'].toString());
         });
+
+      function alpha (values) {
+        let n = values.length;
+        let total = d3.sum(values);
+        return (width - (n - 1) * padding * width / n - 2 * outerPadding * width / n) / total;
+      }
     }
   }
 
@@ -157,13 +197,13 @@ export default {
 
 <style scoped lang="scss">
   .chart{
-    // position: absolute;
     display: flex;
     align-content: flex-end;
     align-items: flex-end;
-    width: 100vw;
     bottom: 0;
     margin-left: 0.5vw;
+    overflow: auto;
+    margin-right: 0.5vw;
   }
 
   .tooltip {
@@ -174,7 +214,6 @@ export default {
     padding: 2px;
     font: 12px sans-serif;
     background: lightsteelblue;
-    border: 0px;
     border-radius: 8px;
     pointer-events: none;
   }

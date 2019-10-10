@@ -39,7 +39,7 @@ export default {
 
 <style scoped lang="scss">
   .sidebarRight {
-    background-color: slategray;
+    background-color: #4f5051;
     position: absolute;
     width: 25px;
     top: 47.5vh;
@@ -48,6 +48,7 @@ export default {
     right: 0;
     overflow: hidden;
     border-style: solid;
+    border-color: orange;
     border-bottom-left-radius: 20px;
   &.expanded {
      top:0;

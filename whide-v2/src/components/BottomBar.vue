@@ -1,20 +1,21 @@
 <template>
   <div class="bottombar">
-  <div id="dragbar" onmousedown="darg()"></div>
-  <div @mouseleave= "nothing" @mouseenter="nothing" class="bottombarWidget" v-bind:class="{ expanded: isExpanded }">
+      <div class="bottombarWidget" v-bind:class="{ expanded: isExpanded }">
       <span v-on:click="toggleView()" v-bind:class="getExpandUpIconClass()">
         <v-icon name="arrow-down" v-if="showExpandUpIcon()"></v-icon>
         <v-icon name="arrow-up" v-if="showExpandDownIcon()"></v-icon>
       </span>
-    <div class="content">
-      <Bookmarks side="up" v-if="isExpanded"></Bookmarks>
+        <div class="content">
+          <Bookmarks side="up" v-if="isExpanded"></Bookmarks>
+        </div>
       </div>
-  </div>
   </div>
 </template>
 
 <script>
 import Bookmarks from './Bookmarks';
+import * as d3 from 'd3';
+
 export default {
   name: 'Bottom',
   components: { Bookmarks },
@@ -25,8 +26,25 @@ export default {
     };
   },
   methods: {
+    handleResize () {
+      console.log('resized');
+    },
     toggleView: function () {
       this.isExpanded = !this.isExpanded;
+      try {
+        if (this.isExpanded) {
+          // d3.select('.mzComp').attr('height', '20vh important!');
+          document.getElementById('mzComponent').setAttribute('style', 'height:50vh');
+          document.getElementById('mzlistid').setAttribute('style', 'height:85%');
+        } else {
+          document.getElementById('mzComponent').setAttribute('style', 'height:100vh');
+          document.getElementById('mzlistid').setAttribute('style', 'height:93%');
+
+          // d3.select('.mzComp').attr('height', '100vh');
+        }
+      } catch (e) {
+        return null;
+      }
     },
     getExpandUpIconClass: function () {
       return this.side === 'up' ? 'float-down' : 'float-up';
@@ -36,15 +54,15 @@ export default {
     },
     showExpandDownIcon: function () {
       return this.side === 'up' ? this.isExpanded : !this.isExpanded;
-    },
-    nothing: function () {
-      return null;
     }
   }
 };
 </script>
 
 <style scoped lang="scss">
+  .bottombar{
+    clear: both;
+  }
   .bottombarWidget {
     position: absolute;
     height: 40px;
@@ -53,11 +71,12 @@ export default {
     min-width: 5vw;
     max-width: 80vw;
     z-index: 101;
-    overflow: hidden;
-    background-color: slategray;
+    background-color: #4f5051;
     bottom: 0;
     float: bottom;
     border-style: solid;
+    border-color: orange;
+
 
     &.expanded {
       height: 45vh;
@@ -67,12 +86,15 @@ export default {
       position: absolute;
       bottom: 0;
       .content {
-        display: block;
+        display: flex;
+        overflow-x: scroll;
       }
     }
 
     .content {
       display: none;
+      overflow-x: scroll;
+
     }
   }
 

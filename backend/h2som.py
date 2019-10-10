@@ -77,8 +77,8 @@ def calc_memb(data, h2som, ring_idx):
 # Calculate cluster of pixels, aka. segmentation map
 def spectral_cluster(data, bmu_matches, dframe):
     # Create empty image
-    grid_x = np.array(dframe.index.get_level_values("grid_x"))
-    grid_y = np.array(dframe.index.get_level_values("grid_y"))
+    grid_x = np.array(dframe.index.get_level_values("grid_x")).astype(int)
+    grid_y = np.array(dframe.index.get_level_values("grid_y")).astype(int)
     #print(grid_x)
     #print(grid_y)
     img = np.zeros((np.amax(grid_y)+1, np.amax(grid_x)+1))
@@ -99,8 +99,8 @@ def spectral_cluster(data, bmu_matches, dframe):
     plt.show()
 
 def getPixelsForRing(data, bmu_matches, dframe,ring):
-    grid_x = np.array(dframe.index.get_level_values("grid_x"))
-    grid_y = np.array(dframe.index.get_level_values("grid_y"))
+    grid_x = np.array(dframe.index.get_level_values("grid_x")).astype(int)
+    grid_y = np.array(dframe.index.get_level_values("grid_y")).astype(int)
 
     proto_idx = np.array(range(np.amax(bmu_matches+1)))
     #Creat empty pixels List for the ID of each pixel
@@ -131,8 +131,8 @@ def getPixelsForRing(data, bmu_matches, dframe,ring):
 
 # Calculate cluster of images
 def spatial_cluster(data, h2som, bmu_matches, dframe):
-    grid_x = np.array(dframe.index.get_level_values("grid_x"))
-    grid_y = np.array(dframe.index.get_level_values("grid_y"))
+    grid_x = np.array(dframe.index.get_level_values("grid_x")).astype(int)
+    grid_y = np.array(dframe.index.get_level_values("grid_y")).astype(int)
     gridX_max = np.amax(grid_x)
     gridY_max = np.amax(grid_y)
 

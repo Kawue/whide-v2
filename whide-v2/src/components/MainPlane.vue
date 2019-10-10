@@ -7,8 +7,15 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 export default {
-  name: 'MainPlane.vue'
+  name: 'MainPlane.vue',
+  computed: {
+    ...mapGetters({
+      ids: 'getBookmarkIds'
+    })
+  }
 };
 
 </script>
@@ -20,7 +27,7 @@ export default {
   left: 0px;
   right: 0px;
   bottom: 0px;
-  background-color: whitesmoke;
+  background-color: #404040;
   z-index: 100;
   color: white;
 }
@@ -33,4 +40,5 @@ export default {
     margin-right: 350px;
     background-color: #42b983;
   }
+
 </style>
