@@ -30,18 +30,22 @@ export default {
   mounted () {
     let givenPrototypId = this.prototypeid;
     this.id = givenPrototypId;
+    console.log("mounted")
     console.log('prototypeId: ' + givenPrototypId);
     console.log('this.bookmarks');
     console.log(this.bookmarks);
     this.createChart(this.bookmarks[givenPrototypId]);
     console.log(givenPrototypId);
-    store.subscribe(mutation => {
-      console.log(givenPrototypId);
+    //debugger
+    this.unsubscribe = store.subscribe(mutation => {
+      console.log("mutation")
+      console.log(mutation);
+      console.log(this.prototypeid);
       if (mutation.type === 'SET_MOEBIUS') {
         if (Object.keys(this.bookmarks).length !== 0) {
-          debugger;
-          let backgroundColor = this.bookmarks[this.id]['color'];
-          d3.select('#' + this.bookmarks[this.id]['id'])
+          //debugger;
+          let backgroundColor = this.bookmarks[this.prototypeid]['color'];
+          d3.select('#' + this.bookmarks[this.prototypeid]['id'])
             .style('background-color', backgroundColor);
         }
       } else if (mutation.type === 'SET_DEFAULT_POSITION') {
@@ -52,6 +56,10 @@ export default {
         }
       }
     });
+  },
+  beforeDestroy() {
+    this.unsubscribe();
+    //debugger
   },
   methods: {
     createChart: function (bookmark) {

@@ -72,7 +72,9 @@ export default new Vuex.Store({
       return (Object.keys(state.rings).length);
     },
     getBookmarkIds: state => {
-      debugger;
+      //debugger;
+      console.log("getter")
+      console.log(state.choosedBookmarksIds)
       return state.choosedBookmarksIds;
     },
     getColorSlider: state => {

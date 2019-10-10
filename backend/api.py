@@ -49,7 +49,7 @@ def getCoefIndeizes():
            indexList[i] = indexList[i] + indexList[i-1]
     indexList = indexList[:-1]
     returnData = {'indizes' : indexList}
-    return returnData
+    return json.dumps(returnData)
 
 if __name__ == '__main__':
     app.run(debug=True)
