@@ -72,9 +72,6 @@ export default new Vuex.Store({
       return (Object.keys(state.rings).length);
     },
     getBookmarkIds: state => {
-      //debugger;
-      console.log("getter")
-      console.log(state.choosedBookmarksIds)
       return state.choosedBookmarksIds;
     },
     getColorSlider: state => {
@@ -156,7 +153,7 @@ export default new Vuex.Store({
       }
       Vue.set(state, 'choosedBookmarksIds', currentIds);
       d3.select('#' + itemId).remove();
-      if (state.choosedBookmarks.length === 0) {
+      if (state.choosedBookmarksIds.length === 0) {
         state.colorSlider = false;
       }
     },
