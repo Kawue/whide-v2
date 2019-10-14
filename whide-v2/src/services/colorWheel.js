@@ -4,7 +4,6 @@ import store from '../store';
 var createColorWheel = function (protoId) {
   'use strict';
   const DEGREES_PER_RADIAN = 180 / Math.PI;
-
   const canvas = document.getElementById('colorwheelCanvas');
   const context = canvas.getContext('2d');
 
@@ -29,6 +28,9 @@ var createColorWheel = function (protoId) {
       color: posColor,
       position: Object.values(protoId[id])
     };
+    let idWithColor = {};
+    idWithColor[id] = posColor;
+    store.commit('SET_COMPLETE_FULL_DATA', idWithColor);
   });
 
   store.commit('SET_POS_COLOR', posDict);

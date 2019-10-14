@@ -72,8 +72,6 @@ export default {
     window.addEventListener('keydown', this.chooseMove);
   },
   mounted () {
-    this.getPos('ring0');
-    store.dispatch('getRingCoefficients', 'ring0');
     this.setGranulaity();
     store.subscribe(mutation => {
       if (mutation.type === 'SET_MOEBIUS') {
@@ -82,6 +80,9 @@ export default {
       }
       if (mutation.type === 'SET_DEFAULT_POSITION') {
         d3.select('#colorwheelContainer').remove();
+        this.getPos();
+      }
+      if (mutation.type === 'SET_FULL_DATA') {
         this.getPos();
       }
     });
@@ -99,8 +100,9 @@ export default {
       store.commit('SET_RING_IDX', currentRing);
       store.commit('SET_PROTOTYPES_POSITION');
       store.commit('SET_FOCUS_DEFAULT');
+      store.dispatch('getRingCoefficients');
+      store.commit('SET_FULL_DATA');
       this.getPos();
-      store.dispatch('getRingCoefficients', currentRing);
     },
     chooseMove: function () {
       if (event.keyCode === 38) {

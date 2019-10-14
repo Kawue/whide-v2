@@ -1,20 +1,37 @@
 <template>
   <div class="mainPlane">
     <p align="center">
-      <canvas class="canvasToFill"></canvas>
+      <canvas id="segMap" class="segmentationCanvas"></canvas>
     </p>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex';
+import * as sm from '../services/SegmentationService.js';
+import store from '../store';
 
 export default {
   name: 'MainPlane.vue',
   computed: {
     ...mapGetters({
-      ids: 'getBookmarkIds'
+      dim: 'getSegmentationDim'
     })
+  },
+  mounted () {
+    this.unsubscribe = store.subscribe(mutation => {
+      if (mutation.type === 'SET_SEGMENTATION_DIM') {
+        this.drawSegmentation();
+      }
+    });
+  },
+  beforeDestroy () {
+    this.unsubscribe();
+  },
+  methods: {
+    drawSegmentation: function () {
+      sm.drawSegmentationMap(this.dim);
+    }
   }
 };
 
@@ -31,7 +48,7 @@ export default {
   z-index: 100;
   color: white;
 }
-  .canvasToFill {
+  .segmentationCanvas {
     position: relative;
     width: 70%;
     height: 700px;

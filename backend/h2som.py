@@ -172,57 +172,64 @@ def spatial_cluster(data, h2som, bmu_matches, dframe):
         plt.imsave(join(cl_path, "proto" + str(i)), img, vmin=0, vmax=1)
 
 def createJson(h2som, data, dframe):
+#get max x and max y for height of image
+    grid_x = np.array(dframe.index.get_level_values("grid_x")).astype(int)
+    grid_y = np.array(dframe.index.get_level_values("grid_y")).astype(int)
+    gridX_max = np.amax(grid_x)
+    gridY_max = np.amax(grid_y)
+    canvas = {'x': gridX_max, 'y': gridY_max}
+    print(canvas)
+    pickle.dump(canvas, open("info.h2som", "wb"))
+    posX = h2som._pos[:,0]
+    posY = h2som._pos[:,1]
 
-	posX = h2som._pos[:,0]
-	posY = h2som._pos[:,1]
-
-	json_dict = {}
-	i = 0
-	ring_idx = 1
-	prototyp_dict ={}
-	ring_dict = {}
-	pixels_dict = None
+    json_dict = {}
+    i = 0
+    ring_idx = 1
+    prototyp_dict ={}
+    ring_dict = {}
+    pixels_dict = None
 
 	# Get each Ring
-	pixels_dict = None
-	for ring in h2som._rings:
-		membs = calc_memb(data, h2som, ring_idx)
-		pixelsPerPrototype, pixels_dict = getPixelsForRing(data, membs, dframe,ring)
-		ring_idx +=1
+    pixels_dict = None
+    for ring in h2som._rings:
+        membs = calc_memb(data, h2som, ring_idx)
+        pixelsPerPrototype, pixels_dict = getPixelsForRing(data, membs, dframe,ring)
+        ring_idx +=1
 		# get the Prototypes of the ring
-		prototyp_idx = 0
-		for k in range(ring[0],ring[1]+1):
-			prototyp_dict["prototyp"+str(k-1)] = {}
+        prototyp_idx = 0
+        for k in range(ring[0],ring[1]+1):
+            prototyp_dict["prototyp"+str(k-1)] = {}
 			# set the items of the Prototype
-			prototyp_dict["prototyp"+str(k-1)]["pos"] = [posX[k], posY[k]]
-			prototyp_dict["prototyp"+str(k-1)]["pixel"] = pixelsPerPrototype[prototyp_idx]
-			prototyp_dict["prototyp"+str(k-1)]["coefficients"] = []
-			prototyp_idx += 1
+            prototyp_dict["prototyp"+str(k-1)]["pos"] = [posX[k], posY[k]]
+            prototyp_dict["prototyp"+str(k-1)]["pixel"] = pixelsPerPrototype[prototyp_idx]
+            prototyp_dict["prototyp"+str(k-1)]["coefficients"] = []
+            prototyp_idx += 1
 
 		# add prtotype to the ring
-		ring_dict["ring"+str(i)] = prototyp_dict
-		prototyp_dict = {}
-		i +=1
+        ring_dict["ring"+str(i)] = prototyp_dict
+        prototyp_dict = {}
+        i +=1
 	#add Ring, Pixels and Mzs to the Json
-	json_dict["rings"] = ring_dict
-	json_dict["pixels"] = pixels_dict
-	json_dict["mzs"] = [x for x in dframe.columns]
+    json_dict["rings"] = ring_dict
+    json_dict["pixels"] = pixels_dict
+    json_dict["mzs"] = [x for x in dframe.columns]
 
-	for key_px, val_px in json_dict["pixels"].items():
-		json_dict["pixels"][key_px]["membership"] = {}
-		for key_ring, val_ring in json_dict["rings"].items():
-			for prot, val_prot in val_ring.items():
-				if key_px in val_prot["pixel"]:
-					json_dict["pixels"][key_px]["membership"][key_ring] = prot
-
-
-	with open('data.json', 'w') as outfile:
-	    json.dump(json_dict, outfile)
+    for key_px, val_px in json_dict["pixels"].items():
+        json_dict["pixels"][key_px]["membership"] = {}
+        for key_ring, val_ring in json_dict["rings"].items():
+            for prot, val_prot in val_ring.items():
+                if key_px in val_prot["pixel"]:
+                    json_dict["pixels"][key_px]["membership"][key_ring] = prot
 
 
-	jsonData= json.dumps(json_dict)
+    with open('data.json', 'w') as outfile:
+        json.dump(json_dict, outfile)
 
-	return jsonData
+
+    jsonData= json.dumps(json_dict)
+
+    return jsonData
 
 
 ### Spectral workflow
