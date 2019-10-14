@@ -101,8 +101,8 @@ export default {
       store.commit('SET_PROTOTYPES_POSITION');
       store.commit('SET_FOCUS_DEFAULT');
       store.dispatch('getRingCoefficients');
+      store.commit('SET_COLORS_READY', false);
       store.commit('SET_FULL_DATA');
-      this.getPos();
     },
     chooseMove: function () {
       if (event.keyCode === 38) {

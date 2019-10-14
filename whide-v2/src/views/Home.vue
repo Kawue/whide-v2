@@ -33,9 +33,9 @@ export default {
     };
   },
   mounted: function () {
+    Store.dispatch('getDimensions');
     Store.dispatch('getStartingData');
     Store.dispatch('fetchData');
-    Store.dispatch('getDimensions');
     this.showPanels = true;
   }
 };

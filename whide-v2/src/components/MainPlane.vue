@@ -15,12 +15,13 @@ export default {
   name: 'MainPlane.vue',
   computed: {
     ...mapGetters({
-      dim: 'getSegmentationDim'
+      dim: 'getSegmentationDim',
+      colorsReady: 'getIfColorsReady'
     })
   },
   mounted () {
     this.unsubscribe = store.subscribe(mutation => {
-      if (mutation.type === 'SET_SEGMENTATION_DIM') {
+      if (mutation.type === 'SET_COLORS_READY') {
         this.drawSegmentation();
       }
     });
@@ -30,7 +31,9 @@ export default {
   },
   methods: {
     drawSegmentation: function () {
-      sm.drawSegmentationMap(this.dim);
+      if (this.colorsReady) {
+        sm.drawSegmentationMap(this.dim);
+      }
     }
   }
 };

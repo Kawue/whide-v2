@@ -36,7 +36,8 @@ export default new Vuex.Store({
     lastPrototypeIndex: 0,
     startingIndizes: [0],
     segmentationMapDim: {},
-    currentRingData: {}
+    currentRingData: {},
+    colorsReady: false
 
   },
   getters: {
@@ -84,6 +85,9 @@ export default new Vuex.Store({
     },
     getCurrentRingData: state => {
       return state.currentRingData;
+    },
+    getIfColorsReady: state => {
+      return state.colorsReady;
     }
   },
   mutations: {
@@ -239,6 +243,9 @@ export default new Vuex.Store({
     },
     SET_SEGMENTATION_DIM: (state, dim) => {
       state.segmentationMapDim = dim;
+    },
+    SET_COLORS_READY: (state, bool) => {
+      state.colorsReady = bool;
     }
   },
   actions: {

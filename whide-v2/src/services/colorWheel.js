@@ -32,8 +32,8 @@ var createColorWheel = function (protoId) {
     idWithColor[id] = posColor;
     store.commit('SET_COMPLETE_FULL_DATA', idWithColor);
   });
-
   store.commit('SET_POS_COLOR', posDict);
+  store.commit('SET_COLORS_READY', true);
 
   function renderColorMarker (position, id) {
     const markerRadius = 6;
