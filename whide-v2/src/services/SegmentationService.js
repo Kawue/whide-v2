@@ -76,14 +76,22 @@ var drawSegmentationMap = function (dimensions) {
 
   function highlightPrototype (e) {
     let mousePos = getMousePos(canvas, e);
-    let posX = mousePos.x;
-    let posY = mousePos.y;
-    //console.log(posX);
-    //console.log(posY);
+    let posX = parseInt((mousePos.x - offsetX)/scalor);
+    let posY = parseInt((mousePos.y - offSetY)/scalor);
     //console.log(mousePos.col);
-    ctx.fillStyle = 'black';
+    //ctx.fillStyle = 'black';
     // console.log(posX + ' ' + posY);
-    ctx.fillRect(posX, posY, 1, 1);
+    //ctx.fillRect(posX, posY, 1, 1);
+    let posXY = [posX, posY]
+    let selectedPrototype = undefined;
+    let test = Object.keys(ringData).map((protoKey) => {
+      ringData[protoKey].pixels.map((pixelXY) => {
+        if(pixelXY[0] == posXY[0] && pixelXY[1] == posXY[1]){
+          selectedPrototype = protoKey;
+        }
+      });
+    });
+    console.log(selectedPrototype)
   }
   canvas.addEventListener('mousemove', highlightPrototype, false);
 

@@ -49,6 +49,7 @@ def getCoefIndeizes():
            indexList[i] = indexList[i] + indexList[i-1]
     indexList = indexList[:-1]
     returnData = {'indizes' : indexList}
+    print(returnData)
     return json.dumps(returnData)
 
 @app.route('/dimensions')
@@ -56,6 +57,7 @@ def getDimensions():
     dim = pickle.load(open('info.h2som', "rb"))
     dim['x'] = int(dim['x'])
     dim['y'] = int(dim['y'])
-    return dim
+    print(dim)
+    return json.dumps(dim)
 if __name__ == '__main__':
     app.run(debug=True)
