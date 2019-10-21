@@ -7,6 +7,7 @@ import MzService from './services/MzService';
 import BookmarkService from './services/BookmarkService';
 import axios from 'axios';
 import { moebiustransformation } from './services/colorWheel';
+import {isNumber} from 'bootstrap-vue/src/utils/inspect'
 
 const API_URL = 'http://localhost:5000';
 
@@ -37,7 +38,8 @@ export default new Vuex.Store({
     startingIndizes: [0],
     segmentationMapDim: {},
     currentRingData: {},
-    colorsReady: false
+    colorsReady: false,
+    segmentationScalor: Number
 
   },
   getters: {
@@ -88,6 +90,9 @@ export default new Vuex.Store({
     },
     getIfColorsReady: state => {
       return state.colorsReady;
+    },
+    getSegmentationScalor: state => {
+      return state.segmentationScalor;
     }
   },
   mutations: {
@@ -246,6 +251,9 @@ export default new Vuex.Store({
     },
     SET_COLORS_READY: (state, bool) => {
       state.colorsReady = bool;
+    },
+    SET_SCALOR: (state, num) => {
+      state.segmentationScalor = num;
     }
   },
   actions: {
@@ -271,7 +279,8 @@ export default new Vuex.Store({
           context.commit('SET_COEFF_INDEX', response.data);
           context.commit('SET_FULL_DATA');
         })
-        .catch(function () {
+        .catch(function (e) {
+          console.log(e);
           alert('Error while getting coefficients Index');
         });
     },
@@ -307,7 +316,8 @@ export default new Vuex.Store({
         .then(response => {
           context.commit('SET_RING_COEFFICIENTS', response.data['coefficients']);
         })
-        .catch(function () {
+        .catch(function (e) {
+          console.log(e);
           alert('Error while getting coefficients');
         });
     }

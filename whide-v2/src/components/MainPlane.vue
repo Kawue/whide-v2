@@ -58,7 +58,7 @@ export default {
     top: 30px;
     margin-left:190px;
     margin-right: 350px;
-    background-color: #42b983;
+    background-color: seashell;
   }
 
 </style>

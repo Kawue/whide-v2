@@ -64,7 +64,8 @@ export default {
     ...mapGetters({
       prototypesPosition: 'getPrototypesPosition',
       numberOfRings: 'getNumberOfRings',
-      sliderDisabled: 'getColorSlider'
+      sliderDisabled: 'getColorSlider',
+      sagmentationScalor: 'getSegmentationScalor'
     })
   },
 
@@ -76,10 +77,12 @@ export default {
     store.subscribe(mutation => {
       if (mutation.type === 'SET_MOEBIUS') {
         d3.select('#colorwheelContainer').remove();
+        this.clearSegmentationMap();
         this.getPos();
       }
       if (mutation.type === 'SET_DEFAULT_POSITION') {
         d3.select('#colorwheelContainer').remove();
+        this.clearSegmentationMap();
         this.getPos();
       }
       if (mutation.type === 'SET_FULL_DATA') {
@@ -96,6 +99,7 @@ export default {
     },
     changePos: function () {
       d3.select('#colorwheelContainer').remove();
+      this.clearSegmentationMap();
       let currentRing = 'ring' + this.ringGranularity.toString();
       store.commit('SET_RING_IDX', currentRing);
       store.commit('SET_PROTOTYPES_POSITION');
@@ -141,6 +145,13 @@ export default {
     },
     clearAllBookmarks: function () {
       store.commit('CLEAR_ALL_BOOKMARKS');
+    },
+    clearSegmentationMap: function () {
+      const canvas = document.getElementById('segMap');
+      let ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      let downScalor = 1 / this.sagmentationScalor;
+      //ctx.scale(downScalor, downScalor);
     }
   }
 };
