@@ -7,7 +7,6 @@ import MzService from './services/MzService';
 import BookmarkService from './services/BookmarkService';
 import axios from 'axios';
 import { moebiustransformation } from './services/colorWheel';
-import {isNumber} from 'bootstrap-vue/src/utils/inspect'
 
 const API_URL = 'http://localhost:5000';
 
@@ -102,11 +101,10 @@ export default new Vuex.Store({
       state.pixels = originalData.pixels;
       let protoDict = {};
       Object.keys(originalData.rings[state.ringIdx]).forEach(function (prototype) {
-        let proPos = {
+        protoDict[prototype] = {
           'currentPos': originalData.rings[state.ringIdx][prototype]['pos'],
           'startPos': originalData.rings[state.ringIdx][prototype]['pos']
         };
-        protoDict[prototype] = proPos;
       });
       state.prototypesPosition = protoDict;
     },
@@ -208,11 +206,10 @@ export default new Vuex.Store({
     SET_PROTOTYPES_POSITION: (state) => {
       let protoDict = {};
       Object.keys(state.rings[state.ringIdx]).forEach(function (prototype) {
-        let proPos = {
+        protoDict[prototype] = {
           'currentPos': state.rings[state.ringIdx][prototype]['pos'],
           'startPos': state.rings[state.ringIdx][prototype]['pos']
         };
-        protoDict[prototype] = proPos;
       });
       state.prototypesPosition = protoDict;
     },

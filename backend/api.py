@@ -56,6 +56,6 @@ def getDimensions():
     dim = pickle.load(open('info.h2som', "rb"))
     dim['x'] = int(dim['x'])
     dim['y'] = int(dim['y'])
-    return dim
+    return json.dumps(dim)
 if __name__ == '__main__':
     app.run(debug=True)
