@@ -49,6 +49,7 @@ def getCoefIndeizes():
            indexList[i] = indexList[i] + indexList[i-1]
     indexList = indexList[:-1]
     returnData = {'indizes' : indexList}
+    print(returnData)
     return json.dumps(returnData)
 
 @app.route('/dimensions')
