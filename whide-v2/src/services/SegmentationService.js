@@ -8,7 +8,7 @@ var drawSegmentationMap = function (dimensions) {
   const dimY = dimensions['y'] + 1;
   let uInt8IndexSample = {};
   let offsetX = 0;
-  let offSetY = 0;
+  let offsetY = 0;
 
   Object.keys(ringData).forEach(function (prototype) {
     let pixels = ringData[prototype]['pixels'];
@@ -53,7 +53,7 @@ var drawSegmentationMap = function (dimensions) {
   newCanvas.getContext('2d').putImageData(imageData, 0, 0);
   let defaultImageData = copyImageData(ctx, imageData);
 
-  let scalor = 2;
+  let scalor = 1;
 
   if (dimX >= dimY) {
     scalor = Math.floor(canvas.width / dimX);
@@ -66,8 +66,8 @@ var drawSegmentationMap = function (dimensions) {
   ctx.save();
   ctx.scale(scalor, scalor);
   offsetX = (canvas.width - (newCanvas.width * scalor)) / 4;
-  offSetY = (canvas.height - (newCanvas.height * scalor)) / 4;
-  ctx.drawImage(newCanvas, offsetX, offSetY);
+  offsetY = (canvas.height - (newCanvas.height * scalor)) / 4;
+  ctx.drawImage(newCanvas, offsetX, offsetY);
   canvas.addEventListener('mousemove', highlightPrototype, false);
   ctx.restore();
 
@@ -81,7 +81,7 @@ var drawSegmentationMap = function (dimensions) {
     let currentCTX = canvas.getContext('2d');
     // console.log(currentCTX);
     let posX = parseInt((mousePos.x - offsetX) / scalor);
-    let posY = parseInt((mousePos.y - offSetY) / scalor);
+    let posY = parseInt((mousePos.y - offsetY) / scalor);
     // let posX = parseInt(mousePos.x);
     // let posY = parseInt(mousePos.y);
 
@@ -145,8 +145,8 @@ var drawSegmentationMap = function (dimensions) {
     ctx.save();
     ctx.scale(scalor, scalor);
     offsetX = (canvas.width - (newCanvas.width * scalor)) / 4;
-    offSetY = (canvas.height - (newCanvas.height * scalor)) / 4;
-    ctx.drawImage(newCanvas, offsetX, offSetY);
+    offsetY = (canvas.height - (newCanvas.height * scalor)) / 4;
+    ctx.drawImage(newCanvas, offsetX, offsetY);
     ctx.restore();
   }
   function copyImageData (ctx, src) {
