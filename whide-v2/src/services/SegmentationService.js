@@ -47,11 +47,11 @@ var drawSegmentationMap = function (dimensions) {
       data[index + 3] = 255;
     });
   });
-
   let newCanvas = document.createElement('canvas');
   newCanvas.width = imageData.width;
   newCanvas.height = imageData.height;
   newCanvas.getContext('2d').putImageData(imageData, 0, 0);
+  let defaultImageData = copyImageData(ctx, imageData);
 
   let scalor = 2;
 
@@ -60,15 +60,17 @@ var drawSegmentationMap = function (dimensions) {
   } else {
     scalor = Math.floor(canvas.height / dimY);
   }
+  let first = true;
+  let selectedPrototype;
   store.commit('SET_SCALOR', scalor);
   ctx.save();
   ctx.scale(scalor, scalor);
   offsetX = (canvas.width - (newCanvas.width * scalor)) / 4;
   offSetY = (canvas.height - (newCanvas.height * scalor)) / 4;
   ctx.drawImage(newCanvas, offsetX, offSetY);
-  console.log(ctx);
+  canvas.addEventListener('mousemove', highlightPrototype, false);
   ctx.restore();
-  console.log(ctx);
+
   function indexAccess (i, j) {
     const NUM_CHANNELS = 4;
     return j * dimX * NUM_CHANNELS + i * NUM_CHANNELS;
@@ -76,40 +78,81 @@ var drawSegmentationMap = function (dimensions) {
 
   function highlightPrototype (e) {
     let mousePos = getMousePos(canvas, e);
-    let posX = parseInt((mousePos.x - offsetX)/scalor);
-    let posY = parseInt((mousePos.y - offSetY)/scalor);
-    //console.log(mousePos.col);
-    //ctx.fillStyle = 'black';
-    // console.log(posX + ' ' + posY);
-    //ctx.fillRect(posX, posY, 1, 1);
-    let posXY = [posX, posY]
-    let selectedPrototype = undefined;
-    let test = Object.keys(ringData).map((protoKey) => {
+    let currentCTX = canvas.getContext('2d');
+    // console.log(currentCTX);
+    let posX = parseInt((mousePos.x - offsetX) / scalor);
+    let posY = parseInt((mousePos.y - offSetY) / scalor);
+    // let posX = parseInt(mousePos.x);
+    // let posY = parseInt(mousePos.y);
+
+    ctx.fillStyle = 'black';
+    let posXY = [posX, posY];
+    Object.keys(ringData).map((protoKey) => {
       ringData[protoKey].pixels.map((pixelXY) => {
-        if(pixelXY[0] == posXY[0] && pixelXY[1] == posXY[1]){
-          selectedPrototype = protoKey;
+        if (pixelXY[0] === posXY[0] && pixelXY[1] === posXY[1]) {
+          let prototypeSample = uInt8IndexSample[protoKey]['indizes'];
+          if (first) {
+            selectedPrototype = protoKey;
+            first = false;
+            prototypeSample.forEach(function (index) {
+              data[index] = 255;
+              data[index + 1] = 255;
+              data[index + 2] = 255;
+              data[index + 3] = 255;
+            });
+            draw(imageData);
+          }
+          if (selectedPrototype !== protoKey) {
+            selectedPrototype = protoKey;
+            let newImageData = copyImageData(ctx, defaultImageData);
+            let newdata = newImageData.data;
+            prototypeSample.forEach(function (index) {
+              newdata[index] = 255;
+              newdata[index + 1] = 255;
+              newdata[index + 2] = 255;
+              newdata[index + 3] = 255;
+            });
+            draw(newImageData);
+          }
+          ctx.fillStyle = 'green';
         }
       });
     });
-    console.log(selectedPrototype)
+    ctx.fillRect(posX, posY, 1, 1);
   }
-  canvas.addEventListener('mousemove', highlightPrototype, false);
 
   function getMousePos (canvas, evt) {
     let x = evt.clientX;
     let y = evt.clientY;
-    //let pixeldata = ctx.getImageData(x, y, 1, 1);
-    //let col = pixeldata.data;
-    //console.log(col);
+    // let pixeldata = ctx.getImageData(x, y, 1, 1);
+    // let col = pixeldata.data;
+    // console.log(col);
     // let color = 'rgba(' +
     //  col[0] + ',' + col[1] + ',' +
     //   col[2] + ',' + col[3] + ')';
     let rect = canvas.getBoundingClientRect();
     return {
       x: (evt.clientX - rect.left) / (rect.right - rect.left) * canvas.width,
-      y: (evt.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height,
+      y: (evt.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height
       // col: color
     };
+  }
+  function draw (givenImagedata) {
+    let newCanvas = document.createElement('canvas');
+    newCanvas.width = givenImagedata.width;
+    newCanvas.height = givenImagedata.height;
+    newCanvas.getContext('2d').putImageData(givenImagedata, 0, 0);
+    ctx.save();
+    ctx.scale(scalor, scalor);
+    offsetX = (canvas.width - (newCanvas.width * scalor)) / 4;
+    offSetY = (canvas.height - (newCanvas.height * scalor)) / 4;
+    ctx.drawImage(newCanvas, offsetX, offSetY);
+    ctx.restore();
+  }
+  function copyImageData (ctx, src) {
+    var dst = ctx.createImageData(src.width, src.height);
+    dst.data.set(src.data);
+    return dst;
   }
 };
 
