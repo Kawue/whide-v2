@@ -80,8 +80,10 @@ var drawSegmentationMap = function (dimensions) {
     let mousePos = getMousePos(canvas, e);
     let currentCTX = canvas.getContext('2d');
     // console.log(currentCTX);
-    let posX = parseInt((mousePos.x - offsetX) / scalor);
-    let posY = parseInt((mousePos.y - offSetY) / scalor);
+    //let posX = parseInt((mousePos.x - offsetX) / scalor);
+    //let posY = parseInt((mousePos.y - offSetY) / scalor);
+    let posX = parseInt((mousePos.x / scalor) - offsetX);
+    let posY = parseInt((mousePos.y / scalor) - offSetY);
     // let posX = parseInt(mousePos.x);
     // let posY = parseInt(mousePos.y);
 
