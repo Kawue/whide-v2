@@ -53,6 +53,7 @@ var createColorWheel = function (protoId) {
     let colorOfPos = 'rgba(' + posColor[0].toString() + ',' + posColor[1].toString() + ',' + posColor[2].toString() + ',' + posColor[3].toString() + ')';
     d3.select('#colorwheelContainer')
       .append('circle')
+      .attr('class', id)
       .attr('cx', i)
       .attr('cy', j)
       .attr('r', markerRadius)

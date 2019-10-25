@@ -18,7 +18,8 @@ export default {
   },
   computed: {
     ...mapGetters({
-      bookmarks: 'getBookmarks'
+      bookmarks: 'getBookmarks',
+      highlightedPrototype: 'getCurrentHighlightedPrototype'
     })
   },
   mounted () {
@@ -37,6 +38,19 @@ export default {
             .style('background-color', backgroundColor);
         }
       }
+      if (mutation.type === 'SET_CURRENT_HIGHLIGHTED_PROTOTYPE') {
+        if (this.highlightedPrototype !== null) {
+          let markedColor = 'rgba(255,255,255,255)';
+          if (this.highlightedPrototype in this.bookmarks) {
+            d3.select('#' + this.bookmarks[this.highlightedPrototype]['id'])
+              .style('background-color', markedColor);
+          } else {
+            let backgroundColor = this.bookmarks[this.prototypeid]['color'];
+            d3.select('#' + this.bookmarks[this.prototypeid]['id'])
+              .style('background-color', backgroundColor);
+          }
+        }
+      }
     });
   },
   beforeDestroy () {
@@ -44,6 +58,12 @@ export default {
   },
   methods: {
     createChart: function (bookmark) {
+      if (this.highlightedPrototype !== null) {
+        if (bookmark['id'] === this.highlightedPrototype.toString()) {
+          console.log('now');
+        }
+      }
+
       let backgroundColor = bookmark['color'].toString();
       let data = bookmark['mzs'].map(function (x, i) {
         return { 'mz': x, 'coefficient': bookmark['data'][i] };

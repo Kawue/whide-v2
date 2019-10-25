@@ -57,7 +57,8 @@ export default {
       lengthRings: null,
       midRings: null,
       ringGranularity: 0,
-      disabled: false
+      disabled: false,
+      currentMarkedPoint: String
     };
   },
   computed: {
@@ -65,7 +66,9 @@ export default {
       prototypesPosition: 'getPrototypesPosition',
       numberOfRings: 'getNumberOfRings',
       sliderDisabled: 'getColorSlider',
-      sagmentationScalor: 'getSegmentationScalor'
+      sagmentationScalor: 'getSegmentationScalor',
+      highlightedPrototype: 'getCurrentHighlightedPrototype'
+
     })
   },
 
@@ -87,6 +90,13 @@ export default {
       }
       if (mutation.type === 'SET_FULL_DATA') {
         this.getPos();
+      }
+      if (mutation.type === 'SET_CURRENT_HIGHLIGHTED_PROTOTYPE') {
+        if (this.highlightedPrototype !== null) {
+          let markedColor = 'rgba(255,255,255,255)';
+          d3.select('.' + this.highlightedPrototype)
+            .style('fill', markedColor);
+        }
       }
     });
   },
@@ -150,8 +160,8 @@ export default {
       const canvas = document.getElementById('segMap');
       let ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      let downScalor = 1 / this.sagmentationScalor;
-      //ctx.scale(downScalor, downScalor);
+      // let downScalor = 1 / this.sagmentationScalor;
+      // ctx.scale(downScalor, downScalor);
     }
   }
 };

@@ -38,7 +38,8 @@ export default new Vuex.Store({
     segmentationMapDim: {},
     currentRingData: {},
     colorsReady: false,
-    segmentationScalor: Number
+    segmentationScalor: Number,
+    currentHighlightedPrototype: String
 
   },
   getters: {
@@ -92,6 +93,9 @@ export default new Vuex.Store({
     },
     getSegmentationScalor: state => {
       return state.segmentationScalor;
+    },
+    getCurrentHighlightedPrototype: state => {
+      return state.currentHighlightedPrototype;
     }
   },
   mutations: {
@@ -251,6 +255,9 @@ export default new Vuex.Store({
     },
     SET_SCALOR: (state, num) => {
       state.segmentationScalor = num;
+    },
+    SET_CURRENT_HIGHLIGHTED_PROTOTYPE: (state, prototype) => {
+      state.currentHighlightedPrototype = prototype;
     }
   },
   actions: {

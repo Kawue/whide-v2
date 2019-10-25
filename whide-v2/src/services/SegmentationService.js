@@ -84,14 +84,11 @@ var drawSegmentationMap = function (dimensions) {
   function highlightPrototype (e) {
     let mousePos = getMousePos(canvas, e);
     let currentColor = mousePos.col;
-    if (currentColor[0] === backGroundcolor[0] && currentColor[1] === backGroundcolor[1] &&
-    currentColor[2] === backGroundcolor[2] && currentColor[3] === backGroundcolor[3]) {
-      outside = true;
-    } else {
-      outside = false;
-    }
+    outside = currentColor[0] === backGroundcolor[0] && currentColor[1] === backGroundcolor[1] &&
+      currentColor[2] === backGroundcolor[2] && currentColor[3] === backGroundcolor[3];
     if (outside) {
       let defaultData = copyImageData(ctx, defaultImageData);
+      store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
       draw(defaultData);
     } else {
       let posX = parseInt((mousePos.x / scalor) - offsetX);
@@ -103,6 +100,7 @@ var drawSegmentationMap = function (dimensions) {
             let prototypeSample = uInt8IndexSample[protoKey]['indizes'];
             if (first) {
               selectedPrototype = protoKey;
+              store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', selectedPrototype);
               first = false;
               prototypeSample.forEach(function (index) {
                 data[index] = 255;
@@ -114,6 +112,7 @@ var drawSegmentationMap = function (dimensions) {
             }
             if (selectedPrototype !== protoKey) {
               selectedPrototype = protoKey;
+              store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', selectedPrototype);
               let newImageData = copyImageData(ctx, defaultImageData);
               let newdata = newImageData.data;
               prototypeSample.forEach(function (index) {
