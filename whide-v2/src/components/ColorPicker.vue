@@ -58,7 +58,8 @@ export default {
       midRings: null,
       ringGranularity: 0,
       disabled: false,
-      currentMarkedPoint: String
+      currentMarkedPrototypeColor: null,
+      currentMarkedPrototype: null
     };
   },
   computed: {
@@ -93,9 +94,28 @@ export default {
       }
       if (mutation.type === 'SET_CURRENT_HIGHLIGHTED_PROTOTYPE') {
         if (this.highlightedPrototype !== null) {
-          let markedColor = 'rgba(255,255,255,255)';
-          d3.select('.' + this.highlightedPrototype)
-            .style('fill', markedColor);
+          if (this.currentMarkedPrototype !== this.highlightedPrototype) {
+            if (this.currentMarkedPrototype !== null) {
+              d3.select('.' + this.currentMarkedPrototype)
+                .style('fill', this.currentMarkedPrototypeColor);
+              this.currentMarkedPrototypeColor = d3.select('.' + this.highlightedPrototype).style('fill');
+              let markedColor = 'rgba(255,255,255,255)';
+              d3.select('.' + this.highlightedPrototype)
+                .style('fill', markedColor);
+              this.currentMarkedPrototype = this.highlightedPrototype;
+            } else {
+              this.currentMarkedPrototypeColor = d3.select('.' + this.highlightedPrototype).style('fill');
+              let markedColor = 'rgba(255,255,255,255)';
+              d3.select('.' + this.highlightedPrototype)
+                .style('fill', markedColor);
+              this.currentMarkedPrototype = this.highlightedPrototype;
+            }
+          }
+        } else {
+          d3.select('.' + this.currentMarkedPrototype)
+            .style('fill', this.currentMarkedPrototypeColor);
+          this.currentMarkedPrototype = null;
+          this.currentMarkedPrototypeColor = null;
         }
       }
     });

@@ -11,6 +11,12 @@ import store from '../store';
 
 export default {
   name: 'Bchart',
+  data: function () {
+    return {
+      currentMarkedPrototypeColor: null,
+      currentMarkedPrototype: null
+    };
+  },
   props: {
     prototypeid: {
       type: String
@@ -42,13 +48,30 @@ export default {
         if (this.highlightedPrototype !== null) {
           let markedColor = 'rgba(255,255,255,255)';
           if (this.highlightedPrototype in this.bookmarks) {
-            d3.select('#' + this.bookmarks[this.highlightedPrototype]['id'])
-              .style('background-color', markedColor);
+            if (this.currentMarkedPrototype !== null) {
+              if (this.currentMarkedPrototype !== this.highlightedPrototype) {
+                d3.select('#' + this.currentMarkedPrototype)
+                  .style('background-color', this.currentMarkedPrototypeColor);
+                d3.select('#' + this.bookmarks[this.highlightedPrototype]['id'])
+                  .style('background-color', markedColor);
+                this.currentMarkedPrototype = this.prototypeid;
+                this.currentMarkedPrototypeColor = this.bookmarks[this.prototypeid]['color'];
+              }
+            } else {
+              this.currentMarkedPrototype = this.prototypeid;
+              this.currentMarkedPrototypeColor = this.bookmarks[this.prototypeid]['color'];
+            }
           } else {
-            let backgroundColor = this.bookmarks[this.prototypeid]['color'];
-            d3.select('#' + this.bookmarks[this.prototypeid]['id'])
-              .style('background-color', backgroundColor);
+            d3.select('#' + this.currentMarkedPrototype)
+              .style('background-color', this.currentMarkedPrototypeColor);
+            this.currentMarkedPrototype = null;
+            this.currentMarkedPrototypeColor = null;
           }
+        } else {
+          d3.select('#' + this.currentMarkedPrototype)
+            .style('background-color', this.currentMarkedPrototypeColor);
+          this.currentMarkedPrototype = null;
+          this.currentMarkedPrototypeColor = null;
         }
       }
     });

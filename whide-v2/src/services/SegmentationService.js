@@ -34,7 +34,6 @@ var drawSegmentationMap = function (dimensions) {
   const canvas = document.getElementById('segMap');
   let ctx = canvas.getContext('2d');
   ctx.webkitImageSmoothingEnabled = false;
-  ctx.mozImageSmoothingEnabled = false;
   ctx.imageSmoothingEnabled = false;
 
   let imageData = ctx.createImageData(dimX, dimY);
@@ -64,6 +63,7 @@ var drawSegmentationMap = function (dimensions) {
   }
   let first = true;
   let outside = Boolean;
+  let outsideOnce = false;
   let selectedPrototype;
   store.commit('SET_SCALOR', scalor);
   ctx.save();
@@ -87,10 +87,14 @@ var drawSegmentationMap = function (dimensions) {
     outside = currentColor[0] === backGroundcolor[0] && currentColor[1] === backGroundcolor[1] &&
       currentColor[2] === backGroundcolor[2] && currentColor[3] === backGroundcolor[3];
     if (outside) {
-      let defaultData = copyImageData(ctx, defaultImageData);
-      store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
-      draw(defaultData);
+      if (!outsideOnce) {
+        outsideOnce = true;
+        let defaultData = copyImageData(ctx, defaultImageData);
+        store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
+        draw(defaultData);
+      }
     } else {
+      outsideOnce = false;
       let posX = parseInt((mousePos.x / scalor) - offsetX);
       let posY = parseInt((mousePos.y / scalor) - offsetY);
       let posXY = [posX, posY];
