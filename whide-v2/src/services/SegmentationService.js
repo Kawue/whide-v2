@@ -9,6 +9,8 @@ var drawSegmentationMap = function (dimensions) {
   let uInt8IndexSample = {};
   let offsetX = 0;
   let offsetY = 0;
+  const zoomIn = 1.1;
+  const zoomOut = 1 / zoomIn;
   const backGroundcolor = [64, 64, 64, 255];
   const backGroundColorRGBA = 'rgba(64,64,64,255)';
 
@@ -55,16 +57,20 @@ var drawSegmentationMap = function (dimensions) {
   let defaultImageData = copyImageData(ctx, imageData);
 
   let scalor = 1;
+  let defaultScalor;
 
   if (dimX >= dimY) {
     scalor = Math.floor(canvas.width / dimX);
+    defaultScalor = scalor;
   } else {
     scalor = Math.floor(canvas.height / dimY);
+    defaultScalor = scalor;
   }
   let first = true;
   let outside = Boolean;
   let outsideOnce = false;
   let selectedPrototype;
+  let zoomCounter = 0;
   store.commit('SET_SCALOR', scalor);
   ctx.save();
   ctx.scale(scalor, scalor);
@@ -74,6 +80,7 @@ var drawSegmentationMap = function (dimensions) {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(newCanvas, offsetX, offsetY);
   canvas.addEventListener('mousemove', highlightPrototype, false);
+  canvas.addEventListener('wheel', zoom, false);
   ctx.restore();
 
   function indexAccess (i, j) {
@@ -95,6 +102,9 @@ var drawSegmentationMap = function (dimensions) {
       }
     } else {
       outsideOnce = false;
+      console.log(scalor);
+      console.log(zoomCounter);
+
       let posX = parseInt((mousePos.x / scalor) - offsetX);
       let posY = parseInt((mousePos.y / scalor) - offsetY);
       let posXY = [posX, posY];
@@ -133,6 +143,33 @@ var drawSegmentationMap = function (dimensions) {
     }
   }
 
+  function zoom (evt) {
+    let pos = getMousePos(canvas, evt);
+    let iD = copyImageData(ctx, defaultImageData);
+    const delta = Math.sign(evt.deltaY);
+    ctx.save();
+    ctx.translate(pos.x, pos.y);
+
+    if (delta === -1) {
+      if (zoomCounter !== 10) {
+        ctx.scale(zoomIn, zoomIn);
+        scalor = defaultScalor;
+        zoomCounter += 1;
+        scalor = scalor * (Math.pow(zoomIn, zoomCounter));
+      }
+    } else if (delta === 1) {
+      if (zoomCounter !== -3) {
+        ctx.scale(zoomOut, zoomOut);
+        scalor = defaultScalor;
+        zoomCounter -= 1;
+        scalor = scalor * (Math.pow(zoomIn, zoomCounter));
+      }
+    }
+    ctx.translate(-pos.x, -pos.y);
+    ctx.restore();
+
+    drawZoom(iD);
+  }
   function getMousePos (canvas, evt) {
     let rect = canvas.getBoundingClientRect();
     let xCord = (evt.clientX - rect.left) / (rect.right - rect.left) * canvas.width;
@@ -145,15 +182,30 @@ var drawSegmentationMap = function (dimensions) {
       col: col
     };
   }
-  function draw (givenImagedata) {
+  function draw (givenImageData) {
     let newCanvas = document.createElement('canvas');
-    newCanvas.width = givenImagedata.width;
-    newCanvas.height = givenImagedata.height;
-    newCanvas.getContext('2d').putImageData(givenImagedata, 0, 0);
+    newCanvas.width = givenImageData.width;
+    newCanvas.height = givenImageData.height;
+    newCanvas.getContext('2d').putImageData(givenImageData, 0, 0);
     ctx.save();
     ctx.scale(scalor, scalor);
     offsetX = (canvas.width - (newCanvas.width * scalor)) / 4;
     offsetY = (canvas.height - (newCanvas.height * scalor)) / 4;
+    ctx.drawImage(newCanvas, offsetX, offsetY);
+    ctx.restore();
+  }
+  function drawZoom (givenImageData) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let newCanvas = document.createElement('canvas');
+    newCanvas.width = givenImageData.width;
+    newCanvas.height = givenImageData.height;
+    newCanvas.getContext('2d').putImageData(givenImageData, 0, 0);
+    ctx.save();
+    ctx.scale(scalor, scalor);
+    offsetX = (canvas.width - (newCanvas.width * scalor)) / 4;
+    offsetY = (canvas.height - (newCanvas.height * scalor)) / 4;
+    ctx.fillStyle = backGroundColorRGBA;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(newCanvas, offsetX, offsetY);
     ctx.restore();
   }
