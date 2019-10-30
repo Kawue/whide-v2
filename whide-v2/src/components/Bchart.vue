@@ -182,7 +182,7 @@ export default {
             y: yScaleAxis(offsetsAr[i]) + 40,
             dy: 10 - yScaleAxis(offsetsAr[i]),
             dx: 210 - xScaleAxis(d.coefficient),
-            color: 'orange',
+            color: 'black',
             type: d3annotate.annotationCalloutElbow
           }];
           svg

@@ -50,11 +50,6 @@ var drawSegmentationMap = function (dimensions) {
       data[index + 3] = 255;
     });
   });
-  let newCanvas = document.createElement('canvas');
-  newCanvas.width = imageData.width;
-  newCanvas.height = imageData.height;
-  newCanvas.getContext('2d').putImageData(imageData, 0, 0);
-  let defaultImageData = copyImageData(ctx, imageData);
 
   let scalor = 1;
   let defaultScalor;
@@ -71,17 +66,11 @@ var drawSegmentationMap = function (dimensions) {
   let outsideOnce = false;
   let selectedPrototype;
   let zoomCounter = 0;
+  let defaultImageData = copyImageData(ctx, imageData);
   store.commit('SET_SCALOR', scalor);
-  ctx.save();
-  ctx.scale(scalor, scalor);
-  offsetX = (canvas.width - (newCanvas.width * scalor)) / 4;
-  offsetY = (canvas.height - (newCanvas.height * scalor)) / 4;
-  ctx.fillStyle = backGroundColorRGBA;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(newCanvas, offsetX, offsetY);
+  draw(imageData);
   canvas.addEventListener('mousemove', highlightPrototype, false);
   canvas.addEventListener('wheel', zoom, false);
-  ctx.restore();
 
   function indexAccess (i, j) {
     const NUM_CHANNELS = 4;
@@ -96,15 +85,14 @@ var drawSegmentationMap = function (dimensions) {
     if (outside) {
       if (!outsideOnce) {
         outsideOnce = true;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.beginPath();
         let defaultData = copyImageData(ctx, defaultImageData);
         store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
         draw(defaultData);
       }
     } else {
       outsideOnce = false;
-      console.log(scalor);
-      console.log(zoomCounter);
-
       let posX = parseInt((mousePos.x / scalor) - offsetX);
       let posY = parseInt((mousePos.y / scalor) - offsetY);
       let posXY = [posX, posY];
@@ -122,11 +110,15 @@ var drawSegmentationMap = function (dimensions) {
                 data[index + 2] = 255;
                 data[index + 3] = 255;
               });
+              ctx.clearRect(0, 0, canvas.width, canvas.height);
+              ctx.beginPath();
               draw(imageData);
             }
             if (selectedPrototype !== protoKey) {
               selectedPrototype = protoKey;
               store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', selectedPrototype);
+              ctx.clearRect(0, 0, canvas.width, canvas.height);
+              ctx.beginPath();
               let newImageData = copyImageData(ctx, defaultImageData);
               let newdata = newImageData.data;
               prototypeSample.forEach(function (index) {
@@ -145,6 +137,8 @@ var drawSegmentationMap = function (dimensions) {
 
   function zoom (evt) {
     let pos = getMousePos(canvas, evt);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.beginPath();
     let iD = copyImageData(ctx, defaultImageData);
     const delta = Math.sign(evt.deltaY);
     ctx.save();
@@ -168,7 +162,7 @@ var drawSegmentationMap = function (dimensions) {
     ctx.translate(-pos.x, -pos.y);
     ctx.restore();
 
-    drawZoom(iD);
+    draw(iD);
   }
   function getMousePos (canvas, evt) {
     let rect = canvas.getBoundingClientRect();
@@ -191,26 +185,15 @@ var drawSegmentationMap = function (dimensions) {
     ctx.scale(scalor, scalor);
     offsetX = (canvas.width - (newCanvas.width * scalor)) / 4;
     offsetY = (canvas.height - (newCanvas.height * scalor)) / 4;
-    ctx.drawImage(newCanvas, offsetX, offsetY);
-    ctx.restore();
-  }
-  function drawZoom (givenImageData) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    let newCanvas = document.createElement('canvas');
-    newCanvas.width = givenImageData.width;
-    newCanvas.height = givenImageData.height;
-    newCanvas.getContext('2d').putImageData(givenImageData, 0, 0);
-    ctx.save();
-    ctx.scale(scalor, scalor);
-    offsetX = (canvas.width - (newCanvas.width * scalor)) / 4;
-    offsetY = (canvas.height - (newCanvas.height * scalor)) / 4;
     ctx.fillStyle = backGroundColorRGBA;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(newCanvas, offsetX, offsetY);
     ctx.restore();
+    newCanvas.remove();
   }
+
   function copyImageData (ctx, src) {
-    var dst = ctx.createImageData(src.width, src.height);
+    let dst = ctx.createImageData(src.width, src.height);
     dst.data.set(src.data);
     return dst;
   }

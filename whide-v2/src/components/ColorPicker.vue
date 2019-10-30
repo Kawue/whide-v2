@@ -180,6 +180,7 @@ export default {
       const canvas = document.getElementById('segMap');
       let ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
       // let downScalor = 1 / this.sagmentationScalor;
       // ctx.scale(downScalor, downScalor);
     }

@@ -18,7 +18,7 @@ export default {
 
   data: function () {
     return {
-      isExpanded: false,
+      isExpanded: true,
       clickExpanded: false,
       tabLocken: null,
       tabActive: null

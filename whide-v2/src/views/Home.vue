@@ -3,7 +3,7 @@
     <MainPlane v-if="showPanels"/>
     <sidebarLeft v-if="showPanels" />
     <sidebarRight v-if="showPanels" />
-    <topBar v-if="showPanels" />
+    <!-- <topBar v-if="showPanels" />-->
     <bottomBar v-if="showPanels" />
   </div>
 </template>
