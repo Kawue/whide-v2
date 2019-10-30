@@ -49,6 +49,7 @@ import * as cw from '../services/colorWheel';
 import { mapGetters } from 'vuex';
 import store from '../store';
 import * as d3 from 'd3';
+import * as sm from '../services/SegmentationService.js';
 
 export default {
   name: 'ColorPicker',
@@ -68,7 +69,8 @@ export default {
       numberOfRings: 'getNumberOfRings',
       sliderDisabled: 'getColorSlider',
       sagmentationScalor: 'getSegmentationScalor',
-      highlightedPrototype: 'getCurrentHighlightedPrototype'
+      highlightedPrototype: 'getCurrentHighlightedPrototype',
+      dim: 'getSegmentationDim'
 
     })
   },
@@ -83,6 +85,7 @@ export default {
         d3.select('#colorwheelContainer').remove();
         this.clearSegmentationMap();
         this.getPos();
+        //sm.drawSegmentationMap(this.dim);
       }
       if (mutation.type === 'SET_DEFAULT_POSITION') {
         d3.select('#colorwheelContainer').remove();
@@ -181,8 +184,7 @@ export default {
       let ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.beginPath();
-      // let downScalor = 1 / this.sagmentationScalor;
-      // ctx.scale(downScalor, downScalor);
+
     }
   }
 };

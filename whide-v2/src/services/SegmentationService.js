@@ -13,6 +13,13 @@ var drawSegmentationMap = function (dimensions) {
   const zoomOut = 1 / zoomIn;
   const backGroundcolor = [64, 64, 64, 255];
   const backGroundColorRGBA = 'rgba(64,64,64,255)';
+  let scalor = 1;
+  let defaultScalor;
+  let first = true;
+  let outside = Boolean;
+  let outsideOnce = false;
+  let selectedPrototype;
+  let zoomCounter = 0;
 
   Object.keys(ringData).forEach(function (prototype) {
     let pixels = ringData[prototype]['pixels'];
@@ -52,14 +59,6 @@ var drawSegmentationMap = function (dimensions) {
   });
 
   const defaultImageData = copyImageData(ctx, imageData);
-  let scalor = 1;
-  let defaultScalor;
-  let first = true;
-  let outside = Boolean;
-  let outsideOnce = false;
-  let selectedPrototype;
-  let zoomCounter = 0;
-  
 
   if (dimX >= dimY) {
     scalor = Math.floor(canvas.width / dimX);
@@ -67,26 +66,36 @@ var drawSegmentationMap = function (dimensions) {
   } else {
     scalor = Math.floor(canvas.height / dimY);
     defaultScalor = scalor;
-  };
-
-
-
+  }
 
   store.commit('SET_SCALOR', scalor);
   draw(imageData);
   canvas.addEventListener('mousemove', highlightPrototype, false);
-  canvas.addEventListener('wheel', zoom, false);
+  // canvas.addEventListener('wheel', zoom, false);
+  const r = 1.5;
+  d3.select(canvas).call(d3.zoom()
+    .scaleExtent([1, 8])
+    .on('zoom', () => zoomed(d3.event.transform)));
 
-
-
-
-
-  function indexAccess (i, j) {
-    const NUM_CHANNELS = 4;
-    return j * dimX * NUM_CHANNELS + i * NUM_CHANNELS;
+  function zoomed (transform) {
+    console.log(transform);
+    ctx.save();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.translate(transform.x, transform.y);
+    ctx.scale(transform.k, transform.k);
+    ctx.beginPath();
+    for (const [x, y] of data) {
+      ctx.moveTo(x + r, y);
+      ctx.arc(x, y, r, 0, 2 * Math.PI);
+    }
+    ctx.fill();
+    ctx.restore();
   }
 
+  zoomed(d3.zoomIdentity);
+
   function highlightPrototype (e) {
+    ctx.save();
     let mousePos = getMousePos(canvas, e);
     let currentColor = mousePos.col;
     outside = currentColor[0] === backGroundcolor[0] && currentColor[1] === backGroundcolor[1] &&
@@ -95,10 +104,11 @@ var drawSegmentationMap = function (dimensions) {
       if (!outsideOnce) {
         outsideOnce = true;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        //ctx.beginPath();
-        //let defaultData = copyImageData(ctx, defaultImageData);
+        // ctx.beginPath();
+        // let defaultData = copyImageData(ctx, defaultImageData);
         store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
         draw(defaultImageData);
+        ctx.restore();
       }
     } else {
       outsideOnce = false;
@@ -113,21 +123,21 @@ var drawSegmentationMap = function (dimensions) {
               selectedPrototype = protoKey;
               store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', selectedPrototype);
               first = false;
-              /*prototypeSample.forEach(function (index) {
+              prototypeSample.forEach(function (index) {
                 data[index] = 255;
                 data[index + 1] = 255;
                 data[index + 2] = 255;
                 data[index + 3] = 255;
-              });*/
+              });
               ctx.clearRect(0, 0, canvas.width, canvas.height);
-              //ctx.beginPath();
               draw(defaultImageData);
+              ctx.restore();
             }
             if (selectedPrototype !== protoKey) {
               selectedPrototype = protoKey;
               store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', selectedPrototype);
               ctx.clearRect(0, 0, canvas.width, canvas.height);
-              //ctx.beginPath();
+              // ctx.beginPath();
               let newImageData = copyImageData(ctx, defaultImageData);
               let newdata = newImageData.data;
               prototypeSample.forEach(function (index) {
@@ -137,24 +147,25 @@ var drawSegmentationMap = function (dimensions) {
                 newdata[index + 3] = 255;
               });
               draw(newImageData);
+              ctx.restore();
             }
           }
         });
       });
-    };
-  };
+    }
+  }
 
   function zoom (evt) {
     let pos = getMousePos(canvas, evt);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    //ctx.beginPath();
-    //let iD = copyImageData(ctx, defaultImageData);
+    // ctx.beginPath();
+    // let iD = copyImageData(ctx, defaultImageData);
     const delta = Math.sign(evt.deltaY);
-    //ctx.save();
+    ctx.save();
     ctx.translate(pos.x, pos.y);
 
     if (delta === -1) {
-      if (zoomCounter !== 10) {
+      if (zoomCounter !== 7) {
         ctx.scale(zoomIn, zoomIn);
         scalor = defaultScalor;
         zoomCounter += 1;
@@ -168,24 +179,11 @@ var drawSegmentationMap = function (dimensions) {
         scalor = scalor * (Math.pow(zoomIn, zoomCounter));
       }
     }
-    
     ctx.translate(-pos.x, -pos.y);
-    //ctx.restore();
 
     draw(defaultImageData);
+    ctx.restore();
   }
-  function getMousePos (canvas, evt) {
-    let rect = canvas.getBoundingClientRect();
-    let xCord = (evt.clientX - rect.left) / (rect.right - rect.left) * canvas.width;
-    let yCord = (evt.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height;
-    let pixeldata = ctx.getImageData(xCord, yCord, 1, 1);
-    let col = pixeldata.data;
-    return {
-      x: xCord,
-      y: yCord,
-      col: col
-    };
-  };
 
   function draw (givenImageData) {
     let newCanvas = document.createElement('canvas');
@@ -201,13 +199,31 @@ var drawSegmentationMap = function (dimensions) {
     ctx.drawImage(newCanvas, offsetX, offsetY);
     ctx.restore();
     newCanvas.remove();
-  };
+  }
+
+  function getMousePos (canvas, evt) {
+    let rect = canvas.getBoundingClientRect();
+    let xCord = (evt.clientX - rect.left) / (rect.right - rect.left) * canvas.width;
+    let yCord = (evt.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height;
+    let pixeldata = ctx.getImageData(xCord, yCord, 1, 1);
+    let col = pixeldata.data;
+    return {
+      x: xCord,
+      y: yCord,
+      col: col
+    };
+  }
+
+  function indexAccess (i, j) {
+    const NUM_CHANNELS = 4;
+    return j * dimX * NUM_CHANNELS + i * NUM_CHANNELS;
+  }
 
   function copyImageData (ctx, src) {
     let dst = ctx.createImageData(src.width, src.height);
     dst.data.set(src.data);
     return dst;
-  };
+  }
 };
 
 export { drawSegmentationMap };
