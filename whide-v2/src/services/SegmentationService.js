@@ -73,22 +73,20 @@ var drawSegmentationMap = function (dimensions) {
   canvas.addEventListener('mousemove', highlightPrototype, false);
   // canvas.addEventListener('wheel', zoom, false);
   const r = 1.5;
-  d3.select(canvas).call(d3.zoom()
+  d3.select(canvas).data([imageData]).call(d3.zoom()
     .scaleExtent([1, 8])
-    .on('zoom', () => zoomed(d3.event.transform)));
+    .on('zoom', (imageData) => zoomed(d3.event.transform, imageData)));
 
-  function zoomed (transform) {
+  function zoomed (transform, imageData) {
     console.log(transform);
+    console.log(imageData);
     ctx.save();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.translate(transform.x, transform.y);
     ctx.scale(transform.k, transform.k);
-    ctx.beginPath();
-    for (const [x, y] of data) {
-      ctx.moveTo(x + r, y);
-      ctx.arc(x, y, r, 0, 2 * Math.PI);
-    }
-    ctx.fill();
+    
+    draw(imageData)
+    
     ctx.restore();
   }
 
@@ -190,14 +188,14 @@ var drawSegmentationMap = function (dimensions) {
     newCanvas.width = givenImageData.width;
     newCanvas.height = givenImageData.height;
     newCanvas.getContext('2d').putImageData(givenImageData, 0, 0);
-    ctx.save();
-    ctx.scale(scalor, scalor);
+    //ctx.save();
+    //ctx.scale(scalor, scalor);
     offsetX = (canvas.width - (newCanvas.width * scalor)) / 4;
     offsetY = (canvas.height - (newCanvas.height * scalor)) / 4;
     ctx.fillStyle = backGroundColorRGBA;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    //ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(newCanvas, offsetX, offsetY);
-    ctx.restore();
+    //ctx.restore();
     newCanvas.remove();
   }
 
