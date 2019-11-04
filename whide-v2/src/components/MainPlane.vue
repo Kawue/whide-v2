@@ -58,7 +58,7 @@ export default {
     top: 30px;
     margin-left:190px;
     margin-right: 350px;
-    background-color: rgba(64,64,64,255);
+    // background-color: rgba(64,64,64,255);
   }
 
 </style>
