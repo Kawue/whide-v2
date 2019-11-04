@@ -53,12 +53,13 @@ export default {
 }
   .segmentationCanvas {
     position: relative;
-    width: 70%;
+    width: 800px;
     height: 700px;
     top: 30px;
     margin-left:190px;
     margin-right: 350px;
     // background-color: rgba(64,64,64,255);
+    background-color: whitesmoke;
   }
 
 </style>

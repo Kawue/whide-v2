@@ -7,7 +7,7 @@ var drawSegmentationMap = function (dimensions) {
   const r = 15;
 
   d3.select(canvas).call(d3.zoom()
-    .scaleExtent([1, 8])
+    .scaleExtent([0.7, 2])
     .on('zoom', () => zoomed(d3.event.transform)));
 
   function zoomed (transform) {
@@ -18,7 +18,6 @@ var drawSegmentationMap = function (dimensions) {
     context.beginPath();
     context.moveTo(100 + r, 70);
     context.arc(100, 70, r, 0, 2 * Math.PI);
-
     context.fill();
     context.restore();
   }
