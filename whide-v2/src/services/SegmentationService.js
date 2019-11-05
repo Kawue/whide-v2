@@ -10,6 +10,8 @@ var drawSegmentationMap = function (dimensions) {
   const backGroundColorRGBA = 'rgba(64,64,64,255)';
   let scalor = 1;
   let defaultScalor;
+  let transformX = 0;
+  let transformY = 0;
   let selectedPrototype;
   let first = true;
   let outside = Boolean;
@@ -72,7 +74,7 @@ var drawSegmentationMap = function (dimensions) {
   }
 
   draw(imageData);
-  canvas.addEventListener('mousemove', highlightPrototype, false);
+  // canvas.addEventListener('mousemove', highlightPrototype, false);
   d3.select(canvas).call(d3.zoom()
     .scaleExtent([0.7, 2])
     .on('zoom', () => zoomed(d3.event.transform)));
@@ -82,8 +84,12 @@ var drawSegmentationMap = function (dimensions) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.translate(transform.x, transform.y);
     ctx.scale(transform.k, transform.k);
-    scalor = defaultScalor;
-    scalor = scalor * transform.k;
+    transformX = transform.x;
+    transformY = transform.y;
+    console.log(transform.x);
+    console.log(transform.k);
+    // scalor = defaultScalor;
+    // scalor = scalor * transform.k;
     draw(imageData);
     ctx.restore();
   }
