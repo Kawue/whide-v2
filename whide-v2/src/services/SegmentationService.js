@@ -74,9 +74,10 @@ var drawSegmentationMap = function (dimensions) {
   }
 
   draw(imageData);
-  // canvas.addEventListener('mousemove', highlightPrototype, false);
+  // add highlight and zoom
+  canvas.addEventListener('mousemove', highlightPrototype, false);
   d3.select(canvas).call(d3.zoom()
-    .scaleExtent([0.7, 2])
+    .scaleExtent([0.3, 2])
     .on('zoom', () => zoomed(d3.event.transform)));
 
   function zoomed (transform) {
@@ -86,10 +87,9 @@ var drawSegmentationMap = function (dimensions) {
     ctx.scale(transform.k, transform.k);
     transformX = transform.x;
     transformY = transform.y;
-    console.log(transform.x);
+    scalor = defaultScalor;
+    scalor = scalor * transform.k;
     console.log(transform.k);
-    // scalor = defaultScalor;
-    // scalor = scalor * transform.k;
     draw(imageData);
     ctx.restore();
   }
@@ -102,6 +102,8 @@ var drawSegmentationMap = function (dimensions) {
     newCanvas.height = givenImageData.height;
     newCanvas.getContext('2d').putImageData(givenImageData, 0, 0);
     ctx.save();
+    ctx.translate(transformX, transformY);
+    console.log(scalor);
     ctx.scale(scalor, scalor);
     // offsetX = (canvas.width - (newCanvas.width * scalor)) / 4;
     // offsetY = (canvas.height - (newCanvas.height * scalor)) / 4;
@@ -112,8 +114,15 @@ var drawSegmentationMap = function (dimensions) {
     newCanvas.remove();
   }
   function highlightPrototype (e) {
-    ctx.save();
+    // ctx.save();
     let mousePos = getMousePos(canvas, e);
+    let posX = parseInt((mousePos.x / scalor) + transformX);
+    let posY = parseInt((mousePos.y / scalor) + transformY);
+    // console.log(posX);
+    // console.log(posY);
+    ctx.fillStyle = 'red';
+    ctx.fillRect(posX, posY, 1, 1);
+
     let currentColor = mousePos.col;
     outside = currentColor[0] === backGroundcolor[0] && currentColor[1] === backGroundcolor[1] &&
       currentColor[2] === backGroundcolor[2] && currentColor[3] === backGroundcolor[3];
@@ -121,17 +130,21 @@ var drawSegmentationMap = function (dimensions) {
       if (!outsideOnce) {
         outsideOnce = true;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        // ctx.beginPath();
-        // let defaultData = copyImageData(ctx, defaultImageData);
         store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
         draw(defaultImageData);
         ctx.restore();
       }
     } else {
-      outsideOnce = false;
-      let posX = parseInt((mousePos.x / scalor));
-      let posY = parseInt((mousePos.y / scalor));
-      ctx.fillStyle = 'black';
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, 0, 10, 10);
+      ctx.fillStyle = 'blue';
+      ctx.fill();
+      ctx.restore();
+      /* outsideOnce = false;
+      let posX = parseInt((mousePos.x / scalor) - transformX);
+      let posY = parseInt((mousePos.y / scalor) - transformY);
+      ctx.fillStyle = 'white';
       ctx.fillRect(posX, posY, 1, 1);
       let posXY = [posX, posY];
       Object.keys(ringData).map((protoKey) => {
@@ -156,7 +169,6 @@ var drawSegmentationMap = function (dimensions) {
               selectedPrototype = protoKey;
               store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', selectedPrototype);
               ctx.clearRect(0, 0, canvas.width, canvas.height);
-              // ctx.beginPath();
               let newImageData = copyImageData(ctx, defaultImageData);
               let newdata = newImageData.data;
               prototypeSample.forEach(function (index) {
@@ -171,6 +183,8 @@ var drawSegmentationMap = function (dimensions) {
           }
         });
       });
+
+      */
     }
   }
 
