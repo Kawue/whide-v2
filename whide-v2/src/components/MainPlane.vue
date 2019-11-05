@@ -1,7 +1,7 @@
 <template>
   <div class="mainPlane">
     <p align="center">
-      <canvas id="segMap" class="segmentationCanvas" width="800px" height="700px"></canvas>
+      <canvas id="segMap" class="segmentationCanvas" style="width: 70vw; height: 60vh"></canvas>
     </p>
   </div>
 </template>
@@ -53,13 +53,10 @@ export default {
 }
   .segmentationCanvas {
     position: relative;
-    //width: 800px;
-    //height: 700px;
     top: 30px;
     margin-left:190px;
     margin-right: 350px;
-    // background-color: rgba(64,64,64,255);
-    background-color: whitesmoke;
+    background-color: rgba(64,64,64,255);
   }
 
 </style>
