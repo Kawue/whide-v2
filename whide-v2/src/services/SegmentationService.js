@@ -5,6 +5,9 @@ var drawSegmentationMap = function (dimensions) {
   const canvas = document.getElementById('segMap');
   const context = canvas.getContext('2d');
   const r = 15;
+  console.log(canvas.width);
+  console.log(canvas.height);
+  console.log(dimensions);
 
   d3.select(canvas).call(d3.zoom()
     .scaleExtent([0.7, 2])
