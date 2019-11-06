@@ -1,6 +1,7 @@
 <template>
   <div class="mainPlane">
     <p align="center">
+      <canvas id="virtCanvas" class="segmentationCanvas" style="width: 70vw; height: 60vh"></canvas>
       <canvas id="segMap" class="segmentationCanvas" style="width: 70vw; height: 60vh"></canvas>
     </p>
   </div>
@@ -42,7 +43,7 @@ export default {
 
 <style scoped lang="scss">
 .mainPlane {
-  position: absolute;
+  position: relative;
   top: 0px;
   left: 0px;
   right: 0px;
