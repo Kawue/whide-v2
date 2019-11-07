@@ -1,7 +1,7 @@
 <template>
   <div class="mainPlane">
     <p align="center">
-      <canvas id="virtCanvas" class="segmentationCanvas" style="width: 70vw; height: 60vh"></canvas>
+      <canvas id="virtCanvas" class="virtSegmentationCanvas" style="width: 70vw; height: 60vh"></canvas>
       <canvas id="segMap" class="segmentationCanvas" style="width: 70vw; height: 60vh"></canvas>
     </p>
   </div>
@@ -53,11 +53,22 @@ export default {
   color: white;
 }
   .segmentationCanvas {
-    position: relative;
+    position: absolute;
+    pointer-events: none;
     top: 30px;
+    left: 0px;
     margin-left:190px;
     margin-right: 350px;
     background-color: whitesmoke;
   }
+
+.virtSegmentationCanvas {
+  position: absolute;
+  top: 30px;
+  left: 0px;
+  margin-left:190px;
+  margin-right: 350px;
+  background-color: whitesmoke;
+}
 
 </style>
