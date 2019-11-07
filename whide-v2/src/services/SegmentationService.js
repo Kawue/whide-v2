@@ -11,6 +11,8 @@ var drawSegmentationMap = function (dimensions) {
   let scalor = 1;
   let selectedPrototype;
   let first = true;
+  let visibleContext;
+  let virtuellContext;
 
   let colorIndex = 1;
   let colorDataDict = {};
@@ -61,6 +63,12 @@ var drawSegmentationMap = function (dimensions) {
   virtCtx.webkitImageSmoothingEnabled = false;
   virtCtx.imageSmoothingEnabled = false;
 
+  if (dimX >= dimY) {
+    scalor = Math.floor(canvas.width / (dimX + 10));
+  } else {
+    scalor = Math.floor(canvas.height / (dimY + 10));
+  }
+
   let imageData = ctx.createImageData(dimX, dimY);
   let data = imageData.data;
   let virtImageData = virtCtx.createImageData(dimX, dimY);
@@ -91,17 +99,11 @@ var drawSegmentationMap = function (dimensions) {
 
   const defaultImageData = copyImageData(ctx, imageData);
 
-  if (dimX >= dimY) {
-    scalor = Math.floor(canvas.width / dimX);
-  } else {
-    scalor = Math.floor(canvas.height / dimY);
-  }
-
   // add highlight and zoom
-  virtCanvas.addEventListener('mousemove', highlightPrototype, false);
   d3.select(virtCanvas).call(d3.zoom()
     .scaleExtent([0.3, 2])
     .on('zoom', () => zoomed(d3.event.transform)));
+  virtCanvas.addEventListener('mousemove', highlightPrototype, false);
 
   function zoomed (transform) {
     // viewingCanvas
@@ -109,7 +111,8 @@ var drawSegmentationMap = function (dimensions) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.translate(transform.x, transform.y);
     ctx.scale(transform.k, transform.k);
-    draw(imageData, ctx);
+    draw(imageData, ctx, true);
+    visibleContext = ctx;
     ctx.restore();
 
     // virtuellCanvas
@@ -117,7 +120,7 @@ var drawSegmentationMap = function (dimensions) {
     virtCtx.clearRect(0, 0, virtCanvas.width, virtCanvas.height);
     virtCtx.translate(transform.x, transform.y);
     virtCtx.scale(transform.k, transform.k);
-    draw(virtImageData, virtCtx);
+    draw(virtImageData, virtCtx, false);
     virtCtx.restore();
   }
 
@@ -144,7 +147,7 @@ var drawSegmentationMap = function (dimensions) {
           data[index + 3] = 255;
         });
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        draw(imageData, ctx);
+        draw(imageData, ctx, true);
         ctx.restore();
       }
       if (selectedPrototype !== mousePrototype) {
@@ -159,10 +162,11 @@ var drawSegmentationMap = function (dimensions) {
           data[index + 3] = 255;
         });
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        draw(imageData, ctx);
+        draw(imageData, ctx, true);
         ctx.restore();
       }
     } else {
+      selectedPrototype = null;
       ctx.save();
       store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -172,15 +176,17 @@ var drawSegmentationMap = function (dimensions) {
     }
   }
 
-  function draw (givenImageData, context) {
+  function draw (givenImageData, context, visible) {
     let newCanvas = document.createElement('canvas');
     newCanvas.width = givenImageData.width;
     newCanvas.height = givenImageData.height;
     newCanvas.getContext('2d').putImageData(givenImageData, 0, 0);
     context.save();
     context.scale(scalor, scalor);
-    // context.fillStyle = backGroundColorRGBA;
-    // context.fillRect(0, 0, canvas.width, canvas.height);
+    if (visible) {
+      context.fillStyle = backGroundColorRGBA;
+      context.fillRect(0, 0, canvas.width, canvas.height);
+    }
     context.drawImage(newCanvas, 0, 0);
     context.restore();
     newCanvas.remove();

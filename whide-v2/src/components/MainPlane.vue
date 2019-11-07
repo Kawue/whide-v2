@@ -43,14 +43,14 @@ export default {
 
 <style scoped lang="scss">
 .mainPlane {
-  position: relative;
+  position: absolute;
   top: 0px;
   left: 0px;
   right: 0px;
   bottom: 0px;
   background-color: #404040;
   z-index: 100;
-  color: white;
+  color:  #404040;;
 }
   .segmentationCanvas {
     position: absolute;
@@ -59,7 +59,7 @@ export default {
     left: 0px;
     margin-left:190px;
     margin-right: 350px;
-    background-color: whitesmoke;
+    background-color:  #404040;;
   }
 
 .virtSegmentationCanvas {
@@ -68,7 +68,7 @@ export default {
   left: 0px;
   margin-left:190px;
   margin-right: 350px;
-  background-color: whitesmoke;
+  background-color:  #404040;;
 }
 
 </style>
