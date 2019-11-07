@@ -9,13 +9,8 @@ var drawSegmentationMap = function (dimensions) {
   const backGroundcolor = [64, 64, 64, 255];
   const backGroundColorRGBA = 'rgba(64,64,64,255)';
   let scalor = 1;
-  let defaultScalor;
-  let transformX = 0;
-  let transformY = 0;
   let selectedPrototype;
   let first = true;
-  let outside = Boolean;
-  let outsideOnce = false;
 
   let colorIndex = 1;
   let colorDataDict = {};
@@ -82,15 +77,7 @@ var drawSegmentationMap = function (dimensions) {
       data[index + 3] = 255;
     });
   });
-
-  const defaultImageData = copyImageData(ctx, imageData);
-  if (dimX >= dimY) {
-    scalor = Math.floor(canvas.width / dimX);
-    defaultScalor = scalor;
-  } else {
-    scalor = Math.floor(canvas.height / dimY);
-    defaultScalor = scalor;
-  }
+  firstDraw(imageData, ctx, true);
 
   // draw virtCanvas
   Object.keys(colorDataDict).forEach(function (pixel) {
@@ -100,34 +87,23 @@ var drawSegmentationMap = function (dimensions) {
     virtData[dict.indize + 2] = dict.rgb[2];
     virtData[dict.indize + 3] = 255;
   });
-  draw(virtImageData, virtCtx);
+  firstDraw(virtImageData, virtCtx, false);
 
-  console.log(Object.keys(colorDataDict));
-  virtCanvas.addEventListener('mousemove', test, false);
-  function test (e) {
-    let mouse = getMousePos(virtCanvas, e);
-    let r = mouse.col[0];
-    let g = mouse.col[1];
-    let b = mouse.col[2];
-    let rgb = 'rgb(' + r + ', ' + g + ', ' + b + ')';
-    if (rgb !== 'rgb(0,0,0)') {
-      console.log(rgb);
-      console.log(colorDataDict[rgb]);
-    }
+  const defaultImageData = copyImageData(ctx, imageData);
+
+  if (dimX >= dimY) {
+    scalor = Math.floor(canvas.width / dimX);
+  } else {
+    scalor = Math.floor(canvas.height / dimY);
   }
-  draw(imageData, ctx);
+
   // add highlight and zoom
-  canvas.addEventListener('mousemove', highlightPrototype, false);
+  virtCanvas.addEventListener('mousemove', highlightPrototype, false);
   d3.select(virtCanvas).call(d3.zoom()
     .scaleExtent([0.3, 2])
     .on('zoom', () => zoomed(d3.event.transform)));
 
   function zoomed (transform) {
-    transformX = transform.x;
-    transformY = transform.y;
-    // scalor = defaultScalor;
-    // scalor = scalor * transform.k;
-
     // viewingCanvas
     ctx.save();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -147,6 +123,55 @@ var drawSegmentationMap = function (dimensions) {
 
   zoomed(d3.zoomIdentity);
 
+  function highlightPrototype (e) {
+    let mouse = getMousePos(virtCanvas, e);
+    const imageDataMouse = virtCtx
+      .getImageData(mouse.x, mouse.y, 1, 1);
+    const mouseColor = d3.rgb.apply(null, imageDataMouse.data).toString();
+    if (mouseColor !== 'rgba(0, 0, 0, 0)') {
+      const mousePrototype = colorDataDict[mouseColor].id;
+      let prototypeSample = uInt8IndexSample[mousePrototype]['indizes'];
+
+      if (first) {
+        selectedPrototype = mousePrototype;
+        store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', selectedPrototype);
+        first = false;
+        ctx.save();
+        prototypeSample.forEach(function (index) {
+          data[index] = 255;
+          data[index + 1] = 255;
+          data[index + 2] = 255;
+          data[index + 3] = 255;
+        });
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        draw(imageData, ctx);
+        ctx.restore();
+      }
+      if (selectedPrototype !== mousePrototype) {
+        selectedPrototype = mousePrototype;
+        store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', selectedPrototype);
+        setImagedataDefault();
+        ctx.save();
+        prototypeSample.forEach(function (index) {
+          data[index] = 255;
+          data[index + 1] = 255;
+          data[index + 2] = 255;
+          data[index + 3] = 255;
+        });
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        draw(imageData, ctx);
+        ctx.restore();
+      }
+    } else {
+      ctx.save();
+      store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      setImagedataDefault();
+      draw(imageData, ctx);
+      ctx.restore();
+    }
+  }
+
   function draw (givenImageData, context) {
     let newCanvas = document.createElement('canvas');
     newCanvas.width = givenImageData.width;
@@ -161,79 +186,20 @@ var drawSegmentationMap = function (dimensions) {
     newCanvas.remove();
   }
 
-  function highlightPrototype (e) {
-    // ctx.save();
-    let mousePos = getMousePos(canvas, e);
-    let posX = parseInt((mousePos.x / scalor));
-    let posY = parseInt((mousePos.y / scalor));
-    // console.log(posX);
-    // console.log(posY);
-    ctx.fillStyle = 'red';
-    ctx.fillRect(posX, posY, 1, 1);
-
-    let currentColor = mousePos.col;
-    outside = currentColor[0] === backGroundcolor[0] && currentColor[1] === backGroundcolor[1] &&
-      currentColor[2] === backGroundcolor[2] && currentColor[3] === backGroundcolor[3];
-    if (outside) {
-      if (!outsideOnce) {
-        outsideOnce = true;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
-        draw(defaultImageData, ctx);
-        ctx.restore();
-      }
-    } else {
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(0, 0, 10, 10);
-      ctx.fillStyle = 'blue';
-      ctx.fill();
-      ctx.restore();
-      outsideOnce = false;
-      // let posX = parseInt((mousePos.x / scalor) - transformX);
-      // let posY = parseInt((mousePos.y / scalor) - transformY);
-      let posXY = [posX, posY];
-      Object.keys(ringData).map((protoKey) => {
-        ringData[protoKey].pixels.map((pixelXY) => {
-          if (pixelXY[0] === posXY[0] && pixelXY[1] === posXY[1]) {
-            ctx.fillStyle = 'green';
-            ctx.fillRect(posXY[0], posXY[1], 4, 4);
-            /* let prototypeSample = uInt8IndexSample[protoKey]['indizes'];
-            if (first) {
-              selectedPrototype = protoKey;
-              store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', selectedPrototype);
-              first = false;
-              prototypeSample.forEach(function (index) {
-                data[index] = 255;
-                data[index + 1] = 255;
-                data[index + 2] = 255;
-                data[index + 3] = 255;
-              });
-              ctx.clearRect(0, 0, canvas.width, canvas.height);
-              draw(defaultImageData, false);
-              ctx.restore();
-            }
-            if (selectedPrototype !== protoKey) {
-              selectedPrototype = protoKey;
-              store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', selectedPrototype);
-              ctx.clearRect(0, 0, canvas.width, canvas.height);
-              let newImageData = copyImageData(ctx, defaultImageData);
-              let newdata = newImageData.data;
-              prototypeSample.forEach(function (index) {
-                newdata[index] = 255;
-                newdata[index + 1] = 255;
-                newdata[index + 2] = 255;
-                newdata[index + 3] = 255;
-              });
-              draw(newImageData);
-              ctx.restore();
-            }
-
-             */
-          }
-        });
-      });
+  function firstDraw (givenImageData, context, visible) {
+    let newCanvas = document.createElement('canvas');
+    newCanvas.width = givenImageData.width;
+    newCanvas.height = givenImageData.height;
+    newCanvas.getContext('2d').putImageData(givenImageData, 0, 0);
+    context.save();
+    context.scale(scalor, scalor);
+    if (visible) {
+      context.fillStyle = backGroundColorRGBA;
+      context.fillRect(0, 0, canvas.width, canvas.height);
     }
+    context.drawImage(newCanvas, 0, 0);
+    context.restore();
+    newCanvas.remove();
   }
 
   function getMousePos (canvas, evt) {
@@ -281,6 +247,18 @@ var drawSegmentationMap = function (dimensions) {
       (index & 0b000000001111111100000000) >> 8,
       (index & 0b000000000000000011111111))
       .toString();
+  }
+  function setImagedataDefault () {
+    Object.keys(uInt8IndexSample).forEach(function (prototype) {
+      let sample = uInt8IndexSample[prototype]['indizes'];
+      let color = uInt8IndexSample[prototype]['color'];
+      sample.forEach(function (index) {
+        data[index] = color[0];
+        data[index + 1] = color[1];
+        data[index + 2] = color[2];
+        data[index + 3] = 255;
+      });
+    });
   }
 };
 export { drawSegmentationMap };

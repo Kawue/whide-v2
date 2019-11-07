@@ -101,31 +101,42 @@ var drawSegmentationMap = function (dimensions) {
 
   function highlightPrototype (e) {
     // ctx.save();
-    mousePos = getMousePos(canvas, e);
-    /* let currentColor = mousePos.col;
+    let mousePos = getMousePos(canvas, e);
+    let posX = parseInt((mousePos.x / scalor));
+    let posY = parseInt((mousePos.y / scalor));
+    // console.log(posX);
+    // console.log(posY);
+    ctx.fillStyle = 'red';
+    ctx.fillRect(posX, posY, 1, 1);
+
+    let currentColor = mousePos.col;
     outside = currentColor[0] === backGroundcolor[0] && currentColor[1] === backGroundcolor[1] &&
       currentColor[2] === backGroundcolor[2] && currentColor[3] === backGroundcolor[3];
     if (outside) {
       if (!outsideOnce) {
         outsideOnce = true;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        // ctx.beginPath();
-        // let defaultData = copyImageData(ctx, defaultImageData);
         store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
-        draw(defaultImageData);
+        draw(defaultImageData, ctx);
         ctx.restore();
       }
     } else {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, 0, 10, 10);
+      ctx.fillStyle = 'blue';
+      ctx.fill();
+      ctx.restore();
       outsideOnce = false;
-      let posX = parseInt((mousePos.x / scalor) - offsetX);
-      let posY = parseInt((mousePos.y / scalor) - offsetY);
-      ctx.fillStyle = 'black';
-      ctx.fillRect(posX, posY, 1, 1);
+      // let posX = parseInt((mousePos.x / scalor) - transformX);
+      // let posY = parseInt((mousePos.y / scalor) - transformY);
       let posXY = [posX, posY];
       Object.keys(ringData).map((protoKey) => {
         ringData[protoKey].pixels.map((pixelXY) => {
           if (pixelXY[0] === posXY[0] && pixelXY[1] === posXY[1]) {
-            let prototypeSample = uInt8IndexSample[protoKey]['indizes'];
+            ctx.fillStyle = 'green';
+            ctx.fillRect(posXY[0], posXY[1], 4, 4);
+            /* let prototypeSample = uInt8IndexSample[protoKey]['indizes'];
             if (first) {
               selectedPrototype = protoKey;
               store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', selectedPrototype);
@@ -144,7 +155,6 @@ var drawSegmentationMap = function (dimensions) {
               selectedPrototype = protoKey;
               store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', selectedPrototype);
               ctx.clearRect(0, 0, canvas.width, canvas.height);
-              // ctx.beginPath();
               let newImageData = copyImageData(ctx, defaultImageData);
               let newdata = newImageData.data;
               prototypeSample.forEach(function (index) {
@@ -156,12 +166,12 @@ var drawSegmentationMap = function (dimensions) {
               draw(newImageData);
               ctx.restore();
             }
+
+             */
           }
         });
       });
     }
-
-     */
   }
 
   function zoom (evt) {
