@@ -6,14 +6,11 @@ var drawSegmentationMap = function (dimensions) {
   const dimX = dimensions['x'] + 1;
   const dimY = dimensions['y'] + 1;
   let uInt8IndexSample = {};
-  const backGroundcolor = [64, 64, 64, 255];
   const backGroundColorRGBA = 'rgba(64,64,64,255)';
   let scalor = 1;
   let selectedPrototype;
   let first = true;
-  let visibleContext;
-  let virtuellContext;
-
+  let tform;
   let colorIndex = 1;
   let colorDataDict = {};
 
@@ -97,31 +94,41 @@ var drawSegmentationMap = function (dimensions) {
   });
   firstDraw(virtImageData, virtCtx, false);
 
-  const defaultImageData = copyImageData(ctx, imageData);
+  let cVisibleData;
 
   // add highlight and zoom
   d3.select(virtCanvas).call(d3.zoom()
-    .scaleExtent([0.3, 2])
+    .scaleExtent([0.3, 5])
     .on('zoom', () => zoomed(d3.event.transform)));
-  virtCanvas.addEventListener('mousemove', highlightPrototype, false);
+  virtCanvas.addEventListener('mousemove', zoomed, false);
 
   function zoomed (transform) {
+    if (transform.type === 'mousemove') {
+      ctx.save();
+      ctx.translate(tform.x, tform.y);
+      ctx.scale(tform.k, tform.k);
+      highlightPrototype(transform);
+      ctx.restore();
+    }
     // viewingCanvas
-    ctx.save();
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.translate(transform.x, transform.y);
-    ctx.scale(transform.k, transform.k);
-    draw(imageData, ctx, true);
-    visibleContext = ctx;
-    ctx.restore();
+    if (typeof transform.k === 'number') {
+      tform = transform;
+      ctx.save();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.translate(transform.x, transform.y);
+      ctx.scale(transform.k, transform.k);
+      draw(imageData, ctx, true);
+      cVisibleData = copyImageData(ctx, imageData);
+      ctx.restore();
 
-    // virtuellCanvas
-    virtCtx.save();
-    virtCtx.clearRect(0, 0, virtCanvas.width, virtCanvas.height);
-    virtCtx.translate(transform.x, transform.y);
-    virtCtx.scale(transform.k, transform.k);
-    draw(virtImageData, virtCtx, false);
-    virtCtx.restore();
+      // virtuellCanvas
+      virtCtx.save();
+      virtCtx.clearRect(0, 0, virtCanvas.width, virtCanvas.height);
+      virtCtx.translate(transform.x, transform.y);
+      virtCtx.scale(transform.k, transform.k);
+      draw(virtImageData, virtCtx, false);
+      virtCtx.restore();
+    }
   }
 
   zoomed(d3.zoomIdentity);
@@ -147,7 +154,7 @@ var drawSegmentationMap = function (dimensions) {
           data[index + 3] = 255;
         });
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        draw(imageData, ctx, true);
+        draw(cVisibleData, ctx, true);
         ctx.restore();
       }
       if (selectedPrototype !== mousePrototype) {
@@ -230,21 +237,6 @@ var drawSegmentationMap = function (dimensions) {
     let dst = ctx.createImageData(src.width, src.height);
     dst.data.set(src.data);
     return dst;
-  }
-
-  function colorToHex (col) {
-    var hex = Number(col).toString(16);
-    if (hex.length < 2) {
-      hex = '0' + hex;
-    }
-    return hex;
-  }
-
-  function fullColorToHex (r, g, b) {
-    let red = colorToHex(r);
-    let green = colorToHex(g);
-    let blue = colorToHex(b);
-    return red + green + blue;
   }
 
   function getColor (index) {
