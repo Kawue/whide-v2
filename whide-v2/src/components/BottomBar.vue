@@ -15,13 +15,14 @@
 <script>
 import Bookmarks from './Bookmarks';
 import * as d3 from 'd3';
+import interact from 'interactjs';
 
 export default {
   name: 'Bottom',
   components: { Bookmarks },
   data: function () {
     return {
-      isExpanded: false,
+      isExpanded: true,
       dragging: false
     };
   },
@@ -55,6 +56,32 @@ export default {
     showExpandDownIcon: function () {
       return this.side === 'up' ? this.isExpanded : !this.isExpanded;
     }
+  },
+  
+  mounted(){
+    interact('.bottombarWidget')
+      .resizable({
+        edges:{top: true, bottom: false, left: false, right: false},
+        modifiers: [
+          interact.modifiers.restrictEdges({
+            outer: 'parent',
+            endOnly: true
+          })
+        ]
+      }).on('resizemove', event => {
+        let { x, y } = event.target.dataset
+
+        x = parseFloat(x) || 0
+        y = parseFloat(y) || 0
+
+        Object.assign(event.target.style, {
+          width: `${event.rect.width}px`,
+          height: `${event.rect.height}px`,
+          transform: `translate(${event.deltaRect.left}px, ${event.deltaRect.top}px)`
+        })
+
+        Object.assign(event.target.dataset, { x, y })
+      });  
   }
 };
 </script>
@@ -76,6 +103,7 @@ export default {
     float: bottom;
     border-style: solid;
     border-color: orange;
+    box-sizing: border-box;
 
 
     &.expanded {

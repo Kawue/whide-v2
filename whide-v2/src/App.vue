@@ -22,4 +22,7 @@
     }
   }
 }
+body {
+  overflow: hidden;
+}
 </style>
