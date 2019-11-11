@@ -57,11 +57,11 @@ export default {
       return this.side === 'up' ? this.isExpanded : !this.isExpanded;
     }
   },
-  
-  mounted(){
+
+  mounted () {
     interact('.bottombarWidget')
       .resizable({
-        edges:{top: true, bottom: false, left: false, right: false},
+        edges: { top: true, bottom: false, left: false, right: false },
         modifiers: [
           interact.modifiers.restrictEdges({
             outer: 'parent',
@@ -69,19 +69,19 @@ export default {
           })
         ]
       }).on('resizemove', event => {
-        let { x, y } = event.target.dataset
+        let { x, y } = event.target.dataset;
 
-        x = parseFloat(x) || 0
-        y = parseFloat(y) || 0
+        x = parseFloat(x) || 0;
+        y = parseFloat(y) || 0;
 
         Object.assign(event.target.style, {
           width: `${event.rect.width}px`,
           height: `${event.rect.height}px`,
           transform: `translate(${event.deltaRect.left}px, ${event.deltaRect.top}px)`
-        })
+        });
 
-        Object.assign(event.target.dataset, { x, y })
-      });  
+        Object.assign(event.target.dataset, { x, y });
+      });
   }
 };
 </script>
@@ -104,7 +104,6 @@ export default {
     border-style: solid;
     border-color: orange;
     box-sizing: border-box;
-
 
     &.expanded {
       height: 45vh;

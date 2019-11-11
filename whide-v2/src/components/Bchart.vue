@@ -45,29 +45,13 @@ export default {
         }
       }
       if (mutation.type === 'SET_CURRENT_HIGHLIGHTED_PROTOTYPE') {
-        if (this.highlightedPrototype !== null) {
+        if (this.highlightedPrototype === this.prototypeid) {
           let markedColor = 'rgba(255,255,255,255)';
-          if (this.highlightedPrototype in this.bookmarks) {
-            if (this.currentMarkedPrototype !== null) {
-              if (this.currentMarkedPrototype !== this.highlightedPrototype) {
-                d3.select('#' + this.currentMarkedPrototype)
-                  .style('background-color', this.currentMarkedPrototypeColor);
-                d3.select('#' + this.bookmarks[this.highlightedPrototype]['id'])
-                  .style('background-color', markedColor);
-                this.currentMarkedPrototype = this.prototypeid;
-                this.currentMarkedPrototypeColor = this.bookmarks[this.prototypeid]['color'];
-              }
-            } else {
-              this.currentMarkedPrototype = this.prototypeid;
-              this.currentMarkedPrototypeColor = this.bookmarks[this.prototypeid]['color'];
-            }
-          } else {
-            d3.select('#' + this.currentMarkedPrototype)
-              .style('background-color', this.currentMarkedPrototypeColor);
-            this.currentMarkedPrototype = null;
-            this.currentMarkedPrototypeColor = null;
-          }
-        } else {
+          this.currentMarkedPrototype = this.prototypeid;
+          this.currentMarkedPrototypeColor = this.bookmarks[this.prototypeid]['color'];
+          d3.select('#' + this.bookmarks[this.highlightedPrototype]['id'])
+            .style('background-color', markedColor);
+        } else if (this.currentMarkedPrototype === this.prototypeid) {
           d3.select('#' + this.currentMarkedPrototype)
             .style('background-color', this.currentMarkedPrototypeColor);
           this.currentMarkedPrototype = null;
