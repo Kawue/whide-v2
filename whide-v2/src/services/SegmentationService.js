@@ -94,7 +94,6 @@ var drawSegmentationMap = function (dimensions) {
   });
   firstDraw(virtImageData, virtCtx, false);
 
-  let cVisibleData;
 
   // add highlight and zoom
   d3.select(virtCanvas).call(d3.zoom()
@@ -118,7 +117,6 @@ var drawSegmentationMap = function (dimensions) {
       ctx.translate(transform.x, transform.y);
       ctx.scale(transform.k, transform.k);
       draw(imageData, ctx, true);
-      cVisibleData = copyImageData(ctx, imageData);
       ctx.restore();
 
       // virtuellCanvas
@@ -154,7 +152,7 @@ var drawSegmentationMap = function (dimensions) {
           data[index + 3] = 255;
         });
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        draw(cVisibleData, ctx, true);
+        draw(imageData, ctx, true);
         ctx.restore();
       }
       if (selectedPrototype !== mousePrototype) {
