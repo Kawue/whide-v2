@@ -1,8 +1,7 @@
 import * as d3 from 'd3';
 import store from '../store';
 
-var createColorWheel = function (protoId) {
-  'use strict';
+var createColorWheel = function (protoId, rotation = 0) {
   const DEGREES_PER_RADIAN = 180 / Math.PI;
   const canvas = document.getElementById('colorwheelCanvas');
   const context = canvas.getContext('2d');
@@ -84,7 +83,7 @@ var createColorWheel = function (protoId) {
         const distanceFromOriginSquared = x * x + y * y;
         const withinDisc = (distanceFromOriginSquared <= radiusSquared);
         if (withinDisc) {
-          const angleInDegrees = DEGREES_PER_RADIAN * (Math.atan2(y, x) + Math.PI);
+          const angleInDegrees = DEGREES_PER_RADIAN * (Math.atan2(y, x) + Math.PI +rotation);
           const distanceFromOrigin = Math.sqrt(distanceFromOriginSquared);
 
           var color = d3.hsl(angleInDegrees, (distanceFromOrigin / radius), 0.5).rgb();
@@ -127,7 +126,10 @@ var createColorWheel = function (protoId) {
 };
 
 var moebiustransformation = function (ringPos, direction, midPoint) {
-  const FOCUS_MOVE_SPEED = 0.05;
+  const FOCUS_MOVE_SPEED = 0.06;
+  const RECTIFICATION_FACTOR = 0.4;
+  const RECTIFICATION_FACTOR_X_2 = RECTIFICATION_FACTOR * 2;
+  const RECTIFICATION_FACTOR_X_4 = RECTIFICATION_FACTOR * RECTIFICATION_FACTOR * 4;
   let canvas = document.getElementById('colorwheelCanvas');
   let context = canvas.getContext('2d');
 
@@ -161,6 +163,12 @@ var moebiustransformation = function (ringPos, direction, midPoint) {
   }
 
   moveFocus(FOCUS_MOVE_SPEED * direction['x'], FOCUS_MOVE_SPEED * direction['y']);
+  let offsetCenter;
+  if (halfWidth > halfHeight) {
+    offsetCenter = halfHeight;
+  } else {
+    offsetCenter = halfWidth;
+  }
 
   // focus coordinates
   let ar = focus['x'];
@@ -194,10 +202,13 @@ var moebiustransformation = function (ringPos, direction, midPoint) {
     fR = z1r * z1r + z1i * z1i;
 
     if (fR === 0) { fS = 1.0; } else {
-      fS = 1 / (2 * fScale * fR) * (fR - 1 + Math.sqrt(fR * fR - 2 * fR + 1 + 4 * fScale * fScale * fR));
+      fS = 1 / (RECTIFICATION_FACTOR_X_2 * fR) * (fR - 1 + Math.sqrt(fR * fR - 2 * fR + 1 + RECTIFICATION_FACTOR_X_4 * fR));
     }
+    console.log(fR);
+    console.log(fS);
+    console.log('---');
     protoDict[prototype] = {
-      'currentPos': [ z1r * fS, z1i * fS ],
+      'currentPos': [ z1r, z1i ],
       'startPos': ringPos[prototype]['startPos']
     };
   });

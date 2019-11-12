@@ -7,12 +7,14 @@ import json
 import os
 import re
 
+app = Flask(__name__)
+CORS(app)
+
 def loadCoefficienten():
     h2som = pickle.load(open("ring-1.h2som","rb"))
     print(h2som)
+    return h2som
 
-app = Flask(__name__)
-CORS(app)
 
 @app.route('/coefficients')
 def getCoefficienten():

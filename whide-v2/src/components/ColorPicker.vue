@@ -39,6 +39,9 @@
         <div class="postionClearAll">
           <b-button size="sm" v-on:click="clearAllBookmarks()">Clear All</b-button>
         </div>
+        <div class="rotate">
+          <b-button size="sm" v-on:click="rotatetDiskus"> Rotate Diskus</b-button>
+        </div>
       </div>
     </div>
   </div>
@@ -59,7 +62,8 @@ export default {
       ringGranularity: 0,
       disabled: false,
       currentMarkedPrototypeColor: null,
-      currentMarkedPrototype: null
+      currentMarkedPrototype: null,
+      rotations: 0
     };
   },
   computed: {
@@ -122,7 +126,7 @@ export default {
   },
   methods: {
     getPos: function () {
-      cw.createColorWheel(this.prototypesPosition);
+      cw.createColorWheel(this.prototypesPosition, this.rotations);
     },
     setGranulaity: function () {
       this.lengthRings = this.numberOfRings - 1;
@@ -184,6 +188,11 @@ export default {
       const virtCanvas = document.getElementById('virtCanvas');
       let virtCtx = virtCanvas.getContext('2d');
       virtCtx.clearRect(0, 0, virtCanvas.width, virtCanvas.height);
+    },
+    rotatetDiskus: function () {
+      this.rotations += 0.1;
+      d3.select('#colorwheelContainer').remove();
+      cw.createColorWheel(this.prototypesPosition, this.rotations);
     }
   }
 };
