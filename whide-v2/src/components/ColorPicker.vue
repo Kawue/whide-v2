@@ -39,8 +39,11 @@
         <div class="postionClearAll">
           <b-button size="sm" v-on:click="clearAllBookmarks()">Clear All</b-button>
         </div>
-        <div class="rotate">
-          <b-button size="sm" v-on:click="rotatetDiskus"> Rotate Diskus</b-button>
+        <div id="diskus" class="rotate">
+          <b-button size="sm" > Rotate Diskus</b-button>
+        </div>
+        <div id="posSwitcher">
+          <b-button size="sm" v-on:click="switchPos">Switch Portotype Pos</b-button>
         </div>
       </div>
     </div>
@@ -63,7 +66,8 @@ export default {
       disabled: false,
       currentMarkedPrototypeColor: null,
       currentMarkedPrototype: null,
-      rotations: 0
+      rotations: 0,
+      posSwitcher: 0
     };
   },
   computed: {
@@ -81,6 +85,8 @@ export default {
     window.addEventListener('keydown', this.chooseMove);
   },
   mounted () {
+    let rotate = document.getElementById('diskus');
+    rotate.addEventListener('mousedown', this.rotatetDiskus, false);
     this.setGranulaity();
     store.subscribe(mutation => {
       if (mutation.type === 'SET_MOEBIUS') {
@@ -126,7 +132,7 @@ export default {
   },
   methods: {
     getPos: function () {
-      cw.createColorWheel(this.prototypesPosition, this.rotations);
+      cw.createColorWheel(this.prototypesPosition, this.rotations, this.posSwitcher);
     },
     setGranulaity: function () {
       this.lengthRings = this.numberOfRings - 1;
@@ -174,6 +180,8 @@ export default {
       store.commit('SET_FOCUS_DEFAULT');
     },
     setDefault: function () {
+      this.rotations = 0;
+      this.posSwitcher = 0;
       store.commit('SET_DEFAULT_POSITION');
       store.commit('SET_FOCUS_DEFAULT');
     },
@@ -192,7 +200,12 @@ export default {
     rotatetDiskus: function () {
       this.rotations += 0.1;
       d3.select('#colorwheelContainer').remove();
-      cw.createColorWheel(this.prototypesPosition, this.rotations);
+      cw.createColorWheel(this.prototypesPosition, this.rotations, this.posSwitcher);
+    },
+    switchPos: function () {
+      this.posSwitcher += 1;
+      d3.select('#colorwheelContainer').remove();
+      cw.createColorWheel(this.prototypesPosition, this.rotations, this.posSwitcher);
     }
   }
 };

@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import store from '../store';
 
-var createColorWheel = function (protoId, rotation = 0) {
+var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0) {
   const DEGREES_PER_RADIAN = 180 / Math.PI;
   const canvas = document.getElementById('colorwheelCanvas');
   const context = canvas.getContext('2d');
@@ -21,8 +21,17 @@ var createColorWheel = function (protoId, rotation = 0) {
   context.clearRect(0, 0, canvas.width, canvas.height);
   context.putImageData(bgImage, 0, 0);
 
+  const idList = Object.keys(protoId);
+  const numberOfPrototypes = idList.length;
   Object.keys(protoId).forEach(function (id) {
-    let posColor = renderColorMarker((Object.values(protoId[id])), id);
+    let idNumber = parseInt(id.replace(/'/g, '').split(/(\d+)/).filter(Boolean)[1]);
+    let newIdNumber = (idNumber + posSwitcher) % (numberOfPrototypes);
+    let newPrototypeString = 'prototyp' + newIdNumber;
+    console.log(newPrototypeString);
+    console.log(id);
+    console.log(Object.values(protoId[id]));
+    console.log('--');
+    let posColor = renderColorMarker((Object.values(protoId[newPrototypeString])), id);
     posDict[id] = {
       color: posColor,
       position: Object.values(protoId[id])
@@ -31,6 +40,7 @@ var createColorWheel = function (protoId, rotation = 0) {
     idWithColor[id] = posColor;
     store.commit('SET_COMPLETE_FULL_DATA', idWithColor);
   });
+
   store.commit('SET_POS_COLOR', posDict);
   store.commit('SET_COLORS_READY', true);
 
@@ -83,7 +93,7 @@ var createColorWheel = function (protoId, rotation = 0) {
         const distanceFromOriginSquared = x * x + y * y;
         const withinDisc = (distanceFromOriginSquared <= radiusSquared);
         if (withinDisc) {
-          const angleInDegrees = DEGREES_PER_RADIAN * (Math.atan2(y, x) + Math.PI +rotation);
+          const angleInDegrees = DEGREES_PER_RADIAN * (Math.atan2(y, x) + Math.PI + rotation);
           const distanceFromOrigin = Math.sqrt(distanceFromOriginSquared);
 
           var color = d3.hsl(angleInDegrees, (distanceFromOrigin / radius), 0.5).rgb();
@@ -204,9 +214,6 @@ var moebiustransformation = function (ringPos, direction, midPoint) {
     if (fR === 0) { fS = 1.0; } else {
       fS = 1 / (RECTIFICATION_FACTOR_X_2 * fR) * (fR - 1 + Math.sqrt(fR * fR - 2 * fR + 1 + RECTIFICATION_FACTOR_X_4 * fR));
     }
-    console.log(fR);
-    console.log(fS);
-    console.log('---');
     protoDict[prototype] = {
       'currentPos': [ z1r, z1i ],
       'startPos': ringPos[prototype]['startPos']
