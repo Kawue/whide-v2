@@ -44,6 +44,11 @@ export default {
             .style('background-color', backgroundColor);
         }
       }
+      if (mutation.type === 'UPDATE_COLOR') {
+        let backgroundColor = this.bookmarks[this.prototypeid]['color'];
+        d3.select('#' + this.bookmarks[this.prototypeid]['id'])
+          .style('background-color', backgroundColor);
+      }
       if (mutation.type === 'SET_CURRENT_HIGHLIGHTED_PROTOTYPE') {
         if (this.highlightedPrototype === this.prototypeid) {
           let markedColor = 'rgba(255,255,255,255)';

@@ -201,11 +201,13 @@ export default {
       this.rotations += 0.1;
       d3.select('#colorwheelContainer').remove();
       cw.createColorWheel(this.prototypesPosition, this.rotations, this.posSwitcher);
+      store.commit('UPDATE_COLOR');
     },
     switchPos: function () {
       this.posSwitcher += 1;
       d3.select('#colorwheelContainer').remove();
       cw.createColorWheel(this.prototypesPosition, this.rotations, this.posSwitcher);
+      store.commit('UPDATE_COLOR');
     }
   }
 };

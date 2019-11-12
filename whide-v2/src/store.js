@@ -96,6 +96,9 @@ export default new Vuex.Store({
     },
     getCurrentHighlightedPrototype: state => {
       return state.currentHighlightedPrototype;
+    },
+    getLastPrototypeIndex: state => {
+      return state.lastPrototypeIndex;
     }
   },
   mutations: {
@@ -242,7 +245,7 @@ export default new Vuex.Store({
       state.focus = focus;
     },
     SET_LASTIDX_OF_COEF: (state, idx) => {
-      state.lastPrototypeIndex = idx + 1;
+      state.lastPrototypeIndex = idx;
     },
     SET_COEFF_INDEX: (state, indizes) => {
       state.startingIndizes = indizes['indizes'];
@@ -258,6 +261,9 @@ export default new Vuex.Store({
     },
     SET_CURRENT_HIGHLIGHTED_PROTOTYPE: (state, prototype) => {
       state.currentHighlightedPrototype = prototype;
+    },
+    UPDATE_COLOR: state => {
+
     }
   },
   actions: {
@@ -294,6 +300,7 @@ export default new Vuex.Store({
       let i = ringIdx.match(re);
       let startingindizes = context.state.startingIndizes;
       let lastIdx = startingindizes[parseInt(i.toString())];
+      context.commit('SET_LASTIDX_OF_COEF', lastIdx);
       const url = API_URL + '/coefficients?index=' + ringIdx + '&lastIndex=' + lastIdx.toString();
       axios
         .get(url)
@@ -314,6 +321,7 @@ export default new Vuex.Store({
       let i = index.match(re);
       let startingindizes = context.state.startingIndizes;
       let lastIdx = startingindizes[parseInt(i.toString())];
+      context.commit('SET_LASTIDX_OF_COEF', lastIdx);
       const url = API_URL + '/coefficients?index=' + index + '&lastIndex=' + lastIdx.toString();
       axios
         .get(url)

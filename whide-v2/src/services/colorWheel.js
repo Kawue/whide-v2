@@ -2,6 +2,7 @@ import * as d3 from 'd3';
 import store from '../store';
 
 var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0) {
+  let firstIdx = store.state.lastPrototypeIndex;
   const DEGREES_PER_RADIAN = 180 / Math.PI;
   const canvas = document.getElementById('colorwheelCanvas');
   const context = canvas.getContext('2d');
@@ -25,12 +26,14 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0) {
   const numberOfPrototypes = idList.length;
   Object.keys(protoId).forEach(function (id) {
     let idNumber = parseInt(id.replace(/'/g, '').split(/(\d+)/).filter(Boolean)[1]);
-    let newIdNumber = (idNumber + posSwitcher) % (numberOfPrototypes);
+    let newIdNumber;
+    if (idNumber + posSwitcher >= numberOfPrototypes + firstIdx) {
+      newIdNumber = (idNumber + posSwitcher) - (numberOfPrototypes );
+    } else {
+      newIdNumber = idNumber + posSwitcher;
+    }
+    // let newIdNumber = (idNumber + posSwitcher) % (numberOfPrototypes);
     let newPrototypeString = 'prototyp' + newIdNumber;
-    console.log(newPrototypeString);
-    console.log(id);
-    console.log(Object.values(protoId[id]));
-    console.log('--');
     let posColor = renderColorMarker((Object.values(protoId[newPrototypeString])), id);
     posDict[id] = {
       color: posColor,
