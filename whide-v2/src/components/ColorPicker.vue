@@ -23,7 +23,7 @@
                 <v-icon name="arrow-left"></v-icon>
               </b-button>
               <b-button id="default "  size="sm" v-on:click="setDefault()" >
-                <v-icon name="redo"></v-icon>
+                <v-icon name="backward"></v-icon>
               </b-button>
               <b-button id="right"  size="sm" v-on:click="moveRight()">
                 <v-icon name="arrow-right"></v-icon>
@@ -41,7 +41,7 @@
         </div>
         <div  class="rotate">
           <b-button id="diskus" size="sm" >
-            <v-icon name="spinner"></v-icon>
+            <v-icon name="redo"></v-icon>
           </b-button>
           <b-button id="diskusBack" size="sm" v-on:click="spinDiskusBack">
             <v-icon name="backward"></v-icon>
@@ -49,7 +49,7 @@
         </div>
         <div >
           <b-button id="posSwitcher" size="sm" v-on:click="switchPos">
-            <v-icon name="sort-numeric-down"></v-icon>
+            <v-icon name="spinner"></v-icon>
           </b-button>
           <b-button id="'backPosSwitcher" size="sm" v-on:click="switchPosBack">
             <v-icon name="backward"></v-icon>
@@ -240,7 +240,7 @@ export default {
         .style('margin-right', '350px');
     },
     rotatetDiskus: function () {
-      this.rotations += 0.1;
+      this.rotations -= 0.1;
       d3.select('#colorwheelContainer').remove();
       this.clearSegmentationMap();
       cw.createColorWheel(this.prototypesPosition, this.rotations, this.posSwitcher);

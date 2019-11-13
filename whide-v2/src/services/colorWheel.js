@@ -27,10 +27,10 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0) {
   Object.keys(protoId).forEach(function (id) {
     let idNumber = parseInt(id.replace(/'/g, '').split(/(\d+)/).filter(Boolean)[1]);
     let newIdNumber;
-    if (idNumber + posSwitcher >= numberOfPrototypes + firstIdx) {
-      newIdNumber = (idNumber + posSwitcher) - (numberOfPrototypes );
+    if (idNumber + (posSwitcher % numberOfPrototypes) >= numberOfPrototypes + firstIdx) {
+      newIdNumber = idNumber + (posSwitcher % numberOfPrototypes) - (numberOfPrototypes);
     } else {
-      newIdNumber = idNumber + posSwitcher;
+      newIdNumber = idNumber + (posSwitcher % numberOfPrototypes);
     }
     // let newIdNumber = (idNumber + posSwitcher) % (numberOfPrototypes);
     let newPrototypeString = 'prototyp' + newIdNumber;
@@ -82,6 +82,14 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0) {
         protoId[id]['id'] = id;
         protoId[id]['color'] = colorOfPos;
         store.commit('SET_CHOOSED_BOOKMARKS', protoId[id]);
+      })
+      .on('mouseover', function () {
+        store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', id);
+        store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
+      })
+      .on('mouseout', function () {
+        store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
+        store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
       });
     return colorOfPos;
   }
@@ -205,7 +213,6 @@ var moebiustransformation = function (ringPos, direction, midPoint) {
     fB = 1 - ar * z0r - ai * z0i;
     // distance between point.y and focus.y
     fC = z0i - ai;
-    // f.y * p.x - f.x * p.y
     fD = ai * z0r - ar * z0i;
     fQ = fB * fB + fD * fD;
 

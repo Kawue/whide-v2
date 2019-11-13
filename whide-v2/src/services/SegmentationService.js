@@ -1,7 +1,7 @@
 import store from '../store';
 import * as d3 from 'd3';
 
-var drawSegmentationMap = function (dimensions) {
+var drawSegmentationMap = function (dimensions, highlightOutside = false, prototypeOutside = '') {
   const ringData = store.state.currentRingData;
   const dimX = dimensions['x'] + 1;
   const dimY = dimensions['y'] + 1;
@@ -101,6 +101,21 @@ var drawSegmentationMap = function (dimensions) {
     .scaleExtent([0.3, 5])
     .on('zoom', () => zoomed(d3.event.transform)));
   virtCanvas.addEventListener('mousemove', zoomed, false);
+
+  // if Prototype is highlightet from Colorwheel, the color changes in Segmentation Map
+  if (highlightOutside) {
+    let prototypeSample = uInt8IndexSample[prototypeOutside]['indizes'];
+    ctx.save();
+    prototypeSample.forEach(function (index) {
+      data[index] = 255;
+      data[index + 1] = 255;
+      data[index + 2] = 255;
+      data[index + 3] = 255;
+    });
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    draw(imageData, ctx, true);
+    ctx.restore();
+  }
 
   function zoomed (transform) {
     if (transform.type === 'mousemove') {

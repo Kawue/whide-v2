@@ -39,7 +39,8 @@ export default new Vuex.Store({
     currentRingData: {},
     colorsReady: false,
     segmentationScalor: Number,
-    currentHighlightedPrototype: String
+    currentHighlightedPrototype: String,
+    highlightPrototypeFromOutside: undefined
 
   },
   getters: {
@@ -99,6 +100,13 @@ export default new Vuex.Store({
     },
     getLastPrototypeIndex: state => {
       return state.lastPrototypeIndex;
+    },
+    getHighlightedPrototypeOutside: state => {
+      let dict = {
+        'id': state.currentHighlightedPrototype,
+        'outside': state.highlightPrototypeFromOutside
+      };
+      return dict;
     }
   },
   mutations: {
@@ -263,7 +271,13 @@ export default new Vuex.Store({
       state.currentHighlightedPrototype = prototype;
     },
     UPDATE_COLOR: state => {
-
+      return null;
+    },
+    HIGHLIGHT_PROTOTYPE_OUTSIDE: state => {
+      state.highlightPrototypeFromOutside = state.highlightPrototypeFromOutside !== true;
+      if (state.highlightPrototypeFromOutside === undefined) {
+        state.highlightPrototypeFromOutside = true;
+      }
     }
   },
   actions: {
@@ -275,7 +289,6 @@ export default new Vuex.Store({
           context.commit('SET_SEGMENTATION_DIM', response.data);
         })
         .catch(function (e) {
-          console.log(e);
           alert('Error while getting dimensions');
         });
     },

@@ -17,24 +17,17 @@ export default {
   computed: {
     ...mapGetters({
       dim: 'getSegmentationDim',
-      colorsReady: 'getIfColorsReady'
+      colorsReady: 'getIfColorsReady',
+      outsideHighlight: 'getHighlightedPrototypeOutside'
     })
   },
   mounted () {
     this.unsubscribe = store.subscribe(mutation => {
       if (mutation.type === 'SET_COLORS_READY') {
-
-        /* const canvas = document.getElementById('segMap');
-        let ctx = canvas.getContext('2d');
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const virtCanvas = document.getElementById('virtCanvas');
-        let virtCtx = virtCanvas.getContext('2d');
-        virtCtx.setTransform(1, 0, 0, 1, 0, 0);
-        virtCtx.clearRect(0, 0, virtCanvas.width, virtCanvas.height);
-
-         */
         this.drawSegmentation();
+      }
+      if (mutation.type === 'HIGHLIGHT_PROTOTYPE_OUTSIDE') {
+        this.drawSegmentation(this.outsideHighlight['outside'], this.outsideHighlight['id']);
       }
     });
   },
@@ -42,9 +35,9 @@ export default {
     this.unsubscribe();
   },
   methods: {
-    drawSegmentation: function () {
+    drawSegmentation: function (outside = false, prototype = '') {
       if (this.colorsReady) {
-        sm.drawSegmentationMap(this.dim);
+        sm.drawSegmentationMap(this.dim, outside, prototype);
       }
     }
   }

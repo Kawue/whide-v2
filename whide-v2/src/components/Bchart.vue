@@ -13,7 +13,6 @@ export default {
   name: 'Bchart',
   data: function () {
     return {
-      currentMarkedPrototypeColor: null,
       currentMarkedPrototype: null
     };
   },
@@ -53,14 +52,14 @@ export default {
         if (this.highlightedPrototype === this.prototypeid) {
           let markedColor = 'rgba(255,255,255,255)';
           this.currentMarkedPrototype = this.prototypeid;
-          this.currentMarkedPrototypeColor = this.bookmarks[this.prototypeid]['color'];
           d3.select('#' + this.bookmarks[this.highlightedPrototype]['id'])
-            .style('background-color', markedColor);
+            .style('border-width', '3px')
+            .style('border-color', markedColor);
         } else if (this.currentMarkedPrototype === this.prototypeid) {
           d3.select('#' + this.currentMarkedPrototype)
-            .style('background-color', this.currentMarkedPrototypeColor);
+            .style('border-width', '1px')
+            .style('border-color', 'black');
           this.currentMarkedPrototype = null;
-          this.currentMarkedPrototypeColor = null;
         }
       }
     });
@@ -108,6 +107,7 @@ export default {
         .attr('height', height + margin.top + margin.bottom)
         .style('margin-right', '2px')
         .style('border-style', 'solid')
+        .style('border-width', '1px')
         .style('background-color', backgroundColor)
         .on('mouseenter', function () {
           d3.select(this)
