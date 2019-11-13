@@ -189,23 +189,57 @@ export default {
       store.commit('CLEAR_ALL_BOOKMARKS');
     },
     clearSegmentationMap: function () {
-      const canvas = document.getElementById('segMap');
+      /* const canvas = document.getElementById('segMap');
       let ctx = canvas.getContext('2d');
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.beginPath();
       const virtCanvas = document.getElementById('virtCanvas');
       let virtCtx = virtCanvas.getContext('2d');
+      virtCtx.setTransform(1, 0, 0, 1, 0, 0);
       virtCtx.clearRect(0, 0, virtCanvas.width, virtCanvas.height);
+      */
+      d3.select('#virtCanvas').remove();
+      d3.select('#segMap').remove();
+      d3.select('#segmentationAlignment')
+        .append('canvas')
+        .style('position', 'absolute')
+        .attr('class', 'virtSegmentationCanvas')
+        .attr('id', 'virtCanvas')
+        .style('z-index', '101')
+        .style('background-color', '#404040')
+        .style('width', '70vw')
+        .style('  height', '90vh')
+        .style('top', '30px')
+        .style('left', '0px')
+        .style('margin-left', '190px')
+        .style('margin-right', '350px');
+
+      d3.select('#segmentationAlignment')
+        .append('canvas')
+        .style('position', 'absolute')
+        .attr('class', 'segmentationCanvas')
+        .attr('id', 'segMap')
+        .style('pointer-events', 'none')
+        .style('background-color', '#404040')
+        .style('width', '70vw')
+        .style('height', '90vh')
+        .style('top', '30px')
+        .style('z-index', '101')
+        .style('left', '0px')
+        .style('margin-left', '190px')
+        .style('margin-right', '350px');
     },
     rotatetDiskus: function () {
       this.rotations += 0.1;
       d3.select('#colorwheelContainer').remove();
+      this.clearSegmentationMap();
       cw.createColorWheel(this.prototypesPosition, this.rotations, this.posSwitcher);
       store.commit('UPDATE_COLOR');
     },
     switchPos: function () {
       this.posSwitcher += 1;
       d3.select('#colorwheelContainer').remove();
+      this.clearSegmentationMap();
       cw.createColorWheel(this.prototypesPosition, this.rotations, this.posSwitcher);
       store.commit('UPDATE_COLOR');
     }

@@ -54,7 +54,9 @@ var drawSegmentationMap = function (dimensions) {
   virtCanvas.height = computedHeight;
 
   const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   const virtCtx = virtCanvas.getContext('2d');
+  virtCtx.clearRect(0, 0, virtCanvas.width, virtCanvas.height);
   ctx.webkitImageSmoothingEnabled = false;
   ctx.imageSmoothingEnabled = false;
   virtCtx.webkitImageSmoothingEnabled = false;
@@ -93,7 +95,6 @@ var drawSegmentationMap = function (dimensions) {
     virtData[dict.indize + 3] = 255;
   });
   firstDraw(virtImageData, virtCtx, false);
-
 
   // add highlight and zoom
   d3.select(virtCanvas).call(d3.zoom()
@@ -172,6 +173,7 @@ var drawSegmentationMap = function (dimensions) {
       }
     } else {
       selectedPrototype = null;
+      first = true;
       ctx.save();
       store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
       ctx.clearRect(0, 0, canvas.width, canvas.height);

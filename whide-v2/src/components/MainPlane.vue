@@ -1,6 +1,6 @@
 <template>
   <div class="mainPlane">
-    <p align="center">
+    <p id="segmentationAlignment" align="center">
       <canvas id="virtCanvas" class="virtSegmentationCanvas" style="width: 70vw; height: 90vh"></canvas>
       <canvas id="segMap" class="segmentationCanvas" style="width: 70vw; height: 90vh"></canvas>
     </p>
@@ -11,6 +11,7 @@
 import { mapGetters } from 'vuex';
 import * as sm from '../services/SegmentationService.js';
 import store from '../store';
+import * as d3 from 'd3';
 
 export default {
   name: 'MainPlane.vue',
@@ -23,6 +24,17 @@ export default {
   mounted () {
     this.unsubscribe = store.subscribe(mutation => {
       if (mutation.type === 'SET_COLORS_READY') {
+
+        /* const canvas = document.getElementById('segMap');
+        let ctx = canvas.getContext('2d');
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const virtCanvas = document.getElementById('virtCanvas');
+        let virtCtx = virtCanvas.getContext('2d');
+        virtCtx.setTransform(1, 0, 0, 1, 0, 0);
+        virtCtx.clearRect(0, 0, virtCanvas.width, virtCanvas.height);
+
+         */
         this.drawSegmentation();
       }
     });
