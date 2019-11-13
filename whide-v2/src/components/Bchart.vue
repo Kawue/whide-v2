@@ -117,6 +117,14 @@ export default {
         })
         .on('mouseleave', function () { d3.select(this).select('.annotation-group').remove(); });
 
+      svg.on('mouseover', function () {
+        store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', bookmark['id']);
+        store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
+      })
+        .on('mouseout', function () {
+          store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
+          store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
+        });
       let coefficientArray = [];
       data.forEach(function (e) {
         coefficientArray.push(e['coefficient']);
