@@ -11,7 +11,6 @@
 import { mapGetters } from 'vuex';
 import * as sm from '../services/SegmentationService.js';
 import store from '../store';
-import * as d3 from 'd3';
 
 export default {
   name: 'MainPlane.vue',

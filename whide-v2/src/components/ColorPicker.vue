@@ -39,11 +39,21 @@
         <div class="postionClearAll">
           <b-button size="sm" v-on:click="clearAllBookmarks()">Clear All</b-button>
         </div>
-        <div id="diskus" class="rotate">
-          <b-button size="sm" > Rotate Diskus</b-button>
+        <div  class="rotate">
+          <b-button id="diskus" size="sm" >
+            <v-icon name="spinner"></v-icon>
+          </b-button>
+          <b-button id="diskusBack" size="sm" v-on:click="spinDiskusBack">
+            <v-icon name="backward"></v-icon>
+          </b-button>
         </div>
-        <div id="posSwitcher">
-          <b-button size="sm" v-on:click="switchPos">Switch Portotype Pos</b-button>
+        <div >
+          <b-button id="posSwitcher" size="sm" v-on:click="switchPos">
+            <v-icon name="sort-numeric-down"></v-icon>
+          </b-button>
+          <b-button id="'backPosSwitcher" size="sm" v-on:click="switchPosBack">
+            <v-icon name="backward"></v-icon>
+          </b-button>
         </div>
       </div>
     </div>
@@ -236,8 +246,22 @@ export default {
       cw.createColorWheel(this.prototypesPosition, this.rotations, this.posSwitcher);
       store.commit('UPDATE_COLOR');
     },
+    spinDiskusBack: function () {
+      this.rotations = 0;
+      d3.select('#colorwheelContainer').remove();
+      this.clearSegmentationMap();
+      cw.createColorWheel(this.prototypesPosition, this.rotations, this.posSwitcher);
+      store.commit('UPDATE_COLOR');
+    },
     switchPos: function () {
       this.posSwitcher += 1;
+      d3.select('#colorwheelContainer').remove();
+      this.clearSegmentationMap();
+      cw.createColorWheel(this.prototypesPosition, this.rotations, this.posSwitcher);
+      store.commit('UPDATE_COLOR');
+    },
+    switchPosBack: function () {
+      this.posSwitcher = 0;
       d3.select('#colorwheelContainer').remove();
       this.clearSegmentationMap();
       cw.createColorWheel(this.prototypesPosition, this.rotations, this.posSwitcher);
