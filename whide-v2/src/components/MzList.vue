@@ -128,9 +128,7 @@ export default {
   mounted () {
     store.subscribe(mutation => {
       if (mutation.type === 'SET_BOTTOMBAR_HEIGHT') {
-        const regex = /[0-9]*\.?[0-9]+?/i;
-        let h = this.height.match(regex);
-        let newHeight = this.windowHeight - parseInt(h[0]);
+        let newHeight = this.windowHeight - parseInt(this.height);
         d3.select('#mzComponent')
           .style('height', newHeight - 10 + 'px');
         d3.select('#mxlistid')

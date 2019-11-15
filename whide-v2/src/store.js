@@ -41,7 +41,7 @@ export default new Vuex.Store({
     segmentationScalor: Number,
     currentHighlightedPrototype: String,
     highlightPrototypeFromOutside: undefined,
-    bottomBarHeight: String
+    bottomBarHeight: 0
 
   },
   getters: {

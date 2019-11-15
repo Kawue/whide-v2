@@ -24,11 +24,16 @@ export default {
   computed: {
     ...mapGetters({
       bookmarks: 'getBookmarks',
-      highlightedPrototype: 'getCurrentHighlightedPrototype'
+      highlightedPrototype: 'getCurrentHighlightedPrototype',
+      height: 'getBottonBarHeight'
     })
   },
   mounted () {
-    this.createChart(this.bookmarks[this.prototypeid]);
+    if (this.height !== 0) {
+      this.createChart(this.bookmarks[this.prototypeid], parseInt(this.height));
+    } else {
+      this.createChart(this.bookmarks[this.prototypeid]);
+    }
     this.unsubscribe = store.subscribe(mutation => {
       if (mutation.type === 'SET_MOEBIUS') {
         if (Object.keys(this.bookmarks).length !== 0) {
@@ -62,18 +67,24 @@ export default {
           this.currentMarkedPrototype = null;
         }
       }
+      if (mutation.type === 'SET_BOTTOMBAR_HEIGHT') {
+        d3.select('#' + this.prototypeid).remove();
+        this.createChart(this.bookmarks[this.prototypeid], parseInt(this.height));
+      }
     });
   },
   beforeDestroy () {
     this.unsubscribe();
   },
   methods: {
-    createChart: function (bookmark) {
-      if (this.highlightedPrototype !== null) {
+    createChart: function (bookmark, givenHeight = 360) {
+      /* if (this.highlightedPrototype !== null) {
         if (bookmark['id'] === this.highlightedPrototype.toString()) {
           console.log('now');
         }
       }
+
+       */
 
       let backgroundColor = bookmark['color'].toString();
       let data = bookmark['mzs'].map(function (x, i) {
@@ -83,11 +94,11 @@ export default {
       let margin = {
         top: 25,
         right: 35,
-        bottom: 2,
+        bottom: 5,
         left: 20
       };
       let width = 300 - margin.left - margin.right;
-      let height = 360 - margin.top - margin.bottom;
+      let height = givenHeight - margin.top - margin.bottom;
       let padding = 0.1; let outerPadding = 0.3;
 
       let dataMin = d3.min(data, function (d) { return d.coefficient; });
@@ -106,6 +117,7 @@ export default {
         .attr('width', barWidthMax + margin.left + margin.right) //  margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom)
         .style('margin-right', '2px')
+        .style('margin-bottom', '5px')
         .style('border-style', 'solid')
         .style('border-width', '1px')
         .style('background-color', backgroundColor)

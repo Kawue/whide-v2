@@ -51,7 +51,10 @@ export default {
         });
 
         Object.assign(event.target.dataset, { x, y });
-        store.commit('SET_BOTTOMBAR_HEIGHT', event.target.style.height);
+        let height = event.target.style.height;
+        const regex = /[0-9]*\.?[0-9]+?/i;
+        let heightNumber = height.match(regex);
+        store.commit('SET_BOTTOMBAR_HEIGHT', parseInt(heightNumber[0]));
       });
   }
 };
