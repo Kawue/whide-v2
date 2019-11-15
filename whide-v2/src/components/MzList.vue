@@ -46,7 +46,7 @@
               <p id="annotation-mz-value">{{ nameModalMz.mzValue }}</p>
             </b-col>
             <b-col sm="3" class="align-self-center">
-              <label for="annotation-input">Annotation:</label>
+              <label for="annotationinput">Annotation:</label>
             </b-col>
             <b-col sm="9">
               <b-form ref="form" @submit.stop.prevent="handleSubmit">
@@ -56,7 +56,7 @@
                   required
                   maxlength="30"
                   :state="nameModalMz.name.length > 0 ? null : false"
-                  id="annotation-input"
+                  id="annotationinput"
                   trim
                   ref="annotationinput"
                 ></b-input>
