@@ -1,12 +1,8 @@
 <template>
   <div class="bottombar">
-      <div class="bottombarWidget" v-bind:class="{ expanded: isExpanded }">
-      <span v-on:click="toggleView()" v-bind:class="getExpandUpIconClass()">
-        <v-icon name="arrow-down" v-if="showExpandUpIcon()"></v-icon>
-        <v-icon name="arrow-up" v-if="showExpandDownIcon()"></v-icon>
-      </span>
+      <div class="bottombarWidget">
         <div class="content">
-          <Bookmarks side="up" v-if="isExpanded"></Bookmarks>
+          <Bookmarks side="up" ></Bookmarks>
         </div>
       </div>
   </div>
@@ -16,45 +12,19 @@
 import Bookmarks from './Bookmarks';
 import * as d3 from 'd3';
 import interact from 'interactjs';
+import store from '../store';
 
 export default {
   name: 'Bottom',
   components: { Bookmarks },
   data: function () {
     return {
-      isExpanded: true,
-      dragging: false
+      isExpanded: true
     };
   },
   methods: {
     handleResize () {
       console.log('resized');
-    },
-    toggleView: function () {
-      this.isExpanded = !this.isExpanded;
-      try {
-        if (this.isExpanded) {
-          // d3.select('.mzComp').attr('height', '20vh important!');
-          document.getElementById('mzComponent').setAttribute('style', 'height:50vh');
-          document.getElementById('mzlistid').setAttribute('style', 'height:85%');
-        } else {
-          document.getElementById('mzComponent').setAttribute('style', 'height:100vh');
-          document.getElementById('mzlistid').setAttribute('style', 'height:93%');
-
-          // d3.select('.mzComp').attr('height', '100vh');
-        }
-      } catch (e) {
-        return null;
-      }
-    },
-    getExpandUpIconClass: function () {
-      return this.side === 'up' ? 'float-down' : 'float-up';
-    },
-    showExpandUpIcon: function () {
-      return this.side === 'up' ? !this.isExpanded : this.isExpanded;
-    },
-    showExpandDownIcon: function () {
-      return this.side === 'up' ? this.isExpanded : !this.isExpanded;
     }
   },
 
@@ -81,6 +51,7 @@ export default {
         });
 
         Object.assign(event.target.dataset, { x, y });
+        store.commit('SET_BOTTOMBAR_HEIGHT', event.target.style.height);
       });
   }
 };
@@ -93,9 +64,8 @@ export default {
   .bottombarWidget {
     position: absolute;
     height: 40px;
-    width: 7vw;
-    left: 43vw;
-    min-width: 5vw;
+    min-width: 100vw;
+    left: 0;
     max-width: 80vw;
     z-index: 101;
     background-color: #4f5051;
@@ -105,21 +75,8 @@ export default {
     border-color: orange;
     box-sizing: border-box;
 
-    &.expanded {
-      height: 45vh;
-      min-width: 100vw;
-      left:0;
-      right:0;
-      position: absolute;
-      bottom: 0;
-      .content {
-        display: flex;
-        overflow-x: scroll;
-      }
-    }
-
     .content {
-      display: none;
+      display: flex;
       overflow-x: scroll;
 
     }

@@ -100,6 +100,7 @@
 <script>
 import { mapGetters } from 'vuex';
 import store from '../store';
+import * as d3 from 'd3';
 
 export default {
   name: 'mzlist',
@@ -109,7 +110,10 @@ export default {
       nameModalMz: {
         name: '',
         mzValue: 0
-      }
+      },
+      windowHeight: document.documentElement.clientHeight,
+      firstBuild: true
+
     };
   },
   computed: {
@@ -118,8 +122,29 @@ export default {
       mzAnnotations: 'getMzAnnotations',
       showAnnotation: 'mzShowAnnotation',
       asc: 'mzAsc',
-      height: 'getMzHeight'
+      height: 'getBottonBarHeight'
     })
+  },
+  mounted () {
+    store.subscribe(mutation => {
+      if (mutation.type === 'SET_BOTTOMBAR_HEIGHT') {
+        const regex = /[0-9]*\.?[0-9]+?/i;
+        let h = this.height.match(regex);
+        let newHeight = this.windowHeight - parseInt(h[0]);
+        d3.select('#mzComponent')
+          .style('height', newHeight - 10 + 'px');
+        d3.select('#mxlistid')
+          .style('height', newHeight - 20 + 'px');
+      }
+      if (this.firstBuild) {
+        let height = this.windowHeight - 40;
+        d3.select('#mzComponent')
+          .style('height', height - 10 + 'px');
+        d3.select('#mxlistid')
+          .style('height', height - 20 + 'px');
+        this.firstBuild = false;
+      }
+    });
   },
   methods: {
     toggleAsc: function () {
@@ -176,6 +201,7 @@ export default {
 </script>
 <style scoped lang="scss">
   .mzComp {
+    top: 0;
     height: 100vh;
   }
   .list {

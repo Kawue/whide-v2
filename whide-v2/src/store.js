@@ -40,7 +40,8 @@ export default new Vuex.Store({
     colorsReady: false,
     segmentationScalor: Number,
     currentHighlightedPrototype: String,
-    highlightPrototypeFromOutside: undefined
+    highlightPrototypeFromOutside: undefined,
+    bottomBarHeight: String
 
   },
   getters: {
@@ -107,6 +108,9 @@ export default new Vuex.Store({
         'outside': state.highlightPrototypeFromOutside
       };
       return dict;
+    },
+    getBottonBarHeight: state => {
+      return state.bottomBarHeight;
     }
   },
   mutations: {
@@ -278,6 +282,9 @@ export default new Vuex.Store({
       if (state.highlightPrototypeFromOutside === undefined) {
         state.highlightPrototypeFromOutside = true;
       }
+    },
+    SET_BOTTOMBAR_HEIGHT: (state, height) => {
+      state.bottomBarHeight = height;
     }
   },
   actions: {
