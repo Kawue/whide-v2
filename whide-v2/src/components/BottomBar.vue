@@ -10,24 +10,12 @@
 
 <script>
 import Bookmarks from './Bookmarks';
-import * as d3 from 'd3';
 import interact from 'interactjs';
 import store from '../store';
 
 export default {
   name: 'Bottom',
   components: { Bookmarks },
-  data: function () {
-    return {
-      isExpanded: true
-    };
-  },
-  methods: {
-    handleResize () {
-      console.log('resized');
-    }
-  },
-
   mounted () {
     interact('.bottombarWidget')
       .resizable({
