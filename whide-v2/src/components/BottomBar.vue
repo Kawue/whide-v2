@@ -57,7 +57,6 @@ export default {
     height: 40px;
     min-width: 100vw;
     left: 0;
-    max-width: 80vw;
     z-index: 101;
     background-color: #4f5051;
     bottom: 0;

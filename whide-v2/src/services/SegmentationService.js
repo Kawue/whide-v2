@@ -1,7 +1,7 @@
 import store from '../store';
 import * as d3 from 'd3';
 
-var drawSegmentationMap = function (dimensions, highlightOutside = false, prototypeOutside = '') {
+var drawSegmentationMap = function (dimensions, highlightOutside = false, prototypeOutside = '', transformation = { k: 1, x: 0, y: 0 }) {
   const ringData = store.state.currentRingData;
   const dimX = dimensions['x'] + 1;
   const dimY = dimensions['y'] + 1;
@@ -113,11 +113,48 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
       data[index + 3] = 255;
     });
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.translate(transformation.x, transformation.y);
+    ctx.scale(transformation.k, transformation.k);
     draw(imageData, ctx, true);
     ctx.restore();
   }
 
   function zoomed (transform) {
+    if (transform.type === 'mousemove') {
+      ctx.save();
+      let x = tform.x + transformation.x;
+      let y = tform.y + transformation.y;
+      let k = tform.k * transformation.k;
+      ctx.translate(x, y);
+      ctx.scale(k, k);
+      highlightPrototype(transform);
+      ctx.restore();
+    }
+    // viewingCanvas
+    if (typeof transform.k === 'number') {
+      tform = transform;
+      let x = tform.x + transformation.x;
+      let y = tform.y + transformation.y;
+      let k = tform.k * transformation.k;
+      ctx.save();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.translate(x, y);
+      ctx.scale(k, k);
+      draw(imageData, ctx, true);
+      ctx.restore();
+
+      // virtuellCanvas
+      virtCtx.save();
+      virtCtx.clearRect(0, 0, virtCanvas.width, virtCanvas.height);
+      virtCtx.translate(x, y);
+      virtCtx.scale(k, k);
+      draw(virtImageData, virtCtx, false);
+      virtCtx.restore();
+      let t = { k: k, x: x, y: y };
+      store.commit('SET_SEGMENTATION_TRANSFORMATION', t);
+    }
+  }
+  /* function zoomed (transform) {
     if (transform.type === 'mousemove') {
       ctx.save();
       ctx.translate(tform.x, tform.y);
@@ -128,6 +165,7 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
     // viewingCanvas
     if (typeof transform.k === 'number') {
       tform = transform;
+      store.commit('SET_SEGMENTATION_TRANSFORMATION', transform);
       ctx.save();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.translate(transform.x, transform.y);
@@ -144,6 +182,8 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
       virtCtx.restore();
     }
   }
+
+   */
 
   zoomed(d3.zoomIdentity);
 

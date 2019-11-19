@@ -41,7 +41,12 @@ export default new Vuex.Store({
     segmentationScalor: Number,
     currentHighlightedPrototype: String,
     highlightPrototypeFromOutside: undefined,
-    bottomBarHeight: 0
+    bottomBarHeight: 0,
+    segmentationTransformation: {
+      k: 1,
+      x: 0,
+      y: 0
+    }
 
   },
   getters: {
@@ -111,6 +116,9 @@ export default new Vuex.Store({
     },
     getBottonBarHeight: state => {
       return state.bottomBarHeight;
+    },
+    getSegmentationTransformation: state => {
+      return state.segmentationTransformation;
     }
   },
   mutations: {
@@ -285,6 +293,9 @@ export default new Vuex.Store({
     },
     SET_BOTTOMBAR_HEIGHT: (state, height) => {
       state.bottomBarHeight = height;
+    },
+    SET_SEGMENTATION_TRANSFORMATION: (state, transformation) => {
+      state.segmentationTransformation = transformation;
     }
   },
   actions: {

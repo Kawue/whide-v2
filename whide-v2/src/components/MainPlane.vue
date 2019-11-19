@@ -19,7 +19,8 @@ export default {
     ...mapGetters({
       dim: 'getSegmentationDim',
       colorsReady: 'getIfColorsReady',
-      outsideHighlight: 'getHighlightedPrototypeOutside'
+      outsideHighlight: 'getHighlightedPrototypeOutside',
+      transformation: 'getSegmentationTransformation'
     })
   },
   mounted () {
@@ -29,8 +30,13 @@ export default {
         this.drawSegmentation();
       }
       if (mutation.type === 'HIGHLIGHT_PROTOTYPE_OUTSIDE') {
-        this.clearSegmentation();
-        this.drawSegmentation(this.outsideHighlight['outside'], this.outsideHighlight['id']);
+        if (this.outsideHighlight['outside']) {
+          this.clearSegmentation();
+          this.drawSegmentation(this.outsideHighlight['outside'], this.outsideHighlight['id'], this.transformation);
+        } else {
+          this.clearSegmentation();
+          this.drawSegmentation(false, '', this.transformation);
+        }
       }
     });
   },
@@ -38,9 +44,9 @@ export default {
     this.unsubscribe();
   },
   methods: {
-    drawSegmentation: function (outside = false, prototype = '') {
+    drawSegmentation: function (outside = false, prototype = '', transformation = { k: 1, x: 0, y: 0 }) {
       if (this.colorsReady) {
-        sm.drawSegmentationMap(this.dim, outside, prototype);
+        sm.drawSegmentationMap(this.dim, outside, prototype, transformation);
       }
     },
     clearSegmentation: function () {

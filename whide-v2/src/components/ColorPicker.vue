@@ -22,22 +22,22 @@
               <b-button id="left"  size="sm" v-on:click="moveLeft()" >
                 <v-icon name="arrow-left"></v-icon>
               </b-button>
-              <b-button id="default "  size="sm" v-on:click="setDefault()" >
-                <v-icon name="backward"></v-icon>
+              <b-button id="down"  size="sm" v-on:click="moveDown()">
+                <v-icon name="arrow-down"></v-icon>
               </b-button>
               <b-button id="right"  size="sm" v-on:click="moveRight()">
                 <v-icon name="arrow-right"></v-icon>
               </b-button>
             </div>
             <div class="bottomControll">
-              <b-button id="down"  size="sm" v-on:click="moveDown()">
-                <v-icon name="arrow-down"></v-icon>
+              <b-button id="default "  size="sm" v-on:click="setDefault()" >
+                <v-icon name="backward"></v-icon>
               </b-button>
             </div>
           </div>
         </div>
         <div class="postionClearAll">
-          <b-button size="sm" v-on:click="clearAllBookmarks()">Clear All</b-button>
+          <b-button size="sm" v-on:click="clearAllBookmarks()">Clear Bookmarks</b-button>
         </div>
         <div  class="rotate">
           <b-button id="diskus" size="sm" >
