@@ -32,7 +32,6 @@ export default {
       if (mutation.type === 'HIGHLIGHT_PROTOTYPE_OUTSIDE') {
         if (this.outsideHighlight['outside']) {
           this.clearSegmentation();
-          console.log(this.transformation)
           this.drawSegmentation(this.outsideHighlight['outside'], this.outsideHighlight['id'], this.transformation);
         } else {
           this.clearSegmentation();
