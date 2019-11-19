@@ -19,6 +19,7 @@
           v-bind:name="asc ? 'sort-amount-up' : 'sort-amount-down'"
         ></v-icon>
         </span>
+      <label for="mzlistid"></label>
       <select class="list" id="mzlistid" multiple>
         <option
           v-for="(key, val) in mzObjects"
@@ -129,17 +130,13 @@ export default {
     store.subscribe(mutation => {
       if (mutation.type === 'SET_BOTTOMBAR_HEIGHT') {
         let newHeight = this.windowHeight - parseInt(this.height);
-        d3.select('#mzComponent')
-          .style('height', newHeight - 10 + 'px');
-        d3.select('#mxlistid')
-          .style('height', newHeight - 20 + 'px');
+        d3.select('.list')
+          .style('height', newHeight - 100 + 'px');
       }
       if (this.firstBuild) {
         let height = this.windowHeight - 40;
-        d3.select('#mzComponent')
-          .style('height', height - 10 + 'px');
-        d3.select('#mxlistid')
-          .style('height', height - 20 + 'px');
+        d3.select('.list')
+          .style('height', height - 100 + 'px');
         this.firstBuild = false;
       }
     });
@@ -200,12 +197,10 @@ export default {
 <style scoped lang="scss">
   .mzComp {
     top: 0;
-    height: 100vh;
   }
   .list {
     padding: 0;
     font-size: 0.9em;
-    height: 93%;
     width: 100%;
     text-align: center;
     margin-top: 8px;
@@ -215,6 +210,6 @@ export default {
     background-color: darkgray;
   }
   .v-icon {
-    color: white;
+    color: orange;
   }
 </style>

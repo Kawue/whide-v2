@@ -1,6 +1,7 @@
 <template>
   <div class="bottombar">
       <div class="bottombarWidget">
+        <h2 class ="h2">Bookmarks</h2>
         <div class="content">
           <Bookmarks side="up" ></Bookmarks>
         </div>
@@ -15,11 +16,18 @@ import store from '../store';
 
 export default {
   name: 'Bottom',
+  data: function () {
+    return {
+      windowHeight: document.documentElement.clientHeight
+
+    };
+  },
   components: { Bookmarks },
   mounted () {
     interact('.bottombarWidget')
       .resizable({
         edges: { top: true, bottom: false, left: false, right: false },
+        invert: 'repostion',
         modifiers: [
           interact.modifiers.restrictEdges({
             outer: 'parent',
@@ -35,6 +43,7 @@ export default {
         Object.assign(event.target.style, {
           width: `${event.rect.width}px`,
           height: `${event.rect.height}px`,
+          bottom: `0`,
           transform: `translate(${event.deltaRect.left}px, ${event.deltaRect.top}px)`
         });
 
@@ -42,7 +51,9 @@ export default {
         let height = event.target.style.height;
         const regex = /[0-9]*\.?[0-9]+?/i;
         let heightNumber = height.match(regex);
-        store.commit('SET_BOTTOMBAR_HEIGHT', parseInt(heightNumber[0]));
+        if (parseInt(heightNumber[0]) >= 50) {
+          store.commit('SET_BOTTOMBAR_HEIGHT', parseInt(heightNumber[0]));
+        }
       });
   }
 };
@@ -51,18 +62,22 @@ export default {
 <style scoped lang="scss">
   .bottombar{
     clear: both;
+    bottom: 0;
+  }
+  .h2 {
+    color: orange;
   }
   .bottombarWidget {
     position: absolute;
-    height: 40px;
+    min-height: 50px;
     min-width: 100vw;
     left: 0;
     z-index: 101;
     background-color: #4f5051;
     bottom: 0;
     float: bottom;
-    border-style: solid;
-    border-color: orange;
+    border-top-style: solid;
+    border-top-color: orange;
     box-sizing: border-box;
 
     .content {

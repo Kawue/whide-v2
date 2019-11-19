@@ -21,6 +21,9 @@ export default {
     width: 10vw;
     z-index: 101;
     overflow: hidden;
+    border-right-style: solid;
+    border-bottom-style: solid;
+    border-right-color:orange;
   }
 
 </style>
