@@ -85,7 +85,6 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
     });
   });
   firstDraw(imageData, ctx, true);
-
   // draw virtCanvas
   Object.keys(colorDataDict).forEach(function (pixel) {
     const dict = colorDataDict[pixel];
@@ -186,7 +185,9 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
     }
   }
 
-  zoomed(d3.zoomIdentity);
+  /*if (!highlightOutside) {
+    zoomed(d3.zoomIdentity);
+  }*/
 
   function highlightPrototype (e) {
     let mouse = getMousePos(virtCanvas, e);
@@ -261,7 +262,8 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
     newCanvas.height = givenImageData.height;
     newCanvas.getContext('2d').putImageData(givenImageData, 0, 0);
     context.save();
-    context.scale(scalor, scalor);
+    context.translate(tform.x, tform.y);
+    context.scale(tform.k*scalor, tform.k*scalor);
     if (visible) {
       context.fillStyle = backGroundColorRGBA;
       context.fillRect(0, 0, canvas.width, canvas.height);
