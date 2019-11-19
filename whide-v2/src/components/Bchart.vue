@@ -77,7 +77,7 @@ export default {
     this.unsubscribe();
   },
   methods: {
-    createChart: function (bookmark, givenHeight = 360) {
+    createChart: function (bookmark, givenHeight = 300) {
       /* if (this.highlightedPrototype !== null) {
         if (bookmark['id'] === this.highlightedPrototype.toString()) {
           console.log('now');
@@ -86,6 +86,7 @@ export default {
 
        */
 
+      const gHeight = givenHeight - 60;
       let backgroundColor = bookmark['color'].toString();
       let data = bookmark['mzs'].map(function (x, i) {
         return { 'mz': x, 'coefficient': bookmark['data'][i] };
@@ -98,7 +99,7 @@ export default {
         left: 20
       };
       let width = 300 - margin.left - margin.right;
-      let height = givenHeight - margin.top - margin.bottom;
+      let height = gHeight - margin.top - margin.bottom;
       let padding = 0.1; let outerPadding = 0.3;
 
       let dataMin = d3.min(data, function (d) { return d.coefficient; });

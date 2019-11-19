@@ -117,45 +117,15 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
     ctx.scale(tform.k, tform.k);
     draw(imageData, ctx, true);
     ctx.restore();
+
+    virtCtx.save();
+    virtCtx.clearRect(0, 0, virtCanvas.width, virtCanvas.height);
+    virtCtx.translate(tform.x, tform.y);
+    virtCtx.scale(tform.k, tform.k);
+    draw(virtImageData, virtCtx, false);
+    virtCtx.restore();
   }
 
-  /* function zoomed (transform) {
-    if (transform.type === 'mousemove') {
-      ctx.save();
-      let x = tform.x + transformation.x;
-      let y = tform.y + transformation.y;
-      let k = tform.k * transformation.k;
-      ctx.translate(x, y);
-      ctx.scale(k, k);
-      highlightPrototype(transform);
-      ctx.restore();
-    }
-    // viewingCanvas
-    if (typeof transform.k === 'number') {
-      tform = transform;
-      let x = tform.x + transformation.x;
-      let y = tform.y + transformation.y;
-      let k = tform.k * transformation.k;
-      ctx.save();
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.translate(x, y);
-      ctx.scale(k, k);
-      draw(imageData, ctx, true);
-      ctx.restore();
-
-      // virtuellCanvas
-      virtCtx.save();
-      virtCtx.clearRect(0, 0, virtCanvas.width, virtCanvas.height);
-      virtCtx.translate(x, y);
-      virtCtx.scale(k, k);
-      draw(virtImageData, virtCtx, false);
-      virtCtx.restore();
-      let t = { k: k, x: x, y: y };
-      store.commit('SET_SEGMENTATION_TRANSFORMATION', t);
-    }
-  }
-
-   */
   function zoomed (transform) {
     if (transform.type === 'mousemove') {
       ctx.save();
@@ -185,9 +155,7 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
     }
   }
 
-  /*if (!highlightOutside) {
-    zoomed(d3.zoomIdentity);
-  }*/
+  // zoomed(d3.zoomIdentity);
 
   function highlightPrototype (e) {
     let mouse = getMousePos(virtCanvas, e);
@@ -263,7 +231,7 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
     newCanvas.getContext('2d').putImageData(givenImageData, 0, 0);
     context.save();
     context.translate(tform.x, tform.y);
-    context.scale(tform.k*scalor, tform.k*scalor);
+    context.scale(tform.k * scalor, tform.k * scalor);
     if (visible) {
       context.fillStyle = backGroundColorRGBA;
       context.fillRect(0, 0, canvas.width, canvas.height);
