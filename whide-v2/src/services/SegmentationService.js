@@ -10,7 +10,7 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
   let scalor = 1;
   let selectedPrototype;
   let first = true;
-  let tform;
+  let tform = transformation;
   let colorIndex = 1;
   let colorDataDict = {};
 
@@ -113,13 +113,14 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
       data[index + 3] = 255;
     });
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.translate(transformation.x, transformation.y);
-    ctx.scale(transformation.k, transformation.k);
+    ctx.translate(tform.x, tform.y);
+    ctx.scale(tform.k, tform.k);
+    console.log(tform);
     draw(imageData, ctx, true);
     ctx.restore();
   }
 
-  function zoomed (transform) {
+  /* function zoomed (transform) {
     if (transform.type === 'mousemove') {
       ctx.save();
       let x = tform.x + transformation.x;
@@ -154,7 +155,9 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
       store.commit('SET_SEGMENTATION_TRANSFORMATION', t);
     }
   }
-  /* function zoomed (transform) {
+
+   */
+  function zoomed (transform) {
     if (transform.type === 'mousemove') {
       ctx.save();
       ctx.translate(tform.x, tform.y);
@@ -165,25 +168,23 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
     // viewingCanvas
     if (typeof transform.k === 'number') {
       tform = transform;
-      store.commit('SET_SEGMENTATION_TRANSFORMATION', transform);
+      store.commit('SET_SEGMENTATION_TRANSFORMATION', tform);
       ctx.save();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.translate(transform.x, transform.y);
-      ctx.scale(transform.k, transform.k);
+      ctx.translate(tform.x, tform.y);
+      ctx.scale(tform.k, tform.k);
       draw(imageData, ctx, true);
       ctx.restore();
 
       // virtuellCanvas
       virtCtx.save();
       virtCtx.clearRect(0, 0, virtCanvas.width, virtCanvas.height);
-      virtCtx.translate(transform.x, transform.y);
-      virtCtx.scale(transform.k, transform.k);
+      virtCtx.translate(tform.x, tform.y);
+      virtCtx.scale(tform.k, tform.k);
       draw(virtImageData, virtCtx, false);
       virtCtx.restore();
     }
   }
-
-   */
 
   zoomed(d3.zoomIdentity);
 
