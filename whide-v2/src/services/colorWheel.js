@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import store from '../store';
 
-var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0) {
+var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0, ringIndex = 0) {
   let firstIdx = store.state.lastPrototypeIndex;
   const DEGREES_PER_RADIAN = 180 / Math.PI;
   const canvas = document.getElementById('colorwheelCanvas');
@@ -14,6 +14,14 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0) {
 
   const radius = Math.min(halfWidth, halfHeight);
   const radiusSquared = radius * radius;
+  let multiplierForPosPosition;
+  if (ringIndex === 0) {
+    multiplierForPosPosition = 100;
+  } else if (ringIndex === 1) {
+    multiplierForPosPosition = 120;
+  } else if (ringIndex >= 2) {
+    multiplierForPosPosition = 140;
+  }
 
   renderColorWheel(bgImage);
 
@@ -51,8 +59,8 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0) {
     const markerRadius = 6;
     const x = position[0][0];
     const y = position[0][1];
-    const i = parseInt(x * 100 + halfWidth);
-    const j = parseInt(y * 100 + halfHeight);
+    const i = parseInt(x * multiplierForPosPosition + halfWidth);
+    const j = parseInt(y * multiplierForPosPosition + halfHeight);
     let canvas = document.getElementById('colorwheelCanvas');
     let ctx = canvas.getContext('2d');
     let ctxData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
@@ -73,11 +81,10 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0) {
       .on('click', function () {
         let dict = {};
         let protoDict = {};
-        let pos = {
+        dict[colorOfPos] = {
           startPos: position,
           currentPos: position
         };
-        dict[colorOfPos] = pos;
         protoDict[id] = dict;
         protoId[id]['id'] = id;
         protoId[id]['color'] = colorOfPos;
@@ -138,7 +145,7 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0) {
     var colByteOffset = x * NUM_CHANNELS;
     var pixelByteOffset = rowByteOffset + colByteOffset;
 
-    image.data[pixelByteOffset + 0] = color.r;
+    image.data[pixelByteOffset] = color.r;
     image.data[pixelByteOffset + 1] = color.g;
     image.data[pixelByteOffset + 2] = color.b;
     image.data[pixelByteOffset + 3] = alpha;
@@ -151,13 +158,13 @@ var moebiustransformation = function (ringPos, direction, midPoint) {
   const RECTIFICATION_FACTOR = 0.4;
   const RECTIFICATION_FACTOR_X_2 = RECTIFICATION_FACTOR * 2;
   const RECTIFICATION_FACTOR_X_4 = RECTIFICATION_FACTOR * RECTIFICATION_FACTOR * 4;
-  let canvas = document.getElementById('colorwheelCanvas');
-  let context = canvas.getContext('2d');
+  // let canvas = document.getElementById('colorwheelCanvas');
+  // let context = canvas.getContext('2d');
 
-  let bgImage = context.createImageData(canvas.width, canvas.height);
+  // let bgImage = context.createImageData(canvas.width, canvas.height);
 
-  let halfWidth = Math.floor(bgImage.width / 2);
-  let halfHeight = Math.floor(bgImage.height / 2);
+  // let halfWidth = Math.floor(bgImage.width / 2);
+  // let halfHeight = Math.floor(bgImage.height / 2);
 
   let focus = midPoint;
 
@@ -184,13 +191,14 @@ var moebiustransformation = function (ringPos, direction, midPoint) {
   }
 
   moveFocus(FOCUS_MOVE_SPEED * direction['x'], FOCUS_MOVE_SPEED * direction['y']);
-  let offsetCenter;
+  /* let offsetCenter;
   if (halfWidth > halfHeight) {
     offsetCenter = halfHeight;
   } else {
     offsetCenter = halfWidth;
   }
 
+   */
   // focus coordinates
   let ar = focus['x'];
   let ai = focus['y'];
@@ -201,7 +209,7 @@ var moebiustransformation = function (ringPos, direction, midPoint) {
   let fA = Number; let fB = Number; let fC = Number; let fD = Number; let fQ = Number;
   let z0r = Number; let z0i = Number; let z1r = Number; let z1i = Number;
 
-  let fScale = 0.99;
+  // let fScale = 0.99;
   let protoDict = {};
   Object.keys(ringPos).forEach(function (prototype) {
     z0r = ringPos[prototype]['currentPos'][0];

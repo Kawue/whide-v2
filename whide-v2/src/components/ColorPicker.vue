@@ -143,7 +143,7 @@ export default {
   },
   methods: {
     getPos: function () {
-      cw.createColorWheel(this.prototypesPosition, this.rotations, this.posSwitcher);
+      cw.createColorWheel(this.prototypesPosition, this.rotations, this.posSwitcher, parseInt(this.ringGranularity));
     },
     setGranulaity: function () {
       this.lengthRings = this.numberOfRings - 1;
@@ -235,28 +235,28 @@ export default {
       this.rotations -= 0.1;
       d3.select('#colorwheelContainer').remove();
       this.clearSegmentationMap();
-      cw.createColorWheel(this.prototypesPosition, this.rotations, this.posSwitcher);
+      this.getPos();
       store.commit('UPDATE_COLOR');
     },
     spinDiskusBack: function () {
       this.rotations = 0;
       d3.select('#colorwheelContainer').remove();
       this.clearSegmentationMap();
-      cw.createColorWheel(this.prototypesPosition, this.rotations, this.posSwitcher);
+      this.getPos();
       store.commit('UPDATE_COLOR');
     },
     switchPos: function () {
       this.posSwitcher += 1;
       d3.select('#colorwheelContainer').remove();
       this.clearSegmentationMap();
-      cw.createColorWheel(this.prototypesPosition, this.rotations, this.posSwitcher);
+      this.getPos();
       store.commit('UPDATE_COLOR');
     },
     switchPosBack: function () {
       this.posSwitcher = 0;
       d3.select('#colorwheelContainer').remove();
       this.clearSegmentationMap();
-      cw.createColorWheel(this.prototypesPosition, this.rotations, this.posSwitcher);
+      this.getPos();
       store.commit('UPDATE_COLOR');
     }
   }
