@@ -7,7 +7,7 @@
         v-b-tooltip.hover.top="'Show Annotations'"
       >
           <v-icon
-            name="pencil-alt"
+            name="pencil-alt" style="color: orange"
           ></v-icon>
         </span>
       <span
@@ -16,7 +16,7 @@
         v-b-tooltip.hover.top="'Sort'"
       >
         <v-icon
-          v-bind:name="asc ? 'sort-amount-up' : 'sort-amount-down'"
+          v-bind:name="asc ? 'sort-amount-up' : 'sort-amount-down'" style="color: orange"
         ></v-icon>
         </span>
       <label for="mzlistid"></label>
@@ -204,12 +204,12 @@ export default {
     width: 100%;
     text-align: center;
     margin-top: 8px;
+    border-bottom-style: solid;
+    border-color: orange;
+    border-width: 1px;
 
   }
   .options {
     background-color: darkgray;
-  }
-  .v-icon {
-    color: orange;
   }
 </style>

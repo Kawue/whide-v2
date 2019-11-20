@@ -1,7 +1,10 @@
 <template>
   <div class="bottombar">
       <div class="bottombarWidget">
-        <h2 class ="h2">Bookmarks</h2>
+        <div class="headerContainer">
+          <h2 class ="h2">Bookmarks</h2>
+          <b-button id="deleteButton" class="clearBookmarks" size="sm" v-on:click="clearAllBookmarks()">Clear all</b-button>
+        </div>
         <div class="content">
           <Bookmarks side="up" ></Bookmarks>
         </div>
@@ -55,6 +58,11 @@ export default {
           store.commit('SET_BOTTOMBAR_HEIGHT', parseInt(heightNumber[0]));
         }
       });
+  },
+  methods: {
+    clearAllBookmarks: function () {
+      store.commit('CLEAR_ALL_BOOKMARKS');
+    }
   }
 };
 </script>
@@ -83,7 +91,14 @@ export default {
     .content {
       display: flex;
       overflow-x: scroll;
-
+    }
+    .headerContainer {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+    }
+    .clearBookmarks {
+      justify-content: right;
     }
   }
 

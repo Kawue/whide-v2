@@ -15,46 +15,47 @@
           <div class="controlls">
             <div class="topControll">
               <b-button id="up"  size="sm" v-on:click="moveUp()">
-                <v-icon name="arrow-up"></v-icon>
+                <v-icon name="arrow-up" style="color: orange"></v-icon>
               </b-button>
             </div>
             <div class="midControll">
               <b-button id="left"  size="sm" v-on:click="moveLeft()" >
-                <v-icon name="arrow-left"></v-icon>
+                <v-icon name="arrow-left" style="color: orange"></v-icon>
               </b-button>
               <b-button id="down"  size="sm" v-on:click="moveDown()">
-                <v-icon name="arrow-down"></v-icon>
+                <v-icon name="arrow-down" style="color: orange"></v-icon>
               </b-button>
               <b-button id="right"  size="sm" v-on:click="moveRight()">
-                <v-icon name="arrow-right"></v-icon>
+                <v-icon name="arrow-right" style="color: orange"></v-icon>
               </b-button>
             </div>
             <div class="bottomControll">
               <b-button id="default "  size="sm" v-on:click="setDefault()" >
-                <v-icon name="backward"></v-icon>
+                <v-icon name="backward" style="color: orange"></v-icon>
               </b-button>
             </div>
           </div>
         </div>
-        <div class="postionClearAll">
-          <b-button size="sm" v-on:click="clearAllBookmarks()">Clear Bookmarks</b-button>
-        </div>
         <div  class="rotate">
           <b-button id="diskus" size="sm" >
-            <v-icon name="redo"></v-icon>
+            <v-icon name="redo" style="color: orange"></v-icon>
           </b-button>
           <b-button id="diskusBack" size="sm" v-on:click="spinDiskusBack">
-            <v-icon name="backward"></v-icon>
+            <v-icon name="backward" style="color: orange"></v-icon>
           </b-button>
         </div>
         <div >
           <b-button id="posSwitcher" size="sm" v-on:click="switchPos">
-            <v-icon name="spinner"></v-icon>
+            <v-icon name="spinner" style="color: orange"></v-icon>
           </b-button>
           <b-button id="'backPosSwitcher" size="sm" v-on:click="switchPosBack">
-            <v-icon name="backward"></v-icon>
+            <v-icon name="backward" style="color: orange"></v-icon>
           </b-button>
         </div>
+       <!-- <div class="postionClearAll">
+          <b-button size="sm" v-on:click="clearAllBookmarks()">Clear Bookmarks</b-button>
+        </div>
+        -->
       </div>
     </div>
   </div>
@@ -199,15 +200,6 @@ export default {
       store.commit('CLEAR_ALL_BOOKMARKS');
     },
     clearSegmentationMap: function () {
-      /* const canvas = document.getElementById('segMap');
-      let ctx = canvas.getContext('2d');
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const virtCanvas = document.getElementById('virtCanvas');
-      let virtCtx = virtCanvas.getContext('2d');
-      virtCtx.setTransform(1, 0, 0, 1, 0, 0);
-      virtCtx.clearRect(0, 0, virtCanvas.width, virtCanvas.height);
-      */
       d3.select('#virtCanvas').remove();
       d3.select('#segMap').remove();
       d3.select('#segmentationAlignment')
@@ -309,7 +301,7 @@ export default {
   }
   .postionClearAll {
     display: flex;
-    height: 30px;
+    height: 60px;
     justify-content: center;
   }
   .topControll {

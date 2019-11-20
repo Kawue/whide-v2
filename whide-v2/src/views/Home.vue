@@ -3,7 +3,6 @@
     <MainPlane v-if="showPanels"/>
     <sidebarLeft v-if="showPanels" />
     <sidebarRight v-if="showPanels" />
-    <!-- <topBar v-if="showPanels" />-->
     <bottomBar v-if="showPanels" />
   </div>
 </template>
@@ -14,14 +13,12 @@ import Store from '@/store';
 import MainPlane from '@/components/MainPlane';
 import SidebarLeft from '../components/SidebarLeft';
 import SidebarRight from '../components/SidebarRight';
-import TopBar from '../components/TopBar';
 import BottomBar from '../components/BottomBar';
 
 export default {
   name: 'home',
   components: {
     BottomBar,
-    TopBar,
     SidebarRight,
     SidebarLeft,
     MainPlane

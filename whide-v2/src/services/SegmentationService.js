@@ -95,11 +95,11 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
   });
   firstDraw(virtImageData, virtCtx, false);
   let zoom = d3.zoom()
-  .scaleExtent([0.3, 5])
-  .on('zoom', () => zoomed(d3.event.transform));
+    .scaleExtent([0.3, 5])
+    .on('zoom', () => zoomed(d3.event.transform));
   // add highlight and zoom
   d3.select(virtCanvas).call(zoom)
-    .call(zoom.transform, d3.zoomIdentity.translate(tform.x,tform.y).scale(tform.k));
+    .call(zoom.transform, d3.zoomIdentity.translate(tform.x, tform.y).scale(tform.k));
   virtCanvas.addEventListener('mousemove', zoomed, false);
 
   // if Prototype is highlightet from Colorwheel, the color changes in Segmentation Map
