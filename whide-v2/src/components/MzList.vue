@@ -1,6 +1,6 @@
 <template>
   <div class="mzComp" id="mzComponent">
-      <div>MZs</div>
+      <div style="color: white">MZs</div>
       <span
         style="float: left;margin-left: 30px; color: white"
         v-on:click="toggleShowAnnotation"
@@ -22,6 +22,7 @@
       <label for="mzlistid"></label>
       <select class="list" id="mzlistid" multiple>
         <option
+          style="color: white"
           v-for="(key, val) in mzObjects"
           v-bind:key="key"
           v-bind:value="key"
@@ -204,9 +205,7 @@ export default {
     width: 100%;
     text-align: center;
     margin-top: 8px;
-    border-bottom-style: solid;
-    border-color: orange;
-    border-width: 1px;
+    background-color: #4f5051;
 
   }
   .options {
