@@ -5,7 +5,6 @@ import * as d3 from 'd3';
 import ApiService from './services/ApiService';
 import MzService from './services/MzService';
 import BookmarkService from './services/BookmarkService';
-import DataService from './services/DataService';
 import axios from 'axios';
 import { moebiustransformation } from './services/colorWheel';
 
@@ -15,13 +14,11 @@ Vue.use(Vuex);
 let apiService = new ApiService();
 let mzService = new MzService();
 let bookmarkService = new BookmarkService();
-let dataService = new DataService();
 
 export default new Vuex.Store({
   state: {
     rings: {},
     prototypesPosition: {},
-    focus: {},
     mzList: {
       showAnnotation: true,
       asc: false,
@@ -34,13 +31,12 @@ export default new Vuex.Store({
     colorSlider: false,
     pixels: {},
     ringCoefficients: [],
-    ringIdx: String,
+    ringIdx: 'ring0',
     lastPrototypeIndex: 0,
     startingIndizes: [0],
     segmentationMapDim: {},
     currentRingData: {},
     colorsReady: false,
-    segmentationScalor: Number,
     currentHighlightedPrototype: String,
     highlightPrototypeFromOutside: undefined,
     bottomBarHeight: 0,
@@ -49,14 +45,10 @@ export default new Vuex.Store({
       x: 0,
       y: 0
     },
-    fullDataIsReady: false,
-    coefficientsReady: false
+    first: true
 
   },
   getters: {
-    getCoefficientsReady: state => {
-      return state.coefficientsReady;
-    },
     getMzAnnotations: state => {
       return Object.values(state.mzObjects);
     },
@@ -65,9 +57,6 @@ export default new Vuex.Store({
     },
     getPrototypesPosition: state => {
       return state.prototypesPosition;
-    },
-    getPixels: state => {
-      return state.pixels;
     },
     mzShowAnnotation: state => {
       return state.mzList.showAnnotation;
@@ -85,6 +74,9 @@ export default new Vuex.Store({
         currentPos: bookmarkData['currentPos'],
         mzs: bookmarkData['mz']
       };
+    },
+    getBookmarkColor: (state) => (givenId) => {
+      return state.currentRingData[givenId]['color'];
     },
     getRingCoefficients: state => {
       return state.ringCoefficients;
@@ -113,9 +105,6 @@ export default new Vuex.Store({
     getIfColorsReady: state => {
       return state.colorsReady;
     },
-    getSegmentationScalor: state => {
-      return state.segmentationScalor;
-    },
     getCurrentHighlightedPrototype: state => {
       return state.currentHighlightedPrototype;
     },
@@ -133,15 +122,9 @@ export default new Vuex.Store({
     },
     getSegmentationTransformation: state => {
       return state.segmentationTransformation;
-    },
-    getIfDataIsReady: state => {
-      return state.fullDataIsReady;
     }
   },
   mutations: {
-    SET_COEFFIECENT_READY: (state, bool) => {
-      state.coefficientsReady = bool;
-    },
     SET_ORIGINAL_DATA: (state, originalData) => {
       state.rings = originalData.rings;
       state.mzList.mzItems = originalData.mzs;
@@ -156,8 +139,6 @@ export default new Vuex.Store({
       state.prototypesPosition = protoDict;
     },
     SET_FULL_DATA: state => {
-      // console.log(state.ringCoefficients);
-      // state.currentRingData = dataService.setData(state.ringIdx, state.rings, state.ringCoefficients, state.mzList.mzItems);
       let ringData = {};
       Object.keys(state.rings[state.ringIdx]).forEach(function (prototype) {
         let prototypeData = {};
@@ -179,7 +160,7 @@ export default new Vuex.Store({
       });
       state.currentRingData = ringData;
     },
-    SET_COMPLETE_FULL_DATA: (state, idWithColor) => {
+    ADD_COLOR_TO_FULL_DATA: (state, idWithColor) => {
       let prototype = Object.keys(idWithColor).toString();
       let color = Object.values(idWithColor);
       state.currentRingData[prototype.toString()]['color'] = color.toString();
@@ -204,7 +185,7 @@ export default new Vuex.Store({
     SET_POS_COLOR: (state, pos) => {
       state.currentRingData = bookmarkService.changePrototypeColor(pos, state.currentRingData);
     },
-    SET_CHOOSED_BOOKMARK_NEW: (state, prototype) => {
+    SET_CHOOSED_BOOKMARK: (state, prototype) => {
       if (!(state.choosedBookmarksOnlyIds.includes(prototype))) {
         state.choosedBookmarksIds.push({
           id: prototype,
@@ -214,7 +195,7 @@ export default new Vuex.Store({
         state.colorSlider = true;
       }
     },
-    DELETE_ITEMS: (state, itemId) => {
+    DELETE_BOOKMARK: (state, itemId) => {
       let currentIds = state.choosedBookmarksIds;
       let currentOnlyIds = state.choosedBookmarksOnlyIds;
       for (let i = 0; i < currentIds.length; i++) {
@@ -230,7 +211,7 @@ export default new Vuex.Store({
         state.colorSlider = false;
       }
     },
-    CLEAR_ALL_BOOKMARKS: (state) => {
+    DELETE_ALL_BOOKMARKS: (state) => {
       state.choosedBookmarksIds = [];
       state.choosedBookmarksOnlyIds = [];
       state.colorSlider = false;
@@ -252,7 +233,7 @@ export default new Vuex.Store({
       state.prototypesPosition = protoDict;
     },
     SET_MOEBIUS: (state, xAndY) => {
-      state.prototypesPosition = moebiustransformation(state.prototypesPosition, xAndY, state.focus);
+      state.prototypesPosition = moebiustransformation(state.prototypesPosition, xAndY);
     },
     SET_DEFAULT_POSITION: (state) => {
       let protoDict = {};
@@ -264,16 +245,7 @@ export default new Vuex.Store({
       });
       state.prototypesPosition = protoDict;
       let xAndY = { 'x': 0, 'y': 0 };
-      state.prototypesPosition = moebiustransformation(state.prototypesPosition, xAndY, state.focus);
-    },
-    SET_FOCUS_DEFAULT: (state) => {
-      state.focus = {
-        'x': 0,
-        'y': 0
-      };
-    },
-    SET_MOVED_FOCUS: (state, focus) => {
-      state.focus = focus;
+      state.prototypesPosition = moebiustransformation(state.prototypesPosition, xAndY);
     },
     SET_LASTIDX_OF_COEF: (state, idx) => {
       state.lastPrototypeIndex = idx;
@@ -287,12 +259,8 @@ export default new Vuex.Store({
     SET_COLORS_READY: (state, bool) => {
       state.colorsReady = bool;
     },
-    SET_DATA_READY: (state, bool) => {
-      state.fullDataIsReady = bool;
-      console.log(state.currentRingData);
-    },
-    SET_SCALOR: (state, num) => {
-      state.segmentationScalor = num;
+    SET_FIRST: (state, bool) => {
+      state.first = bool;
     },
     SET_CURRENT_HIGHLIGHTED_PROTOTYPE: (state, prototype) => {
       state.currentHighlightedPrototype = prototype;
@@ -327,7 +295,6 @@ export default new Vuex.Store({
     },
     fetchData: context => {
       context.commit('SET_ORIGINAL_DATA', apiService.fetchData());
-      context.commit('SET_FOCUS_DEFAULT');
       const url = API_URL + '/coefficientsindex';
       axios
         .get(url)
@@ -337,7 +304,7 @@ export default new Vuex.Store({
         })
         .catch(function (e) {
           console.log(e);
-          alert('Error while getting coefficients Index');
+          alert('Error while fetching data');
         });
     },
     getRingCoefficients: (context) => {
@@ -352,32 +319,14 @@ export default new Vuex.Store({
         .get(url)
         .then(response => {
           context.commit('SET_RING_COEFFICIENTS', response.data['coefficients']);
-          context.commit('SET_COEFFIECENT_READY', true);
+          if (!context.state.first) {
+            context.commit('SET_FULL_DATA');
+          } else {
+            context.commit('SET_FIRST', false);
+          }
         })
         .catch(function () {
-          alert('Error while getting coefficients');
-        });
-    },
-    deleteBookmarks: (context, bookmarkid) => {
-      context.commit('DELETE_ITEMS', bookmarkid);
-    },
-    getStartingData: (context) => {
-      context.commit('SET_RING_IDX', 'ring0');
-      let index = 'ring0';
-      let re = /\d+/;
-      let i = index.match(re);
-      let startingindizes = context.state.startingIndizes;
-      let lastIdx = startingindizes[parseInt(i.toString())];
-      context.commit('SET_LASTIDX_OF_COEF', lastIdx);
-      const url = API_URL + '/coefficients?index=' + index + '&lastIndex=' + lastIdx.toString();
-      axios
-        .get(url)
-        .then(response => {
-          context.commit('SET_RING_COEFFICIENTS', response.data['coefficients']);
-        })
-        .catch(function (e) {
-          console.log(e);
-          alert('Error while getting coefficients');
+          alert('Error while getting coefficients or set Focus');
         });
     }
   }

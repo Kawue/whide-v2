@@ -217,7 +217,7 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
     const mouseColor = d3.rgb.apply(null, imageDataMouse.data).toString();
     if (mouseColor !== 'rgba(0, 0, 0, 0)') {
       const mousePrototype = colorDataDict[mouseColor].id;
-      store.commit('SET_CHOOSED_BOOKMARK_NEW', mousePrototype);
+      store.commit('SET_CHOOSED_BOOKMARK', mousePrototype);
     }
   }
 

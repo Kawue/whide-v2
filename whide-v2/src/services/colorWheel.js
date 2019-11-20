@@ -49,7 +49,7 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0, ringInd
     };
     let idWithColor = {};
     idWithColor[id] = posColor;
-    store.commit('SET_COMPLETE_FULL_DATA', idWithColor);
+    store.commit('ADD_COLOR_TO_FULL_DATA', idWithColor);
   });
 
   store.commit('SET_POS_COLOR', posDict);
@@ -79,7 +79,7 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0, ringInd
       .attr('r', markerRadius)
       .style('fill', colorOfPos)
       .on('click', function () {
-        store.commit('SET_CHOOSED_BOOKMARK_NEW', id);
+        store.commit('SET_CHOOSED_BOOKMARK', id);
       })
       .on('mouseover', function () {
         store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', id);
@@ -144,7 +144,7 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0, ringInd
   }
 };
 
-var moebiustransformation = function (ringPos, direction, midPoint) {
+var moebiustransformation = function (ringPos, direction) {
   const FOCUS_MOVE_SPEED = 0.06;
   const RECTIFICATION_FACTOR = 0.4;
   const RECTIFICATION_FACTOR_X_2 = RECTIFICATION_FACTOR * 2;
@@ -157,7 +157,7 @@ var moebiustransformation = function (ringPos, direction, midPoint) {
   // let halfWidth = Math.floor(bgImage.width / 2);
   // let halfHeight = Math.floor(bgImage.height / 2);
 
-  let focus = midPoint;
+  let focus = { 'x': 0, 'y': 0 };
 
   function moveFocus (x, y) {
     let defaultPoint = {
@@ -229,7 +229,6 @@ var moebiustransformation = function (ringPos, direction, midPoint) {
     };
   });
 
-  store.commit('SET_MOVED_FOCUS', focus);
   return protoDict;
 };
 export { createColorWheel, moebiustransformation };

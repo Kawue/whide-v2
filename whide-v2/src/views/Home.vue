@@ -31,7 +31,7 @@ export default {
   },
   mounted: function () {
     Store.dispatch('getDimensions');
-    Store.dispatch('getStartingData');
+    Store.dispatch('getRingCoefficients');
     Store.dispatch('fetchData');
     this.showPanels = true;
   }

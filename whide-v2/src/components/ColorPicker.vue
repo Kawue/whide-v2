@@ -121,9 +121,6 @@ export default {
         this.clearSegmentationMap();
         this.getPos();
       }
-      if (mutation.type === 'SET_COEFFIECENT_READY') {
-        store.commit('SET_FULL_DATA');
-      }
       if (mutation.type === 'SET_FULL_DATA') {
         this.getPos();
       }
@@ -163,14 +160,12 @@ export default {
       this.lengthRings = this.numberOfRings - 1;
     },
     changePos: function () {
-      store.commit('SET_DATA_READY', false);
       d3.select('#colorwheelContainer').remove();
       this.clearSegmentationMap();
       let currentRing = 'ring' + this.ringGranularity.toString();
       store.commit('SET_RING_IDX', currentRing);
       store.commit('SET_PROTOTYPES_POSITION');
       store.dispatch('getRingCoefficients');
-      store.commit('SET_FOCUS_DEFAULT');
       store.commit('SET_COLORS_READY', false);
     },
     chooseMove: function () {
@@ -187,28 +182,23 @@ export default {
     moveUp: function () {
       let up = { 'x': 0, 'y': 1 };
       store.commit('SET_MOEBIUS', up);
-      store.commit('SET_FOCUS_DEFAULT');
     },
     moveRight: function () {
       let right = { 'x': -1, 'y': 0 };
       store.commit('SET_MOEBIUS', right);
-      store.commit('SET_FOCUS_DEFAULT');
     },
     moveLeft: function () {
       let left = { 'x': 1, 'y': 0 };
       store.commit('SET_MOEBIUS', left);
-      store.commit('SET_FOCUS_DEFAULT');
     },
     moveDown: function () {
       let down = { 'x': 0, 'y': -1 };
       store.commit('SET_MOEBIUS', down);
-      store.commit('SET_FOCUS_DEFAULT');
     },
     setDefault: function () {
       this.rotations = 0;
       this.posSwitcher = 0;
       store.commit('SET_DEFAULT_POSITION');
-      store.commit('SET_FOCUS_DEFAULT');
     },
     clearAllBookmarks: function () {
       store.commit('CLEAR_ALL_BOOKMARKS');

@@ -61,7 +61,7 @@ export default {
   },
   methods: {
     clearAllBookmarks: function () {
-      store.commit('CLEAR_ALL_BOOKMARKS');
+      store.commit('DELETE_ALL_BOOKMARKS');
     }
   }
 };

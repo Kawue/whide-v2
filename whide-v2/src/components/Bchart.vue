@@ -14,7 +14,8 @@ export default {
   data: function () {
     return {
       currentMarkedPrototype: null,
-      bookmarkData: {}
+      bookmarkData: {},
+      bookmarkColor: String
     };
   },
   props: {
@@ -30,6 +31,7 @@ export default {
   },
   mounted () {
     this.bookmarkData = store.getters.getBookmarksData(this.prototypeid);
+
     if (this.height !== 0) {
       this.createChart(this.bookmarkData, parseInt(this.height));
     } else {
@@ -37,18 +39,18 @@ export default {
     }
     this.unsubscribe = store.subscribe(mutation => {
       if (mutation.type === 'SET_MOEBIUS') {
-        let backgroundColor = this.bookmarkData['color'];
+        this.bookmarkColor = store.getters.getBookmarkColor(this.prototypeid);
         d3.select('#' + this.bookmarkData['id'])
-          .style('background-color', backgroundColor);
+          .style('background-color', this.bookmarkColor);
       } else if (mutation.type === 'SET_DEFAULT_POSITION') {
-        let backgroundColor = this.bookmarkData['color'];
+        this.bookmarkColor = store.getters.getBookmarkColor(this.prototypeid);
         d3.select('#' + this.bookmarkData['id'])
-          .style('background-color', backgroundColor);
+          .style('background-color', this.bookmarkColor);
       }
       if (mutation.type === 'UPDATE_COLOR') {
-        let backgroundColor = this.bookmarkData['color'];
+        this.bookmarkColor = store.getters.getBookmarkColor(this.prototypeid);
         d3.select('#' + this.bookmarkData['id'])
-          .style('background-color', backgroundColor);
+          .style('background-color', this.bookmarkColor);
       }
       if (mutation.type === 'SET_CURRENT_HIGHLIGHTED_PROTOTYPE') {
         if (this.highlightedPrototype === this.prototypeid) {
@@ -75,14 +77,6 @@ export default {
   },
   methods: {
     createChart: function (bookmark, givenHeight = 300) {
-      /* if (this.highlightedPrototype !== null) {
-        if (bookmark['id'] === this.highlightedPrototype.toString()) {
-          console.log('now');
-        }
-      }
-
-       */
-
       const gHeight = givenHeight - 60;
       let backgroundColor = bookmark['color'].toString();
       let data = bookmark['mzs'].map(function (x, i) {
@@ -230,7 +224,7 @@ export default {
         .attr('class', 'btn btn-outline-dark btn-sm')
         .html('x')
         .on('click', function () {
-          store.dispatch('deleteBookmarks', bookmark['id'].toString());
+          store.commit('DELETE_BOOKMARK', bookmark['id']);
         });
 
       function alpha (values) {

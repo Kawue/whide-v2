@@ -25,7 +25,6 @@ class BookmarkService {
       }
       newCoeff[norPro] = newValues;
     }
-    store.commit('SET_COEFFIECENT_READY', true);
     return newCoeff;
   }
   changePrototypeColor (newColors, choosedBookmarks) {
