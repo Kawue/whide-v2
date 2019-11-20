@@ -5,6 +5,7 @@ import * as d3 from 'd3';
 import ApiService from './services/ApiService';
 import MzService from './services/MzService';
 import BookmarkService from './services/BookmarkService';
+import DataService from './services/DataService';
 import axios from 'axios';
 import { moebiustransformation } from './services/colorWheel';
 
@@ -14,6 +15,7 @@ Vue.use(Vuex);
 let apiService = new ApiService();
 let mzService = new MzService();
 let bookmarkService = new BookmarkService();
+let dataService = new DataService();
 
 export default new Vuex.Store({
   state: {
@@ -27,8 +29,8 @@ export default new Vuex.Store({
     },
     mzObjects: {
     },
-    choosedBookmarks: {},
     choosedBookmarksIds: [],
+    choosedBookmarksOnlyIds: [],
     colorSlider: false,
     pixels: {},
     ringCoefficients: [],
@@ -46,10 +48,15 @@ export default new Vuex.Store({
       k: 1,
       x: 0,
       y: 0
-    }
+    },
+    fullDataIsReady: false,
+    coefficientsReady: false
 
   },
   getters: {
+    getCoefficientsReady: state => {
+      return state.coefficientsReady;
+    },
     getMzAnnotations: state => {
       return Object.values(state.mzObjects);
     },
@@ -68,8 +75,16 @@ export default new Vuex.Store({
     mzAsc: state => {
       return state.mzList.asc;
     },
-    getBookmarks: state => {
-      return state.choosedBookmarks;
+    getBookmarksData: (state) => (givenId) => {
+      let bookmarkData = state.currentRingData[givenId];
+      return {
+        id: givenId,
+        color: bookmarkData['color'],
+        data: bookmarkData['data'],
+        startPos: bookmarkData['startPos'],
+        currentPos: bookmarkData['currentPos'],
+        mzs: bookmarkData['mz']
+      };
     },
     getRingCoefficients: state => {
       return state.ringCoefficients;
@@ -108,20 +123,25 @@ export default new Vuex.Store({
       return state.lastPrototypeIndex;
     },
     getHighlightedPrototypeOutside: state => {
-      let dict = {
+      return {
         'id': state.currentHighlightedPrototype,
         'outside': state.highlightPrototypeFromOutside
       };
-      return dict;
     },
     getBottonBarHeight: state => {
       return state.bottomBarHeight;
     },
     getSegmentationTransformation: state => {
       return state.segmentationTransformation;
+    },
+    getIfDataIsReady: state => {
+      return state.fullDataIsReady;
     }
   },
   mutations: {
+    SET_COEFFIECENT_READY: (state, bool) => {
+      state.coefficientsReady = bool;
+    },
     SET_ORIGINAL_DATA: (state, originalData) => {
       state.rings = originalData.rings;
       state.mzList.mzItems = originalData.mzs;
@@ -136,6 +156,8 @@ export default new Vuex.Store({
       state.prototypesPosition = protoDict;
     },
     SET_FULL_DATA: state => {
+      // console.log(state.ringCoefficients);
+      // state.currentRingData = dataService.setData(state.ringIdx, state.rings, state.ringCoefficients, state.mzList.mzItems);
       let ringData = {};
       Object.keys(state.rings[state.ringIdx]).forEach(function (prototype) {
         let prototypeData = {};
@@ -180,48 +202,37 @@ export default new Vuex.Store({
       state.mzObjects[mzToAnnotated[0]] = mzToAnnotated[1];
     },
     SET_POS_COLOR: (state, pos) => {
-      state.choosedBookmarks = bookmarkService.changePrototypeColor(pos, state.choosedBookmarks);
+      state.currentRingData = bookmarkService.changePrototypeColor(pos, state.currentRingData);
     },
-    SET_CHOOSED_BOOKMARKS: (state, prototypePosDict) => {
-      let prototypId = prototypePosDict['id'];
-      let prototypeData = state.ringCoefficients[prototypId.toString()];
-      let currentColor = prototypePosDict['color'];
-      let fullBookmarksDict = {
-        id: prototypId,
-        color: currentColor,
-        data: prototypeData,
-        startPos: prototypePosDict['startPos'],
-        currentPos: prototypePosDict['currentPos'],
-        mzs: state.mzList.mzItems
-      };
-      if (!(prototypId in state.choosedBookmarks)) {
-        state.choosedBookmarks[prototypId] = fullBookmarksDict;
+    SET_CHOOSED_BOOKMARK_NEW: (state, prototype) => {
+      if (!(state.choosedBookmarksOnlyIds.includes(prototype))) {
         state.choosedBookmarksIds.push({
-          id: prototypId,
-          value: prototypId
+          id: prototype,
+          value: prototype
         });
+        state.choosedBookmarksOnlyIds.push(prototype);
         state.colorSlider = true;
       }
     },
-    DELETE_CHOOSED_BOOKMARK: (state, prototypeId) => {
-      delete state.choosedBookmarks[prototypeId];
-    },
     DELETE_ITEMS: (state, itemId) => {
       let currentIds = state.choosedBookmarksIds;
+      let currentOnlyIds = state.choosedBookmarksOnlyIds;
       for (let i = 0; i < currentIds.length; i++) {
         if (currentIds[i]['id'] === itemId) {
           currentIds.splice(i, 1);
+          currentOnlyIds.splice(i, 1);
         }
       }
       Vue.set(state, 'choosedBookmarksIds', currentIds);
+      Vue.set(state, 'choosedBookmarksOnlyIds', currentOnlyIds);
       d3.select('#' + itemId).remove();
       if (state.choosedBookmarksIds.length === 0) {
         state.colorSlider = false;
       }
     },
     CLEAR_ALL_BOOKMARKS: (state) => {
-      state.choosedBookmarks = {};
       state.choosedBookmarksIds = [];
+      state.choosedBookmarksOnlyIds = [];
       state.colorSlider = false;
     },
     SET_RING_COEFFICIENTS: (state, coefficients) => {
@@ -275,6 +286,10 @@ export default new Vuex.Store({
     },
     SET_COLORS_READY: (state, bool) => {
       state.colorsReady = bool;
+    },
+    SET_DATA_READY: (state, bool) => {
+      state.fullDataIsReady = bool;
+      console.log(state.currentRingData);
     },
     SET_SCALOR: (state, num) => {
       state.segmentationScalor = num;
@@ -337,6 +352,7 @@ export default new Vuex.Store({
         .get(url)
         .then(response => {
           context.commit('SET_RING_COEFFICIENTS', response.data['coefficients']);
+          context.commit('SET_COEFFIECENT_READY', true);
         })
         .catch(function () {
           alert('Error while getting coefficients');

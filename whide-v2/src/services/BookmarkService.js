@@ -1,3 +1,5 @@
+import store from '../store'
+
 class BookmarkService {
   normalizeCoefficients (coefficients) {
     let max = Number.MIN_SAFE_INTEGER;
@@ -23,6 +25,7 @@ class BookmarkService {
       }
       newCoeff[norPro] = newValues;
     }
+    store.commit('SET_COEFFIECENT_READY', true);
     return newCoeff;
   }
   changePrototypeColor (newColors, choosedBookmarks) {

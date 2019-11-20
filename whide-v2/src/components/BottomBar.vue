@@ -3,7 +3,7 @@
       <div class="bottombarWidget">
         <div class="headerContainer">
           <h2 class ="h2">Bookmarks</h2>
-          <b-button id="deleteButton" class="clearBookmarks" size="sm" v-on:click="clearAllBookmarks()">Clear all</b-button>
+          <b-button id="deleteButton" class="clearBookmarks" size="sm" v-on:click="clearAllBookmarks()">Clear Bookmarks</b-button>
         </div>
         <div class="content">
           <Bookmarks side="up" ></Bookmarks>

@@ -13,7 +13,8 @@ export default {
   name: 'Bchart',
   data: function () {
     return {
-      currentMarkedPrototype: null
+      currentMarkedPrototype: null,
+      bookmarkData: {}
     };
   },
   props: {
@@ -23,41 +24,37 @@ export default {
   },
   computed: {
     ...mapGetters({
-      bookmarks: 'getBookmarks',
       highlightedPrototype: 'getCurrentHighlightedPrototype',
       height: 'getBottonBarHeight'
     })
   },
   mounted () {
+    this.bookmarkData = store.getters.getBookmarksData(this.prototypeid);
     if (this.height !== 0) {
-      this.createChart(this.bookmarks[this.prototypeid], parseInt(this.height));
+      this.createChart(this.bookmarkData, parseInt(this.height));
     } else {
-      this.createChart(this.bookmarks[this.prototypeid]);
+      this.createChart(this.bookmarkData);
     }
     this.unsubscribe = store.subscribe(mutation => {
       if (mutation.type === 'SET_MOEBIUS') {
-        if (Object.keys(this.bookmarks).length !== 0) {
-          let backgroundColor = this.bookmarks[this.prototypeid]['color'];
-          d3.select('#' + this.bookmarks[this.prototypeid]['id'])
-            .style('background-color', backgroundColor);
-        }
+        let backgroundColor = this.bookmarkData['color'];
+        d3.select('#' + this.bookmarkData['id'])
+          .style('background-color', backgroundColor);
       } else if (mutation.type === 'SET_DEFAULT_POSITION') {
-        if (Object.keys(this.bookmarks).length !== 0) {
-          let backgroundColor = this.bookmarks[this.prototypeid]['color'];
-          d3.select('#' + this.bookmarks[this.prototypeid]['id'])
-            .style('background-color', backgroundColor);
-        }
+        let backgroundColor = this.bookmarkData['color'];
+        d3.select('#' + this.bookmarkData['id'])
+          .style('background-color', backgroundColor);
       }
       if (mutation.type === 'UPDATE_COLOR') {
-        let backgroundColor = this.bookmarks[this.prototypeid]['color'];
-        d3.select('#' + this.bookmarks[this.prototypeid]['id'])
+        let backgroundColor = this.bookmarkData['color'];
+        d3.select('#' + this.bookmarkData['id'])
           .style('background-color', backgroundColor);
       }
       if (mutation.type === 'SET_CURRENT_HIGHLIGHTED_PROTOTYPE') {
         if (this.highlightedPrototype === this.prototypeid) {
           let markedColor = 'rgba(255,255,255,255)';
           this.currentMarkedPrototype = this.prototypeid;
-          d3.select('#' + this.bookmarks[this.highlightedPrototype]['id'])
+          d3.select('#' + this.bookmarkData['id'])
             .style('border-width', '3px')
             .style('border-color', markedColor);
         } else if (this.currentMarkedPrototype === this.prototypeid) {
@@ -69,7 +66,7 @@ export default {
       }
       if (mutation.type === 'SET_BOTTOMBAR_HEIGHT') {
         d3.select('#' + this.prototypeid).remove();
-        this.createChart(this.bookmarks[this.prototypeid], parseInt(this.height));
+        this.createChart(this.bookmarkData, parseInt(this.height));
       }
     });
   },
@@ -234,7 +231,6 @@ export default {
         .html('x')
         .on('click', function () {
           store.dispatch('deleteBookmarks', bookmark['id'].toString());
-          store.commit('DELETE_CHOOSED_BOOKMARK', bookmark['id'].toString());
         });
 
       function alpha (values) {

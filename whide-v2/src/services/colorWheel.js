@@ -79,16 +79,7 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0, ringInd
       .attr('r', markerRadius)
       .style('fill', colorOfPos)
       .on('click', function () {
-        let dict = {};
-        let protoDict = {};
-        dict[colorOfPos] = {
-          startPos: position,
-          currentPos: position
-        };
-        protoDict[id] = dict;
-        protoId[id]['id'] = id;
-        protoId[id]['color'] = colorOfPos;
-        store.commit('SET_CHOOSED_BOOKMARKS', protoId[id]);
+        store.commit('SET_CHOOSED_BOOKMARK_NEW', id);
       })
       .on('mouseover', function () {
         store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', id);

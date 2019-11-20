@@ -94,13 +94,15 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
     virtData[dict.indize + 3] = 255;
   });
   firstDraw(virtImageData, virtCtx, false);
+
+  // add highlight and zoom
   let zoom = d3.zoom()
     .scaleExtent([0.3, 5])
     .on('zoom', () => zoomed(d3.event.transform));
-  // add highlight and zoom
   d3.select(virtCanvas).call(zoom)
     .call(zoom.transform, d3.zoomIdentity.translate(tform.x, tform.y).scale(tform.k));
   virtCanvas.addEventListener('mousemove', zoomed, false);
+  virtCanvas.addEventListener('click', addBookmark, false);
 
   // if Prototype is highlightet from Colorwheel, the color changes in Segmentation Map
   if (highlightOutside) {
@@ -205,6 +207,17 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
       setImagedataDefault();
       draw(imageData, ctx);
       ctx.restore();
+    }
+  }
+
+  function addBookmark (e) {
+    let mousePos = getMousePos(virtCanvas, e);
+    const imageDataMouse = virtCtx
+      .getImageData(mousePos.x, mousePos.y, 1, 1);
+    const mouseColor = d3.rgb.apply(null, imageDataMouse.data).toString();
+    if (mouseColor !== 'rgba(0, 0, 0, 0)') {
+      const mousePrototype = colorDataDict[mouseColor].id;
+      store.commit('SET_CHOOSED_BOOKMARK_NEW', mousePrototype);
     }
   }
 

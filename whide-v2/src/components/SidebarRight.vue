@@ -1,11 +1,9 @@
 <template>
-  <div class="sidebarRight" v-bind:class="{ expanded: isExpanded }">
-    <span class="trigger" v-on:click="toggleView()" v-bind:class="getExpandIconClass()">
-      <v-icon name="arrow-left" v-if="showExpandRightIcon()"></v-icon>
-      <v-icon name="arrow-right" v-if="showExpandLeftIcon()"></v-icon>
+  <div class="sidebarRight" >
+    <span class="trigger"  v-bind:class="getExpandIconClass()">
     </span>
     <div class="content">
-      <ColorPicker side="left" v-if="isExpanded"></ColorPicker>
+      <ColorPicker side="float-right" ></ColorPicker>
     </div>
   </div>
 </template>
@@ -21,9 +19,6 @@ export default {
     };
   },
   methods: {
-    toggleView: function () {
-      this.isExpanded = !this.isExpanded;
-    },
     getExpandIconClass: function () {
       return this.side === 'right' ? 'float-right' : 'float-left';
     },
@@ -41,23 +36,17 @@ export default {
   .sidebarRight {
     background-color: #4f5051;
     position: absolute;
-    width: 25px;
-    top: 47.5vh;
+    top: 0;
+    width: 350px;
+    height: auto;
     z-index: 101;
-    height: 50px;
     right: 0;
     overflow: hidden;
     border-left-style: solid;
     border-bottom-style: solid;
     border-color: orange;
     border-bottom-left-radius: 20px;
-  &.expanded {
-     top:0;
-     width: 350px;
-     height: auto;
-   }
-  }
-  .trigger {
     vertical-align: middle;
   }
+
 </style>

@@ -37,20 +37,30 @@
           </div>
         </div>
         <div  class="rotate">
+          <div class="topControll">
           <b-button id="diskus" size="sm" >
             <v-icon name="redo" style="color: orange"></v-icon>
           </b-button>
-          <b-button id="diskusBack" size="sm" v-on:click="spinDiskusBack">
+          </div>
+          <div class="bottomControll">
+          <b-button id="diskusBack"  size="sm" v-on:click="spinDiskusBack">
             <v-icon name="backward" style="color: orange"></v-icon>
           </b-button>
+          </div>
         </div>
         <div >
+          <div class="rotate">
+          <div class="topControll">
           <b-button id="posSwitcher" size="sm" v-on:click="switchPos">
             <v-icon name="spinner" style="color: orange"></v-icon>
           </b-button>
+          </div>
+          <div class="bottomControll">
           <b-button id="'backPosSwitcher" size="sm" v-on:click="switchPosBack">
             <v-icon name="backward" style="color: orange"></v-icon>
           </b-button>
+          </div>
+        </div>
         </div>
        <!-- <div class="postionClearAll">
           <b-button size="sm" v-on:click="clearAllBookmarks()">Clear Bookmarks</b-button>
@@ -87,7 +97,8 @@ export default {
       numberOfRings: 'getNumberOfRings',
       sliderDisabled: 'getColorSlider',
       sagmentationScalor: 'getSegmentationScalor',
-      highlightedPrototype: 'getCurrentHighlightedPrototype'
+      highlightedPrototype: 'getCurrentHighlightedPrototype',
+      coefficientsLoaded: 'getCoefficientLoad'
 
     })
   },
@@ -109,6 +120,9 @@ export default {
         d3.select('#colorwheelContainer').remove();
         this.clearSegmentationMap();
         this.getPos();
+      }
+      if (mutation.type === 'SET_COEFFIECENT_READY') {
+        store.commit('SET_FULL_DATA');
       }
       if (mutation.type === 'SET_FULL_DATA') {
         this.getPos();
@@ -149,15 +163,15 @@ export default {
       this.lengthRings = this.numberOfRings - 1;
     },
     changePos: function () {
+      store.commit('SET_DATA_READY', false);
       d3.select('#colorwheelContainer').remove();
       this.clearSegmentationMap();
       let currentRing = 'ring' + this.ringGranularity.toString();
       store.commit('SET_RING_IDX', currentRing);
       store.commit('SET_PROTOTYPES_POSITION');
-      store.commit('SET_FOCUS_DEFAULT');
       store.dispatch('getRingCoefficients');
+      store.commit('SET_FOCUS_DEFAULT');
       store.commit('SET_COLORS_READY', false);
-      store.commit('SET_FULL_DATA');
     },
     chooseMove: function () {
       if (event.keyCode === 38) {
@@ -315,6 +329,9 @@ export default {
   .bottomControll {
     display: flex;
     justify-content: center;
+  }
+  .rotate {
+    padding-left: 5px;
   }
 
 </style>
