@@ -48,20 +48,18 @@
           </b-button>
           </div>
         </div>
-        <div >
           <div class="rotate">
-          <div class="topControll">
-          <b-button id="posSwitcher" size="sm" v-on:click="switchPos">
-            <v-icon name="spinner" style="color: orange"></v-icon>
-          </b-button>
+            <div class="topControll">
+            <b-button id="posSwitcher" size="sm" v-on:click="switchPos">
+              <v-icon name="spinner" style="color: orange"></v-icon>
+            </b-button>
+            </div>
+            <div class="bottomControll">
+            <b-button id="'backPosSwitcher" size="sm" v-on:click="switchPosBack">
+              <v-icon name="backward" style="color: orange"></v-icon>
+            </b-button>
+            </div>
           </div>
-          <div class="bottomControll">
-          <b-button id="'backPosSwitcher" size="sm" v-on:click="switchPosBack">
-            <v-icon name="backward" style="color: orange"></v-icon>
-          </b-button>
-          </div>
-        </div>
-        </div>
        <!-- <div class="postionClearAll">
           <b-button size="sm" v-on:click="clearAllBookmarks()">Clear Bookmarks</b-button>
         </div>
@@ -319,9 +317,14 @@ export default {
   .bottomControll {
     display: flex;
     justify-content: center;
+    margin-top: 0.4vh;
   }
   .rotate {
+    margin-left: 0.4vw;
     padding-left: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
   }
 
 </style>
