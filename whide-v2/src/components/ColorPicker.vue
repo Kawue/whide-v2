@@ -8,7 +8,7 @@
       <div class="sliderOptions">
         <p style="color: white" v-if="!sliderDisabled">Set Granularity:</p>
         <p v-else>Clear Bookmarks to set Granularity!</p>
-        <b-form-input v-model="ringGranularity" v-bind:type="'range'" :disabled="sliderDisabled" min="0" v-bind:max="lengthRings" class="slider" id="ringGranularity" @change="changePos" ></b-form-input>
+        <b-form-input v-model="ringGranularity" v-bind:type="'range'" :disabled="sliderDisabled" min="0" v-bind:max="lengthRings" class="slider" id="ringGranularity" @change="changePos"></b-form-input>
       </div>
       <div class="container">
         <div class="position-g">
@@ -60,10 +60,6 @@
             </b-button>
             </div>
           </div>
-       <!-- <div class="postionClearAll">
-          <b-button size="sm" v-on:click="clearAllBookmarks()">Clear Bookmarks</b-button>
-        </div>
-        -->
       </div>
     </div>
   </div>

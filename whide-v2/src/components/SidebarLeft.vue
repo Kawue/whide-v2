@@ -23,6 +23,7 @@ export default {
     overflow: hidden;
     border-right-style: solid;
     border-bottom-style: solid;
+    border-width: 1px;
     border-right-color:orange;
   }
 

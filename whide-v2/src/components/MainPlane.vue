@@ -102,8 +102,8 @@ export default {
     pointer-events: none;
     top: 30px;
     left: 0px;
-    margin-left:190px;
-    margin-right: 350px;
+    margin-left:10vw;
+    margin-right: 310px;
     background-color:  #404040;;
   }
 
@@ -111,8 +111,8 @@ export default {
   position: absolute;
   top: 30px;
   left: 0px;
-  margin-left:190px;
-  margin-right: 350px;
+  margin-left:10vw;
+  margin-right: 310px;
   background-color:  #404040;;
 }
 

@@ -6,8 +6,8 @@
           <h2 class ="h2">Bookmarks</h2>
           <b-button id="deleteButton" class="clearBookmarks" variant="" size="sm" v-on:click="clearAllBookmarks()">Clear Bookmarks</b-button>
         </div>
-        <div class="content">
-          <Bookmarks side="up" ></Bookmarks>
+        <div id="bookmarkcontent" class="content">
+          <Bookmarks id="bookmarks" side="up" ></Bookmarks>
         </div>
       </div>
   </div>
@@ -17,6 +17,7 @@
 import Bookmarks from './Bookmarks';
 import interact from 'interactjs';
 import store from '../store';
+import * as d3 from 'd3';
 
 export default {
   name: 'Bottom',
@@ -63,6 +64,9 @@ export default {
   methods: {
     clearAllBookmarks: function () {
       store.commit('DELETE_ALL_BOOKMARKS');
+      d3.select('.bottombarWidget')
+        .style('height', '50px');
+      store.commit('SET_BOTTOMBAR_HEIGHT', parseInt(50));
     }
   }
 };
@@ -87,6 +91,7 @@ export default {
     float: bottom;
     border-top-style: solid;
     border-top-color: orange;
+    border-width: 1px;
     box-sizing: border-box;
 
     .content {

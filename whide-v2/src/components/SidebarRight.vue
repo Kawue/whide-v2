@@ -45,6 +45,7 @@ export default {
     border-left-style: solid;
     border-bottom-style: solid;
     border-color: orange;
+    border-width: 1px;
     border-bottom-left-radius: 20px;
     vertical-align: middle;
   }
