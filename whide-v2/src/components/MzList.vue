@@ -132,12 +132,12 @@ export default {
       if (mutation.type === 'SET_BOTTOMBAR_HEIGHT') {
         let newHeight = this.windowHeight - parseInt(this.height);
         d3.select('.list')
-          .style('height', newHeight - 100 + 'px');
+          .style('height', newHeight - 90 + 'px');
       }
       if (this.firstBuild) {
         let height = this.windowHeight - 40;
         d3.select('.list')
-          .style('height', height - 100 + 'px');
+          .style('height', height - 90 + 'px');
         this.firstBuild = false;
       }
     });
