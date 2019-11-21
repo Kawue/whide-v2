@@ -181,7 +181,7 @@ export default {
             },
             x: margin.left + xScaleAxis(d.coefficient),
             y: yScaleAxis(offsetsAr[i]) + 40,
-            dy: 10 - yScaleAxis(offsetsAr[i]),
+            dy: -5 - yScaleAxis(offsetsAr[i]),
             dx: 210 - xScaleAxis(d.coefficient),
             color: 'black',
             type: d3annotate.annotationCalloutElbow
