@@ -2,8 +2,9 @@
   <div class="bottombar">
       <div class="bottombarWidget">
         <div class="headerContainer">
+          <div class="spacer"></div>
           <h2 class ="h2">Bookmarks</h2>
-          <b-button id="deleteButton" class="clearBookmarks" size="sm" v-on:click="clearAllBookmarks()">Clear Bookmarks</b-button>
+          <b-button id="deleteButton" class="clearBookmarks" variant="" size="sm" v-on:click="clearAllBookmarks()">Clear Bookmarks</b-button>
         </div>
         <div class="content">
           <Bookmarks side="up" ></Bookmarks>
@@ -73,7 +74,7 @@ export default {
     bottom: 0;
   }
   .h2 {
-    color: orange;
+    color: #eeeeee;
   }
   .bottombarWidget {
     position: absolute;
@@ -95,10 +96,17 @@ export default {
     .headerContainer {
       display: flex;
       flex-direction: row;
-      justify-content: center;
+      justify-content: space-between;
     }
-    .clearBookmarks {
-      justify-content: right;
+    /*.clearBookmarks {
+      margin-right: 0.2vw;
+    }
+    .spacer {
+      margin-left: 0.2vw;
+    }*/
+    #deleteButton{
+      color: #000000;
+      background-color:orange;
     }
   }
 
