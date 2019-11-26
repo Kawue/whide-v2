@@ -93,6 +93,15 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0, ringInd
   }
 
   function renderColorWheel (image) {
+    /* let angleScaler180 = d3.scaleLinear()
+      .domain([0, 180])
+      .range([0, 1]);
+    let angeleScaler360 = d3.scaleLinear()
+      .domain([180, 360])
+      .range([1, 0]);
+
+    */
+
     let i, j;
     for (j = 0; j < image.height; j++) {
       for (i = 0; i < image.width; i++) {
@@ -105,6 +114,28 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0, ringInd
           const angleInDegrees = DEGREES_PER_RADIAN * (Math.atan2(y, x) + Math.PI + rotation);
           const distanceFromOrigin = Math.sqrt(distanceFromOriginSquared);
 
+          /*
+          let hsl = d3.hsl(angleInDegrees, (distanceFromOrigin / radius), 0.5);
+          let rainbow = d3.scaleSequential(hsl);
+          let colorString = {};
+          if (angleInDegrees >= 180) {
+            colorString = d3.color(d3.interpolateCool(angeleScaler360(angleInDegrees))).rgb();
+          } else {
+            colorString = d3.color(d3.interpolateCool(angleScaler180(angleInDegrees))).rgb();
+          }
+
+          var matchColors = /rgb\((\d{1,3}), (\d{1,3}), (\d{1,3})\)/;
+          var match = matchColors.exec(colorString);
+          let newColor = {
+            r: match[1],
+            g: match[2],
+            b: match[3],
+            opacity: 1
+          };
+
+ */
+
+          // needs to be var with let color is not defined ....?
           var color = d3.hsl(angleInDegrees, (distanceFromOrigin / radius), 0.5).rgb();
           setPixelColor(image, i, j, color, 200);
         }

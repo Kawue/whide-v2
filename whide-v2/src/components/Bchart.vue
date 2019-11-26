@@ -15,7 +15,8 @@ export default {
     return {
       currentMarkedPrototype: null,
       bookmarkData: {},
-      bookmarkColor: String
+      bookmarkColor: String,
+      mzText: false
     };
   },
   props: {
@@ -109,7 +110,7 @@ export default {
         .attr('width', barWidthMax + margin.left + margin.right) //  margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom)
         .style('margin-right', '2px')
-        .style('margin-bottom', '5px')
+        .style('margin-bottom', '10px')
         .style('border-style', 'solid')
         .style('border-width', '1px')
         .style('background-color', backgroundColor)
@@ -154,7 +155,8 @@ export default {
         .style('padding-left', '1')
         .selectAll('.bar')
         .data(data)
-        .enter().append('rect')
+        .enter()
+        .append('rect')
         .attr('class', 'bar')
         .attr('y', function (d, i) {
           return yScaleAxis(offsetsAr[i]);
@@ -197,6 +199,21 @@ export default {
             .remove();
         });
 
+      this.mzText = true;
+      if (this.mzText) {
+        d3.selectAll('.bar')
+          .style('fill', 'yellow')
+          .append('text')
+          .attr('x', 12)
+          .attr('dy', '1.2em')
+          .attr('class', 'below')
+          .attr('text-anchor', 'right')
+          .style('fill', '#000000')
+          .text(function (d) {
+            return d.mz;
+          });
+      }
+
       // format the data
       data.forEach(function (d) {
         d.coefficient = +d.coefficient;
@@ -227,11 +244,28 @@ export default {
           store.commit('DELETE_BOOKMARK', bookmark['id']);
         });
 
+      svg.append('foreignObject')
+        .attr('width', 30)
+        .attr('height', 35)
+        .append('xhtml:div')
+        .append('xhtml:button')
+        .attr('class', 'btn btn-outline-dark btn-sm')
+        .style('right', 0)
+        .html('show')
+        .on('click', function () {
+          console.log('nothing');
+        });
+
       function alpha (values) {
         let n = values.length;
         let total = d3.sum(values);
         return (width - (n - 1) * padding * width / n - 2 * outerPadding * width / n) / total;
       }
+    },
+    showMz: function () {
+      console.log('why');
+      this.mzText = !this.mzText;
+      this.createChart(this.bookmarkData, parseInt(this.height));
     }
   }
 
