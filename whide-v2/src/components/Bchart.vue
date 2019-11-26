@@ -205,6 +205,7 @@ export default {
           .style('fill', 'yellow')
           .append('text')
           .attr('x', 12)
+          .attr('y', 12)
           .attr('dy', '1.2em')
           .attr('class', 'below')
           .attr('text-anchor', 'right')
@@ -245,15 +246,15 @@ export default {
         });
 
       svg.append('foreignObject')
-        .attr('width', 30)
+        .attr('width', 100)
         .attr('height', 35)
+        .attr('x', 50)
         .append('xhtml:div')
         .append('xhtml:button')
         .attr('class', 'btn btn-outline-dark btn-sm')
-        .style('right', 0)
         .html('show')
-        .on('click', function () {
-          console.log('nothing');
+        .on('click', () => {
+          this.showMz()
         });
 
       function alpha (values) {
@@ -264,8 +265,8 @@ export default {
     },
     showMz: function () {
       console.log('why');
-      this.mzText = !this.mzText;
-      this.createChart(this.bookmarkData, parseInt(this.height));
+      //this.mzText = !this.mzText;
+      //this.createChart(this.bookmarkData, parseInt(this.height));
     }
   }
 
