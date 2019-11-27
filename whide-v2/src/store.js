@@ -45,7 +45,9 @@ export default new Vuex.Store({
       x: 0,
       y: 0
     },
-    first: true
+    first: true,
+    showMzInBchart: false,
+    showAnnotationInBchart: false
 
   },
   getters: {
@@ -72,7 +74,8 @@ export default new Vuex.Store({
         data: bookmarkData['data'],
         startPos: bookmarkData['startPos'],
         currentPos: bookmarkData['currentPos'],
-        mzs: bookmarkData['mz']
+        mzs: bookmarkData['mz'],
+        mzObject: state.mzObjects
       };
     },
     getBookmarkColor: (state) => (givenId) => {
@@ -122,6 +125,12 @@ export default new Vuex.Store({
     },
     getSegmentationTransformation: state => {
       return state.segmentationTransformation;
+    },
+    getShowMzInBchart: state => {
+      return state.showMzInBchart;
+    },
+    getShowAnnotationInBchart: state => {
+      return state.showAnnotationInBchart;
     }
   },
   mutations: {
@@ -279,6 +288,12 @@ export default new Vuex.Store({
     },
     SET_SEGMENTATION_TRANSFORMATION: (state, transformation) => {
       state.segmentationTransformation = transformation;
+    },
+    SET_SHOW_MZ_IN_BCHART: state => {
+      state.showMzInBchart = !state.showMzInBchart;
+    },
+    SET_SHOW_ANNOTATION_IN_BCHART: state => {
+      state.showAnnotationInBchart = !state.showAnnotationInBchart;
     }
   },
   actions: {

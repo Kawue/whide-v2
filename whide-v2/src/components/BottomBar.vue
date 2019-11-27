@@ -4,7 +4,13 @@
         <div class="headerContainer">
           <div class="spacer"></div>
           <h2 class ="h2">Bookmarks</h2>
-          <b-button id="deleteButton" class="clearBookmarks" variant="" size="sm" v-on:click="clearAllBookmarks()">Clear Bookmarks</b-button>
+          <div class="buttonContainer">
+            <b-button v-if="!showAnnotations" id="showAnnotation" class="annotionMzButton" size="sm"  v-on:click="showAnnotation">Show Annotations</b-button>
+            <b-button v-else id="hideAnnotation" class="annotionMzButton" size="sm"  v-on:click="showAnnotation">Hide Annotations</b-button>
+            <b-button v-if="!showMzBoolean" id="showMz" class="showMzs" size="sm" v-on:click="showMz">Show MZ-Values</b-button>
+            <b-button v-else id="hide" class="showMzs" size="sm" v-on:click="showMz">Hide MZ-Values</b-button>
+            <b-button id="deleteButton" class="clearBookmarks" variant="" size="sm" v-on:click="clearAllBookmarks()">Clear Bookmarks</b-button>
+          </div>
         </div>
         <div id="bookmarkcontent" class="content">
           <Bookmarks id="bookmarks" side="up" ></Bookmarks>
@@ -18,6 +24,7 @@ import Bookmarks from './Bookmarks';
 import interact from 'interactjs';
 import store from '../store';
 import * as d3 from 'd3';
+import { mapGetters } from 'vuex';
 
 export default {
   name: 'Bottom',
@@ -28,6 +35,12 @@ export default {
     };
   },
   components: { Bookmarks },
+  computed: {
+    ...mapGetters({
+      showMzBoolean: 'getShowMzInBchart',
+      showAnnotations: 'getShowAnnotationInBchart'
+    })
+  },
   mounted () {
     interact('.bottombarWidget')
       .resizable({
@@ -67,6 +80,12 @@ export default {
       d3.select('.bottombarWidget')
         .style('height', '50px');
       store.commit('SET_BOTTOMBAR_HEIGHT', parseInt(50));
+    },
+    showMz: function () {
+      store.commit('SET_SHOW_MZ_IN_BCHART');
+    },
+    showAnnotation: function () {
+      store.commit('SET_SHOW_ANNOTATION_IN_BCHART');
     }
   }
 };
@@ -109,9 +128,18 @@ export default {
     .spacer {
       margin-left: 0.2vw;
     }*/
+
     #deleteButton{
       color: #000000;
       background-color:orange;
+    }
+    .showMzs{
+      color: #000000;
+      background-color: orange;
+    }
+    .annotionMzButton {
+      color: #000000;
+      background-color: orange;
     }
   }
 

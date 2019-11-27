@@ -27,7 +27,9 @@ export default {
   computed: {
     ...mapGetters({
       highlightedPrototype: 'getCurrentHighlightedPrototype',
-      height: 'getBottonBarHeight'
+      height: 'getBottonBarHeight',
+      showMzBoolean: 'getShowMzInBchart',
+      showAnnotations: 'getShowAnnotationInBchart'
     })
   },
   mounted () {
@@ -71,16 +73,39 @@ export default {
         d3.select('#' + this.prototypeid).remove();
         this.createChart(this.bookmarkData, parseInt(this.height));
       }
+      if (mutation.type === 'SET_SHOW_MZ_IN_BCHART') {
+        d3.select('#' + this.prototypeid).remove();
+        if (this.height !== 0) {
+          this.createChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean);
+        } else {
+          this.createChart(this.bookmarkData, 300, this.showMzBoolean);
+        }
+        // this.createChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean);
+      }
+      if (mutation.type === 'SET_SHOW_ANNOTATION_IN_BCHART') {
+        d3.select('#' + this.prototypeid).remove();
+        if (this.height !== 0) {
+          this.createChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+        } else {
+          this.createChart(this.bookmarkData, 300, this.showMzBoolean, this.showAnnotations);
+        }
+      }
     });
   },
   beforeDestroy () {
     this.unsubscribe();
   },
   methods: {
-    createChart: function (bookmark, givenHeight = 300) {
+    createChart: function (bookmark, givenHeight = 300, showMzBoolean = false, mzAnnotations = false) {
       const gHeight = givenHeight - 60;
       let backgroundColor = bookmark['color'].toString();
-      let data = bookmark['mzs'].map(function (x, i) {
+      let mzItemList;
+      if (mzAnnotations) {
+        mzItemList = Object.values(bookmark['mzObject']);
+      } else {
+        mzItemList = Object.keys(bookmark['mzObject']);
+      }
+      let data = mzItemList.map(function (x, i) {
         return { 'mz': x, 'coefficient': bookmark['data'][i] };
       });
 
@@ -156,8 +181,10 @@ export default {
         .selectAll('.bar')
         .data(data)
         .enter()
+        .append('g')
+        .attr('class', 'barGroup')
         .append('rect')
-        .attr('class', 'bar')
+        .attr('class', 'barRect')
         .attr('y', function (d, i) {
           return yScaleAxis(offsetsAr[i]);
         })
@@ -199,10 +226,8 @@ export default {
             .remove();
         });
 
-      this.mzText = true;
-      if (this.mzText) {
-        d3.selectAll('.bar')
-          .style('fill', 'yellow')
+      if (true) {
+        d3.selectAll('#barRect')
           .append('text')
           .attr('x', 12)
           .attr('y', 12)
@@ -244,7 +269,7 @@ export default {
         .on('click', function () {
           store.commit('DELETE_BOOKMARK', bookmark['id']);
         });
-
+      /*
       svg.append('foreignObject')
         .attr('width', 100)
         .attr('height', 35)
@@ -254,19 +279,16 @@ export default {
         .attr('class', 'btn btn-outline-dark btn-sm')
         .html('show')
         .on('click', () => {
-          this.showMz()
+          this.showMz();
         });
+
+       */
 
       function alpha (values) {
         let n = values.length;
         let total = d3.sum(values);
         return (width - (n - 1) * padding * width / n - 2 * outerPadding * width / n) / total;
       }
-    },
-    showMz: function () {
-      console.log('why');
-      //this.mzText = !this.mzText;
-      //this.createChart(this.bookmarkData, parseInt(this.height));
     }
   }
 
