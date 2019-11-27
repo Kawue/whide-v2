@@ -33,12 +33,13 @@ export default {
     })
   },
   mounted () {
+      console.log(this.height);
     this.bookmarkData = store.getters.getBookmarksData(this.prototypeid);
 
     if (this.height !== 0) {
-      this.createChart(this.bookmarkData, parseInt(this.height));
+      this.createChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
     } else {
-      this.createChart(this.bookmarkData);
+      this.createChart(this.bookmarkData, 300, this.showMzBoolean, this.showAnnotations);
     }
     this.unsubscribe = store.subscribe(mutation => {
       if (mutation.type === 'SET_MOEBIUS') {
@@ -71,7 +72,7 @@ export default {
       }
       if (mutation.type === 'SET_BOTTOMBAR_HEIGHT') {
         d3.select('#' + this.prototypeid).remove();
-        this.createChart(this.bookmarkData, parseInt(this.height));
+        this.createChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
       }
       if (mutation.type === 'SET_SHOW_MZ_IN_BCHART') {
         d3.select('#' + this.prototypeid).remove();
@@ -182,7 +183,7 @@ export default {
         .data(data)
         .enter()
         .append('g')
-        .attr('class', 'barGroup')
+        .attr('class', 'barGroup' + this.prototypeid)
         .append('rect')
         .attr('class', 'barRect')
         .attr('y', function (d, i) {
@@ -226,14 +227,22 @@ export default {
             .remove();
         });
 
-      if (true) {
-        d3.selectAll('#barRect')
-          .append('text')
-          .attr('x', 12)
-          .attr('y', 12)
-          .attr('dy', '1.2em')
-          .attr('class', 'below')
-          .attr('text-anchor', 'right')
+      if (showMzBoolean) {
+        d3.selectAll('.barGroup' + this.prototypeid)
+          .insert('text', 'barRect')
+          .data(data)
+
+          .attr('class', 'barLabel')
+
+          .attr('y', function (d, i) {
+            return (yScaleAxis(offsetsAr[i]) + yScaleAxis(heights[i])) - 2;
+          })
+          .attr('font-size', function (d, i) {
+            return yScaleAxis(heights[i]);
+          })
+          .attr('x', function (d) {
+            return (xScaleAxis(d.coefficient)) / 4;
+          })
           .style('fill', '#000000')
           .text(function (d) {
             return d.mz;
