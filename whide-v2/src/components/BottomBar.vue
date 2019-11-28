@@ -38,10 +38,20 @@ export default {
   computed: {
     ...mapGetters({
       showMzBoolean: 'getShowMzInBchart',
-      showAnnotations: 'getShowAnnotationInBchart'
+      showAnnotations: 'getShowAnnotationInBchart',
+      ownHeight: 'getBottonBarHeight'
     })
   },
   mounted () {
+    store.subscribe(mutation => {
+      if (mutation.type === 'SET_CHOOSED_BOOKMARK') {
+        if (this.ownHeight === 50) {
+          d3.select('.bottombarWidget')
+            .style('height', '300px');
+          store.commit('SET_BOTTOMBAR_HEIGHT', 300);
+        }
+      }
+    });
     interact('.bottombarWidget')
       .resizable({
         edges: { top: true, bottom: false, left: false, right: false },
@@ -79,6 +89,7 @@ export default {
       store.commit('DELETE_ALL_BOOKMARKS');
       d3.select('.bottombarWidget')
         .style('height', '50px');
+      store.commit('SET_BOTTOMBAR_HEIGHT', 50);
     },
     showMz: function () {
       store.commit('SET_SHOW_MZ_IN_BCHART');

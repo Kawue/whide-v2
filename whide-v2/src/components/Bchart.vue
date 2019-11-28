@@ -33,7 +33,6 @@ export default {
     })
   },
   mounted () {
-    console.log(this.height);
     d3.select('#bottombarWidget')
       .style('height', 350);
     this.bookmarkData = store.getters.getBookmarksData(this.prototypeid);

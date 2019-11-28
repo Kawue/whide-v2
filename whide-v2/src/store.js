@@ -39,7 +39,7 @@ export default new Vuex.Store({
     colorsReady: false,
     currentHighlightedPrototype: String,
     highlightPrototypeFromOutside: undefined,
-    bottomBarHeight: 0,
+    bottomBarHeight: 50,
     segmentationTransformation: {
       k: 1,
       x: 0,
@@ -74,7 +74,6 @@ export default new Vuex.Store({
         data: bookmarkData['data'],
         startPos: bookmarkData['startPos'],
         currentPos: bookmarkData['currentPos'],
-        mzs: bookmarkData['mz'],
         mzObject: state.mzObjects
       };
     },
@@ -195,11 +194,6 @@ export default new Vuex.Store({
       state.currentRingData = bookmarkService.changePrototypeColor(pos, state.currentRingData);
     },
     SET_CHOOSED_BOOKMARK: (state, prototype) => {
-      if (state.bottomBarHeight === 0) {
-        d3.select('.bottombarWidget')
-          .style('min-height', '50px');
-        state.bottomBarHeight = 315;
-      }
       if (!(state.choosedBookmarksOnlyIds.includes(prototype))) {
         state.choosedBookmarksIds.push({
           id: prototype,
