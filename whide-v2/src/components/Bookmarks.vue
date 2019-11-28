@@ -22,7 +22,4 @@ export default {
 </script>
 
 <style scoped lang="scss">
-  .chart{
-    overflow: auto;
-  }
 </style>

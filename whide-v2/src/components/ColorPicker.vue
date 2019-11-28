@@ -82,8 +82,7 @@ export default {
       currentMarkedPrototypeColor: null,
       currentMarkedPrototype: null,
       rotations: 0,
-      posSwitcher: 0,
-      mousedownRotate: false
+      posSwitcher: 0
     };
   },
   computed: {

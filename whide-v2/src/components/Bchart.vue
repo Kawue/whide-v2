@@ -237,7 +237,7 @@ export default {
           .attr('class', 'barLabel')
 
           .attr('y', function (d, i) {
-            return (yScaleAxis(offsetsAr[i]) + yScaleAxis(heights[i])) - 2;
+            return (yScaleAxis(offsetsAr[i]) + yScaleAxis(heights[i])) - (yScaleAxis(heights[i]) / 6);
           })
           .attr('font-size', function (d, i) {
             return yScaleAxis(heights[i]);
