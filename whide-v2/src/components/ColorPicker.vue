@@ -14,18 +14,18 @@
         <div class="position-g">
           <div class="controlls">
             <div class="topControll">
-              <b-button id="up"  size="sm" v-on:click="moveUp()">
+              <b-button id="up"  size="sm">
                 <v-icon name="arrow-up" style="color: orange"></v-icon>
               </b-button>
             </div>
             <div class="midControll">
-              <b-button id="left"  size="sm" v-on:click="moveLeft()" >
+              <b-button id="left"  size="sm" >
                 <v-icon name="arrow-left" style="color: orange"></v-icon>
               </b-button>
-              <b-button id="down"  size="sm" v-on:click="moveDown()">
+              <b-button id="down"  size="sm">
                 <v-icon name="arrow-down" style="color: orange"></v-icon>
               </b-button>
-              <b-button id="right"  size="sm" v-on:click="moveRight()">
+              <b-button id="right"  size="sm">
                 <v-icon name="arrow-right" style="color: orange"></v-icon>
               </b-button>
             </div>
@@ -82,7 +82,8 @@ export default {
       currentMarkedPrototypeColor: null,
       currentMarkedPrototype: null,
       rotations: 0,
-      posSwitcher: 0
+      posSwitcher: 0,
+      mousedownRotate: false
     };
   },
   computed: {
@@ -101,8 +102,11 @@ export default {
     window.addEventListener('keydown', this.chooseMove);
   },
   mounted () {
-    let rotate = document.getElementById('diskus');
-    rotate.addEventListener('mousedown', this.rotatetDiskus, false);
+    this.buttonEvent('diskus', this.rotatetDiskus);
+    this.buttonEvent('up', this.moveUp);
+    this.buttonEvent('left', this.moveLeft);
+    this.buttonEvent('right', this.moveRight);
+    this.buttonEvent('down', this.moveDown);
     this.setGranulaity();
     store.subscribe(mutation => {
       if (mutation.type === 'SET_MOEBIUS') {
@@ -256,6 +260,18 @@ export default {
       this.clearSegmentationMap();
       this.getPos();
       store.commit('UPDATE_COLOR');
+    },
+    buttonEvent: function (id, func) {
+      let timer;
+      let object = document.getElementById(id);
+      object.onmousedown = () => {
+        timer = setInterval(() => {
+          func();
+        }, 50);
+      };
+      object.onmouseup = () => {
+        clearInterval(timer);
+      };
     }
   }
 };

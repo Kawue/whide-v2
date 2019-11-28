@@ -195,6 +195,11 @@ export default new Vuex.Store({
       state.currentRingData = bookmarkService.changePrototypeColor(pos, state.currentRingData);
     },
     SET_CHOOSED_BOOKMARK: (state, prototype) => {
+      if (state.bottomBarHeight === 0) {
+        d3.select('.bottombarWidget')
+          .style('min-height', '50px');
+        state.bottomBarHeight = 315;
+      }
       if (!(state.choosedBookmarksOnlyIds.includes(prototype))) {
         state.choosedBookmarksIds.push({
           id: prototype,

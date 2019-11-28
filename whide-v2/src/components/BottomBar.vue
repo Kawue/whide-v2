@@ -79,7 +79,6 @@ export default {
       store.commit('DELETE_ALL_BOOKMARKS');
       d3.select('.bottombarWidget')
         .style('height', '50px');
-      store.commit('SET_BOTTOMBAR_HEIGHT', parseInt(50));
     },
     showMz: function () {
       store.commit('SET_SHOW_MZ_IN_BCHART');
