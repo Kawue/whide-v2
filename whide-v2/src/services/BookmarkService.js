@@ -100,7 +100,7 @@ class BookmarkService {
       coefficientArray.push(e['coefficient']);
     });
 
-    let a = alpha(coefficientArray);
+    let a = this.alpha(coefficientArray, width, padding, outerPadding);
     let offset = 0;
     let offsetsAr = [];
     let heights = [];
@@ -122,7 +122,7 @@ class BookmarkService {
       .data(data)
       .enter()
       .append('g')
-      .attr('class', 'barGroup' + this.prototypeid)
+      .attr('class', 'barGroup' + bookmark['id'])
       .append('rect')
       .attr('class', 'barRect')
       .attr('y', function (d, i) {
@@ -167,7 +167,7 @@ class BookmarkService {
       });
 
     if (showMzBoolean) {
-      d3.selectAll('.barGroup' + this.prototypeid)
+      d3.selectAll('.barGroup' + bookmark['id'])
         .insert('text', 'barRect')
         .data(data)
 
@@ -217,12 +217,144 @@ class BookmarkService {
       .on('click', function () {
         store.commit('DELETE_BOOKMARK', bookmark['id']);
       });
-
-    function alpha (values) {
-      let n = values.length;
-      let total = d3.sum(values);
-      return (width - (n - 1) * padding * width / n - 2 * outerPadding * width / n) / total;
+  }
+  createHorizontalChart (bookmark, givenHeight = 300, showMzBoolean = false, mzAnnotations = false) {
+    let backgroundColor = bookmark['color'].toString();
+    let mzItemList;
+    if (mzAnnotations) {
+      mzItemList = Object.values(bookmark['mzObject']);
+    } else {
+      mzItemList = Object.keys(bookmark['mzObject']);
     }
+    let data = mzItemList.map(function (x, i) {
+      return { 'mz': x, 'coefficient': bookmark['data'][i] };
+    });
+
+    let margin = {
+      top: 25,
+      right: 25,
+      bottom: 25,
+      left: 25
+    };
+
+    let width = document.documentElement.clientWidth - margin.left - margin.right;
+    let height = 300 - margin.top - margin.bottom;
+    let padding = 0.1;
+    let outerPadding = 0.3;
+
+    data.forEach(function (d) {
+      d.coefficient = +d.coefficient;
+    });
+
+    let dataMin = d3.min(data, function (d) { return d.coefficient; });
+    let dataMax = d3.max(data, function (d) { return d.coefficient; });
+
+    let yScaleAxis = d3.scaleLinear()
+      .domain([dataMin, dataMax])
+      .range([0, height + (height * 0.05)], padding, outerPadding);
+
+    let xScaleAxis = d3.scaleLinear()
+      .range([ 0, width ]);
+
+    let svg = d3.select('#graphic').append('svg')
+      .attr('id', bookmark['id'])
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
+      // .attr('transform',
+      //  'translate(' + margin.left + ',' + margin.top + ')')
+      .style('border-style', 'solid')
+      .style('border-width', '1px')
+      .style('background-color', backgroundColor)
+      .on('mouseenter', function () {
+        d3.select(this)
+          .append('g')
+          .attr('class', 'annotation-group')
+          .style('pointer-events', 'none');
+      })
+      .on('mouseleave', function () { d3.select(this).select('.annotation-group').remove(); });
+
+    svg.on('mouseover', function () {
+      store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', bookmark['id']);
+      store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
+    })
+      .on('mouseout', function () {
+        store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
+        store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
+      });
+
+    let coefficientArray = [];
+    data.forEach(function (e) {
+      coefficientArray.push(e['coefficient']);
+    });
+
+    let a = this.alpha(coefficientArray, width, padding, outerPadding);
+    let offset = 0;
+    let offsetsAr = [];
+    let widths = [];
+    for (let val of data) {
+      let w = a * (val.coefficient);
+      widths.push(w);
+      offsetsAr.push(offset);
+      offset += w;
+    }
+
+    xScaleAxis.domain([offsetsAr[0], offsetsAr[offsetsAr.length - 1]]);
+    svg
+      .append('g')
+      // .attr('transform', 'translate(' + margin.left + ',' + 0 + ')')
+      .attr('class', 'hist-rects')
+      .selectAll('.bar')
+      .data(data)
+      .enter()
+      .append('g')
+      .attr('class', 'barGroup' + bookmark['id'])
+      .append('rect')
+      .attr('class', 'barRect')
+      .attr('x', function (d, i) {
+        return xScaleAxis(offsetsAr[i]);
+      })
+      .style('fill', 'white')
+      .style('stroke', 'black')
+      .style('stroke-width', '0.5')
+      .on('mouseenter', function () {
+        d3.select(this)
+          .style('fill', 'orange'); // orange is the new black
+      })
+      .on('mouseleave', function () {
+        d3.select(this)
+          .style('fill', 'white');
+      })
+      .attr('height', function (d) { return yScaleAxis(d.coefficient); })
+      .attr('width', function (d, i) {
+        return xScaleAxis(widths[i]); // scale bar size
+      })
+      .on('mouseover', function (d, i) {
+        const property = [{
+          note: {
+            label: d.mz
+          },
+          x: margin.left + xScaleAxis(offsetsAr[i]),
+          y: yScaleAxis(d.coefficient),
+          dy: -5 - yScaleAxis(d.coefficient),
+          dx: 210 - xScaleAxis(offsetsAr[i]),
+          color: 'black',
+          type: d3annotate.annotationCalloutElbow
+        }];
+        svg
+          .select('.annotation-group')
+          .call(d3annotate.annotation()
+            .annotations(property));
+      })
+      .on('mouseout', () => {
+        svg
+          .select('.annotations')
+          .remove();
+      });
+  }
+  alpha (values, width, padding, outerPadding) {
+    let n = values.length;
+    let total = d3.sum(values);
+    return (width - (n - 1) * padding * width / n - 2 * outerPadding * width / n) / total;
   }
 }
 export default BookmarkService;

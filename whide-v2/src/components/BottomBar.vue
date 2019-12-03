@@ -5,6 +5,7 @@
           <div class="spacer"></div>
           <h2 class ="h2">Bookmarks</h2>
           <div class="buttonContainer">
+            <b-button id="horizontalBcharts" class="horizonatlCharts" size="sm" v-on:click="horizontalCharts">Horizontal Charts</b-button>
             <b-button v-if="!showAnnotations" id="showAnnotation" class="annotionMzButton" size="sm"  v-on:click="showAnnotation">Show Annotations</b-button>
             <b-button v-else id="hideAnnotation" class="annotionMzButton" size="sm"  v-on:click="showAnnotation">Hide Annotations</b-button>
             <b-button v-if="!showMzBoolean" id="showMz" class="showMzs" size="sm" v-on:click="showMz">Show MZ-Values</b-button>
@@ -30,7 +31,8 @@ export default {
   name: 'Bottom',
   data: function () {
     return {
-      windowHeight: document.documentElement.clientHeight
+      windowHeight: document.documentElement.clientHeight,
+      horizontal: false
 
     };
   },
@@ -39,7 +41,8 @@ export default {
     ...mapGetters({
       showMzBoolean: 'getShowMzInBchart',
       showAnnotations: 'getShowAnnotationInBchart',
-      ownHeight: 'getBottonBarHeight'
+      ownHeight: 'getBottonBarHeight',
+      bookmarkIds: 'getOnlyBookmarkIds'
     })
   },
   mounted () {
@@ -96,6 +99,23 @@ export default {
     },
     showAnnotation: function () {
       store.commit('SET_SHOW_ANNOTATION_IN_BCHART');
+    },
+    horizontalCharts: function () {
+      this.horizontal = !this.horizontal;
+      if (this.horizontal) {
+        d3.select('.bottombarWidget')
+          .style('height', '500px');
+        store.commit('SET_BOTTOMBAR_HEIGHT', 500);
+      } else {
+        d3.select('.bottombarWidget')
+          .style('height', '350px');
+        store.commit('SET_BOTTOMBAR_HEIGHT', 350);
+      }
+
+      this.bookmarkIds.forEach(function (prototype) {
+        d3.select('#' + prototype).remove();
+      });
+      store.commit('SET_BOOKMARKS_HORIZONTAL');
     }
   }
 };
@@ -161,6 +181,10 @@ export default {
       background-color: orange;
     }
     .annotionMzButton {
+      color: #000000;
+      background-color: orange;
+    }
+    .horizonatlCharts {
       color: #000000;
       background-color: orange;
     }

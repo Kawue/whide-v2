@@ -5,7 +5,6 @@
 
 <script>
 import * as d3 from 'd3';
-import * as d3annotate from 'd3-svg-annotation';
 import { mapGetters } from 'vuex';
 import store from '../store';
 import BookmarkService from '../services/BookmarkService';
@@ -30,13 +29,22 @@ export default {
       highlightedPrototype: 'getCurrentHighlightedPrototype',
       height: 'getBottonBarHeight',
       showMzBoolean: 'getShowMzInBchart',
-      showAnnotations: 'getShowAnnotationInBchart'
+      showAnnotations: 'getShowAnnotationInBchart',
+      bookmarkOrientation: 'getBookmarkOrientation'
     })
   },
   mounted () {
     let bookmarkService = new BookmarkService();
-    d3.select('#bottombarWidget')
-      .style('height', 350);
+    if (this.bookmarkOrientation) {
+      d3.select('.bottombarWidget')
+        .style('height', '500px');
+      store.commit('SET_BOTTOMBAR_HEIGHT', 500);
+    } else {
+      d3.select('.bottombarWidget')
+        .style('height', '350px');
+      store.commit('SET_BOTTOMBAR_HEIGHT', 350);
+    }
+
     this.bookmarkData = store.getters.getBookmarksData(this.prototypeid);
 
     if (this.height !== 0) {
@@ -75,22 +83,49 @@ export default {
       }
       if (mutation.type === 'SET_BOTTOMBAR_HEIGHT') {
         d3.select('#' + this.prototypeid).remove();
-        bookmarkService.createBchart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+        if (this.bookmarkOrientation) {
+          bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+        } else {
+          bookmarkService.createBchart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+        }
       }
       if (mutation.type === 'SET_SHOW_MZ_IN_BCHART') {
         d3.select('#' + this.prototypeid).remove();
         if (this.height !== 0) {
-          bookmarkService.createBchart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+          if (this.bookmarkOrientation) {
+            bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+          } else {
+            bookmarkService.createBchart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+          }
         } else {
-          bookmarkService.createBchart(this.bookmarkData, 300, this.showMzBoolean, this.showAnnotations);
+          if (this.bookmarkOrientation) {
+            bookmarkService.createHorizontalChart(this.bookmarkData, 500, this.showMzBoolean, this.showAnnotations);
+          } else {
+            bookmarkService.createBchart(this.bookmarkData, 300, this.showMzBoolean, this.showAnnotations);
+          }
         }
       }
       if (mutation.type === 'SET_SHOW_ANNOTATION_IN_BCHART') {
         d3.select('#' + this.prototypeid).remove();
         if (this.height !== 0) {
-          bookmarkService.createBchart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+          if (this.bookmarkOrientation) {
+            bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+          } else {
+            bookmarkService.createBchart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+          }
         } else {
-          bookmarkService.createBchart(this.bookmarkData, 300, this.showMzBoolean, this.showAnnotations);
+          if (this.bookmarkOrientation) {
+            bookmarkService.createHorizontalChart(this.bookmarkData, 500, this.showMzBoolean, this.showAnnotations);
+          } else {
+            bookmarkService.createBchart(this.bookmarkData, 300, this.showMzBoolean, this.showAnnotations);
+          }
+        }
+      }
+      if (mutation.type === 'SET_BOOKMARKS_HORIZONTAL') {
+        if (this.bookmarkOrientation) {
+          bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+        } else {
+          bookmarkService.createBchart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
         }
       }
     });
@@ -107,9 +142,9 @@ export default {
     display: flex;
     align-content: flex-end;
     align-items: flex-end;
-    bottom: 0;
+    bottom: 5px;
     margin-left: 0.5vw;
-    overflow: auto;
+    overflow-x: scroll;
     margin-right: 0.5vw;
   }
 

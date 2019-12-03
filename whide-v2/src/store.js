@@ -47,7 +47,8 @@ export default new Vuex.Store({
     },
     first: true,
     showMzInBchart: false,
-    showAnnotationInBchart: false
+    showAnnotationInBchart: false,
+    horizonatlCharts: false
 
   },
   getters: {
@@ -92,6 +93,9 @@ export default new Vuex.Store({
     getBookmarkIds: state => {
       return state.choosedBookmarksIds;
     },
+    getOnlyBookmarkIds: state => {
+      return state.choosedBookmarksOnlyIds;
+    },
     getColorSlider: state => {
       return state.colorSlider;
     },
@@ -130,6 +134,9 @@ export default new Vuex.Store({
     },
     getShowAnnotationInBchart: state => {
       return state.showAnnotationInBchart;
+    },
+    getBookmarkOrientation: state => {
+      return state.horizonatlCharts;
     }
   },
   mutations: {
@@ -293,6 +300,9 @@ export default new Vuex.Store({
     },
     SET_SHOW_ANNOTATION_IN_BCHART: state => {
       state.showAnnotationInBchart = !state.showAnnotationInBchart;
+    },
+    SET_BOOKMARKS_HORIZONTAL: state => {
+      state.horizonatlCharts = !state.horizonatlCharts;
     }
   },
   actions: {
