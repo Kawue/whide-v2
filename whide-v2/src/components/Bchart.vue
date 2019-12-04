@@ -48,9 +48,17 @@ export default {
     this.bookmarkData = store.getters.getBookmarksData(this.prototypeid);
 
     if (this.height !== 0) {
-      bookmarkService.createBchart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+      if (this.bookmarkOrientation) {
+        bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+      } else {
+        bookmarkService.createBchart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+      }
     } else {
-      bookmarkService.createBchart(this.bookmarkData, 300, this.showMzBoolean, this.showAnnotations);
+      if (this.bookmarkOrientation) {
+        bookmarkService.createHorizontalChart(this.bookmarkData, 500, this.showMzBoolean, this.showAnnotations);
+      } else {
+        bookmarkService.createBchart(this.bookmarkData, 300, this.showMzBoolean, this.showAnnotations);
+      }
     }
     this.unsubscribe = store.subscribe(mutation => {
       if (mutation.type === 'SET_MOEBIUS') {

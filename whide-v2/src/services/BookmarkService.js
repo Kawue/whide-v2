@@ -218,6 +218,8 @@ class BookmarkService {
         store.commit('DELETE_BOOKMARK', bookmark['id']);
       });
   }
+
+  // function to creat a bar chart of the spektrum from one prototype
   createHorizontalChart (bookmark, givenHeight = 300, showMzBoolean = false, mzAnnotations = false) {
     let backgroundColor = bookmark['color'].toString();
     let mzItemList;
@@ -237,7 +239,7 @@ class BookmarkService {
       left: 25
     };
 
-    let width = document.documentElement.clientWidth - margin.left - margin.right;
+    let width = document.documentElement.clientWidth - 50 - margin.left - margin.right;
     let height = 300 - margin.top - margin.bottom;
     let padding = 0.1;
     let outerPadding = 0.3;
@@ -258,7 +260,7 @@ class BookmarkService {
 
     let svg = d3.select('#graphic').append('svg')
       .attr('id', bookmark['id'])
-      .attr('width', width + margin.left + margin.right)
+      .attr('width', width + margin.right + margin.left)
       .attr('height', height + margin.top + margin.bottom)
       // .attr('transform',
       //  'translate(' + margin.left + ',' + margin.top + ')')
@@ -287,6 +289,7 @@ class BookmarkService {
       coefficientArray.push(e['coefficient']);
     });
 
+    // create a widths array with the with of the bar  and an offset array inclusive the size of the bars before
     let a = this.alpha(coefficientArray, width, padding, outerPadding);
     let offset = 0;
     let offsetsAr = [];
@@ -301,7 +304,7 @@ class BookmarkService {
     xScaleAxis.domain([offsetsAr[0], offsetsAr[offsetsAr.length - 1]]);
     svg
       .append('g')
-      // .attr('transform', 'translate(' + margin.left + ',' + 0 + ')')
+      .attr('transform', 'translate(' + margin.left + ',' + 0 + ')')
       .attr('class', 'hist-rects')
       .selectAll('.bar')
       .data(data)

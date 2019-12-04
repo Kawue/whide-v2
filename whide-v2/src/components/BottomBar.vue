@@ -5,6 +5,7 @@
           <div class="spacer"></div>
           <h2 class ="h2">Bookmarks</h2>
           <div class="buttonContainer">
+            <b-button v-if="horizontal" id="fullScreen" class="fullScreenBookmarks" size="sm" v-on:click="bookmarkFullscreen">Fullscreen</b-button>
             <b-button id="horizontalBcharts" class="horizonatlCharts" size="sm" v-on:click="horizontalCharts">Horizontal Charts</b-button>
             <b-button v-if="!showAnnotations" id="showAnnotation" class="annotionMzButton" size="sm"  v-on:click="showAnnotation">Show Annotations</b-button>
             <b-button v-else id="hideAnnotation" class="annotionMzButton" size="sm"  v-on:click="showAnnotation">Hide Annotations</b-button>
@@ -32,7 +33,8 @@ export default {
   data: function () {
     return {
       windowHeight: document.documentElement.clientHeight,
-      horizontal: false
+      horizontal: false,
+      fullscreen: false
 
     };
   },
@@ -106,16 +108,26 @@ export default {
         d3.select('.bottombarWidget')
           .style('height', '500px');
         store.commit('SET_BOTTOMBAR_HEIGHT', 500);
+        d3.select('.content')
+          .style('overflow-x', 'none')
+          .style('overflow-y', 'scroll');
       } else {
         d3.select('.bottombarWidget')
           .style('height', '350px');
         store.commit('SET_BOTTOMBAR_HEIGHT', 350);
+        d3.select('.content')
+          .style('overflow-x', 'scroll')
+          .style('overflow-y', 'none');
       }
 
       this.bookmarkIds.forEach(function (prototype) {
         d3.select('#' + prototype).remove();
       });
       store.commit('SET_BOOKMARKS_HORIZONTAL');
+    },
+    bookmarkFullscreen: function () {
+      d3.select('.bottombarWidget')
+        .style('height', '100%');
     }
   }
 };
@@ -185,6 +197,10 @@ export default {
       background-color: orange;
     }
     .horizonatlCharts {
+      color: #000000;
+      background-color: orange;
+    }
+    .fullScreenBookmarks {
       color: #000000;
       background-color: orange;
     }
