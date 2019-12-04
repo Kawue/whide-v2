@@ -108,16 +108,13 @@ export default {
         d3.select('.bottombarWidget')
           .style('height', '500px');
         store.commit('SET_BOTTOMBAR_HEIGHT', 500);
-        d3.select('.content')
-          .style('overflow-x', 'none')
-          .style('overflow-y', 'scroll');
+        d3.select('.chart').style('flex-direction', 'column');
       } else {
         d3.select('.bottombarWidget')
           .style('height', '350px');
         store.commit('SET_BOTTOMBAR_HEIGHT', 350);
-        d3.select('.content')
-          .style('overflow-x', 'scroll')
-          .style('overflow-y', 'none');
+        d3.select('.chart').style('flex-direction', 'row');
+        this.fullscreen = false;
       }
 
       this.bookmarkIds.forEach(function (prototype) {
@@ -126,8 +123,17 @@ export default {
       store.commit('SET_BOOKMARKS_HORIZONTAL');
     },
     bookmarkFullscreen: function () {
-      d3.select('.bottombarWidget')
-        .style('height', '100%');
+      if (this.fullscreen) {
+        d3.select('.bottombarWidget')
+          .style('height', '350px');
+        store.commit('SET_BOTTOMBAR_HEIGHT', 350);
+        this.fullscreen = false;
+      } else {
+        this.fullscreen = true;
+        d3.select('.bottombarWidget')
+          .style('height', '100%');
+        store.commit('SET_BOTTOMBAR_HEIGHT', document.documentElement.clientHeight);
+      }
     }
   }
 };
@@ -155,23 +161,6 @@ export default {
     border-width: 1px;
     box-sizing: border-box;
 
-    .content {
-      display: flex;
-      overflow-x: scroll;
-    }
-    .content::-webkit-scrollbar {
-      width: 12px;
-    }
-
-    .content::-webkit-scrollbar-track {
-      -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-      border-radius: 10px;
-    }
-
-    .content::-webkit-scrollbar-thumb {
-      border-radius: 10px;
-      -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
-    }
     .headerContainer {
       display: flex;
       flex-direction: row;

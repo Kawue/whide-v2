@@ -236,7 +236,7 @@ class BookmarkService {
       top: 25,
       right: 25,
       bottom: 25,
-      left: 25
+      left: 40
     };
 
     let width = document.documentElement.clientWidth - 50 - margin.left - margin.right;
@@ -253,7 +253,7 @@ class BookmarkService {
 
     let yScaleAxis = d3.scaleLinear()
       .domain([dataMin, dataMax])
-      .range([0, height + (height * 0.05)], padding, outerPadding);
+      .range([ height, 0 ]);
 
     let xScaleAxis = d3.scaleLinear()
       .range([ 0, width ]);
@@ -304,7 +304,7 @@ class BookmarkService {
     xScaleAxis.domain([offsetsAr[0], offsetsAr[offsetsAr.length - 1]]);
     svg
       .append('g')
-      .attr('transform', 'translate(' + margin.left + ',' + 0 + ')')
+      .attr('transform', 'translate(' + margin.left + ',' + 20 + ')')
       .attr('class', 'hist-rects')
       .selectAll('.bar')
       .data(data)
@@ -315,6 +315,9 @@ class BookmarkService {
       .attr('class', 'barRect')
       .attr('x', function (d, i) {
         return xScaleAxis(offsetsAr[i]);
+      })
+      .attr('y', function (d) {
+        return yScaleAxis(d.coefficient);
       })
       .style('fill', 'white')
       .style('stroke', 'black')
@@ -327,7 +330,7 @@ class BookmarkService {
         d3.select(this)
           .style('fill', 'white');
       })
-      .attr('height', function (d) { return yScaleAxis(d.coefficient); })
+      .attr('height', function (d) { return height - yScaleAxis(d.coefficient); })
       .attr('width', function (d, i) {
         return xScaleAxis(widths[i]); // scale bar size
       })
@@ -337,9 +340,9 @@ class BookmarkService {
             label: d.mz
           },
           x: margin.left + xScaleAxis(offsetsAr[i]),
-          y: yScaleAxis(d.coefficient),
-          dy: -5 - yScaleAxis(d.coefficient),
-          dx: 210 - xScaleAxis(offsetsAr[i]),
+          y: yScaleAxis(d.coefficient) + 20,
+          dy: -yScaleAxis(d.coefficient),
+          dx:  -xScaleAxis(offsetsAr[i]),
           color: 'black',
           type: d3annotate.annotationCalloutElbow
         }];
@@ -353,6 +356,19 @@ class BookmarkService {
           .select('.annotations')
           .remove();
       });
+
+    // add the y Axis
+    svg.append('g')
+      .attr('class', 'y_axis')
+      .attr('transform', 'translate(' + margin.left + ',' + 20 + ')')
+      .call(d3.axisLeft(yScaleAxis)
+        .tickValues([dataMin, dataMax / 2, dataMax]));
+
+    // add the x Axis
+    svg.append('g')
+      .attr('class', 'x_axis')
+      .attr('transform', 'translate(' + margin.left + ',' + (height + 20) + ')')
+      .call(d3.axisBottom(xScaleAxis));
   }
   alpha (values, width, padding, outerPadding) {
     let n = values.length;
