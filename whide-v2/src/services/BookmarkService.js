@@ -341,8 +341,8 @@ class BookmarkService {
           },
           x: margin.left + xScaleAxis(offsetsAr[i]),
           y: yScaleAxis(d.coefficient) + 20,
-          dy: -yScaleAxis(d.coefficient),
-          dx: -xScaleAxis(offsetsAr[i]),
+          dy: 10,
+          dx: 10,
           color: 'black',
           type: d3annotate.annotationCalloutElbow
         }];
@@ -369,6 +369,26 @@ class BookmarkService {
       .attr('class', 'x_axis')
       .attr('transform', 'translate(' + margin.left + ',' + (height + 20) + ')')
       .call(d3.axisBottom(xScaleAxis));
+
+    if (showMzBoolean) {
+      d3.selectAll('.barGroup' + bookmark['id'])
+        .insert('text', 'barRect')
+        .data(data)
+        .attr('class', 'barLabel')
+        .attr('y', function (d) {
+          return (yScaleAxis(d.coefficient));
+        })
+        .attr('font-size', function (d, i) {
+          return xScaleAxis(widths[i]) / 4;
+        })
+        .attr('x', function (d, i) {
+          return (xScaleAxis(offsetsAr[i]));
+        })
+        .style('fill', '#000000')
+        .text(function (d) {
+          return d.mz;
+        });
+    }
   }
   alpha (values, width, padding, outerPadding) {
     let n = values.length;
