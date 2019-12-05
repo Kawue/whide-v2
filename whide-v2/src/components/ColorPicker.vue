@@ -8,58 +8,59 @@
       <div class="sliderOptions">
         <p style="color: white" v-if="!sliderDisabled">Set Granularity:</p>
         <p v-else>Clear Bookmarks to set Granularity!</p>
-        <b-form-input v-model="ringGranularity" v-bind:type="'range'" :disabled="sliderDisabled" min="0" v-bind:max="lengthRings" class="slider" id="ringGranularity" @change="changePos"></b-form-input>
+        <b-form-input v-model="ringGranularity" v-bind:type="'range'" :disabled="sliderDisabled" min="0"
+                      v-bind:max="lengthRings" class="slider" id="ringGranularity" @change="changePos"></b-form-input>
       </div>
       <div class="container">
         <div class="position-g">
           <div class="controlls">
             <div class="topControll">
-              <b-button id="up"  size="sm">
+              <b-button id="up" size="sm">
                 <v-icon name="arrow-up" style="color: orange"></v-icon>
               </b-button>
             </div>
             <div class="midControll">
-              <b-button id="left"  size="sm" >
+              <b-button id="left" size="sm">
                 <v-icon name="arrow-left" style="color: orange"></v-icon>
               </b-button>
-              <b-button id="down"  size="sm">
+              <b-button id="down" size="sm">
                 <v-icon name="arrow-down" style="color: orange"></v-icon>
               </b-button>
-              <b-button id="right"  size="sm">
+              <b-button id="right" size="sm">
                 <v-icon name="arrow-right" style="color: orange"></v-icon>
               </b-button>
             </div>
             <div class="bottomControll">
-              <b-button id="default "  size="sm" v-on:click="setDefault()" >
+              <b-button id="default " size="sm" v-on:click="setDefault()">
                 <v-icon name="backward" style="color: orange"></v-icon>
               </b-button>
             </div>
           </div>
         </div>
-        <div  class="rotate">
+        <div class="rotate">
           <div class="topControll">
-          <b-button id="diskus" size="sm" >
-            <v-icon name="redo" style="color: orange"></v-icon>
-          </b-button>
+            <b-button id="diskus" size="sm">
+              <v-icon name="redo" style="color: orange"></v-icon>
+            </b-button>
           </div>
           <div class="bottomControll">
-          <b-button id="diskusBack"  size="sm" v-on:click="spinDiskusBack">
-            <v-icon name="backward" style="color: orange"></v-icon>
-          </b-button>
+            <b-button id="diskusBack" size="sm" v-on:click="spinDiskusBack">
+              <v-icon name="backward" style="color: orange"></v-icon>
+            </b-button>
           </div>
         </div>
-          <div class="rotate">
-            <div class="topControll">
+        <div class="rotate">
+          <div class="topControll">
             <b-button id="posSwitcher" size="sm" v-on:click="switchPos">
               <v-icon name="spinner" style="color: orange"></v-icon>
             </b-button>
-            </div>
-            <div class="bottomControll">
+          </div>
+          <div class="bottomControll">
             <b-button id="'backPosSwitcher" size="sm" v-on:click="switchPosBack">
               <v-icon name="backward" style="color: orange"></v-icon>
             </b-button>
-            </div>
           </div>
+        </div>
       </div>
     </div>
   </div>

@@ -1,23 +1,34 @@
 <template>
   <div class="bottombar">
-      <div class="bottombarWidget">
-        <div class="headerContainer">
-          <div class="spacer"></div>
-          <h2 class ="h2">Bookmarks</h2>
-          <div class="buttonContainer">
-            <b-button v-if="horizontal" id="fullScreen" class="fullScreenBookmarks" size="sm" v-on:click="bookmarkFullscreen">Fullscreen</b-button>
-            <b-button id="horizontalBcharts" class="horizonatlCharts" size="sm" v-on:click="horizontalCharts">Horizontal Charts</b-button>
-            <b-button v-if="!showAnnotations" id="showAnnotation" class="annotionMzButton" size="sm"  v-on:click="showAnnotation">Show Annotations</b-button>
-            <b-button v-else id="hideAnnotation" class="annotionMzButton" size="sm"  v-on:click="showAnnotation">Hide Annotations</b-button>
-            <b-button v-if="!showMzBoolean" id="showMz" class="showMzs" size="sm" v-on:click="showMz">Show MZ-Values</b-button>
-            <b-button v-else id="hide" class="showMzs" size="sm" v-on:click="showMz">Hide MZ-Values</b-button>
-            <b-button id="deleteButton" class="clearBookmarks" variant="" size="sm" v-on:click="clearAllBookmarks()">Clear Bookmarks</b-button>
-          </div>
-        </div>
-        <div id="bookmarkcontent" class="content">
-          <Bookmarks id="bookmarks" side="up" ></Bookmarks>
+    <div class="bottombarWidget">
+      <div class="fixed-header-container">
+        <div class="spacer"></div>
+        <h2 class="h2">Bookmarks</h2>
+        <div class="buttonContainer">
+          <b-button v-if="horizontal" id="fullScreen" class="fullScreenBookmarks" size="sm"
+                    v-on:click="bookmarkFullscreen">Fullscreen
+          </b-button>
+          <b-button id="horizontalBcharts" class="horizonatlCharts" size="sm" v-on:click="horizontalCharts">Horizontal
+            Charts
+          </b-button>
+          <b-button v-if="!showAnnotations" id="showAnnotation" class="annotionMzButton" size="sm"
+                    v-on:click="showAnnotation">Show Annotations
+          </b-button>
+          <b-button v-else id="hideAnnotation" class="annotionMzButton" size="sm" v-on:click="showAnnotation">Hide
+            Annotations
+          </b-button>
+          <b-button v-if="!showMzBoolean" id="showMz" class="showMzs" size="sm" v-on:click="showMz">Show MZ-Values
+          </b-button>
+          <b-button v-else id="hide" class="showMzs" size="sm" v-on:click="showMz">Hide MZ-Values</b-button>
+          <b-button id="deleteButton" class="clearBookmarks" variant="" size="sm" v-on:click="clearAllBookmarks()">Clear
+            Bookmarks
+          </b-button>
         </div>
       </div>
+      <div id="bookmarkcontent" class="content-wrapper">
+        <Bookmarks id="bookmarks" side="up"></Bookmarks>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -161,10 +172,13 @@ export default {
     border-width: 1px;
     box-sizing: border-box;
 
-    .headerContainer {
+  }
+    .fixed-header-container {
       display: flex;
       flex-direction: row;
       justify-content: space-between;
+      height: 40px;
+      width: 100vw;
     }
     /*.clearBookmarks {
       margin-right: 0.2vw;
@@ -172,6 +186,11 @@ export default {
     .spacer {
       margin-left: 0.2vw;
     }*/
+  .content-wrapper{
+    display: flex;
+    flex: 1;
+    min-height: 0px;
+  }
 
     #deleteButton{
       color: #000000;
@@ -193,6 +212,5 @@ export default {
       color: #000000;
       background-color: orange;
     }
-  }
 
 </style>

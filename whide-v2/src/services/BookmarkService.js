@@ -342,7 +342,7 @@ class BookmarkService {
           x: margin.left + xScaleAxis(offsetsAr[i]),
           y: yScaleAxis(d.coefficient) + 20,
           dy: -yScaleAxis(d.coefficient),
-          dx:  -xScaleAxis(offsetsAr[i]),
+          dx: -xScaleAxis(offsetsAr[i]),
           color: 'black',
           type: d3annotate.annotationCalloutElbow
         }];

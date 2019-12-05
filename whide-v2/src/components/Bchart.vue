@@ -147,12 +147,13 @@ export default {
 
 <style scoped lang="scss">
   .chart{
-    display: flex;
-    flex-direction: row;
     overflow: auto;
     margin-right: 20px;
     margin-bottom: 20px;
     margin-left: 20px;
+    display: flex;
+    flex: 1;
+    flex-direction: row;
   }
 
   .tooltip {

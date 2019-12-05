@@ -1,7 +1,9 @@
 <template>
   <div>
-    <bchart class="chart" v-for="(key, index) in ids"  ref="key" :key="index" :prototypeid="key['id']" >
-    </bchart>
+    <div class="chart-wrapper">
+      <bchart v-for="(key, index) in ids" ref="key" :key="index" :prototypeid="key['id']">
+      </bchart>
+    </div>
   </div>
 </template>
 <script>
@@ -20,3 +22,8 @@ export default {
   }
 };
 </script>
+<style scoped lang="scss">
+  .chart-wrapper {
+    overflow: auto;
+  }
+  </style >
