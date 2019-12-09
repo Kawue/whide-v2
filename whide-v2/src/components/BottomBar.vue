@@ -5,10 +5,11 @@
         <div class="spacer"></div>
         <h2 class="h2">Bookmarks</h2>
         <div class="buttonContainer">
-          <b-button v-if="horizontal" id="fullScreen" class="fullScreenBookmarks" size="sm"
-                    v-on:click="bookmarkFullscreen">Fullscreen
+          <b-button v-if="!fullscreen" class="fullScreenBookmarks" size="sm" v-on:click="bookmarkFullscreen">Fullscreen</b-button>
+          <b-button v-if="!horizontal" id="horizontalBcharts" class="horizonatlCharts" size="sm"
+                    v-on:click="horizontalCharts">Horizontal Charts
           </b-button>
-          <b-button id="horizontalBcharts" class="horizonatlCharts" size="sm" v-on:click="horizontalCharts">Horizontal
+          <b-button v-else id="redoCharts" class="horizonatlCharts" size="sm" v-on:click="horizontalCharts">Vertical
             Charts
           </b-button>
           <b-button v-if="!showAnnotations" id="showAnnotation" class="annotionMzButton" size="sm"
@@ -26,7 +27,7 @@
         </div>
       </div>
       <div id="bookmarkcontent" class="content-wrapper">
-        <div class="chart-wrapper">
+        <div class="chart-wrapper" id="bookmark-charts">
           <bchart v-for="(key, index) in bookmarkIds" ref="key" :key="index" :prototypeid="key['id']">
           </bchart>
         </div>
@@ -124,12 +125,12 @@ export default {
         d3.select('.bottombarWidget')
           .style('height', '500px');
         store.commit('SET_BOTTOMBAR_HEIGHT', 500);
-        d3.select('.chart').style('flex-direction', 'column');
+        d3.select('.chart-wrapper').style('flex-direction', 'column');
       } else {
         d3.select('.bottombarWidget')
           .style('height', '350px');
         store.commit('SET_BOTTOMBAR_HEIGHT', 350);
-        d3.select('.chart').style('flex-direction', 'row');
+        d3.select('.chart-wrapper').style('flex-direction', 'row');
         this.fullscreen = false;
       }
 
@@ -220,6 +221,12 @@ export default {
 
   .chart-wrapper {
     overflow: auto;
+    margin-right: 20px;
+    margin-bottom: 20px;
+    margin-left: 20px;
+    display: flex;
+    flex: 1;
+    flex-direction: row;
   }
 
 </style>
