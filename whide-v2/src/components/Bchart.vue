@@ -1,3 +1,6 @@
+<template>
+</template>
+
 <script>
 import * as d3 from 'd3';
 import { mapGetters } from 'vuex';
@@ -141,25 +144,13 @@ export default {
 </script>
 
 <style scoped lang="scss">
-  .chart{
-    overflow: auto;
+  #bookmarkcontainer{
     margin-right: 20px;
     margin-bottom: 20px;
     margin-left: 20px;
-    display: flex;
+    display: inline-flex;
+    justify-content: flex-start;
     flex: 1;
     flex-direction: row;
-  }
-
-  .tooltip {
-    position: absolute;
-    text-align: center;
-    width: 60px;
-    height: 28px;
-    padding: 2px;
-    font: 12px sans-serif;
-    background: lightsteelblue;
-    border-radius: 8px;
-    pointer-events: none;
   }
   </style>

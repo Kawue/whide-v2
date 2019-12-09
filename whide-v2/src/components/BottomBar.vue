@@ -26,8 +26,8 @@
           </b-button>
         </div>
       </div>
-      <div id="bookmarkcontent" class="content-wrapper">
-        <div class="chart-wrapper" id="bookmark-charts">
+      <div id="bookmarkcontainer">
+        <div id="bookmarkcontent" class="content-wrapper">
           <bchart v-for="(key, index) in bookmarkIds" ref="key" :key="index" :prototypeid="key['id']">
           </bchart>
         </div>
@@ -192,11 +192,6 @@ export default {
     .spacer {
       margin-left: 0.2vw;
     }*/
-  .content-wrapper{
-    display: flex;
-    flex: 1;
-    min-height: 0px;
-  }
 
     #deleteButton{
       color: #000000;
@@ -219,14 +214,22 @@ export default {
       background-color: orange;
     }
 
-  .chart-wrapper {
-    overflow: auto;
+  #bookmarkcontent {
     margin-right: 20px;
     margin-bottom: 20px;
     margin-left: 20px;
-    display: flex;
+    display: inline-flex;
     flex: 1;
     flex-direction: row;
+  }
+
+  #bookmarkcontainer {
+    overflow: auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    min-width: 100vw;
+    width: 100vw;
   }
 
 </style>
