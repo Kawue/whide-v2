@@ -1,4 +1,5 @@
 <template>
+  <svg class="chart" v-bind:id="this.prototypeid"></svg>
 </template>
 
 <script>
@@ -42,7 +43,6 @@ export default {
         .style('height', '350px');
       store.commit('SET_BOTTOMBAR_HEIGHT', 350);
     }
-
     this.bookmarkData = store.getters.getBookmarksData(this.prototypeid);
 
     if (this.height !== 0) {
@@ -88,7 +88,7 @@ export default {
         }
       }
       if (mutation.type === 'SET_BOTTOMBAR_HEIGHT') {
-        d3.select('#' + this.prototypeid).remove();
+        d3.select('#' + this.prototypeid).selectAll('*').remove();
         if (this.bookmarkOrientation) {
           bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
         } else {
@@ -96,7 +96,7 @@ export default {
         }
       }
       if (mutation.type === 'SET_SHOW_MZ_IN_BCHART') {
-        d3.select('#' + this.prototypeid).remove();
+        d3.select('#' + this.prototypeid).selectAll('*').remove();
         if (this.height !== 0) {
           if (this.bookmarkOrientation) {
             bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
@@ -112,7 +112,7 @@ export default {
         }
       }
       if (mutation.type === 'SET_SHOW_ANNOTATION_IN_BCHART') {
-        d3.select('#' + this.prototypeid).remove();
+        d3.select('#' + this.prototypeid).selectAll('*').remove();
         if (this.height !== 0) {
           if (this.bookmarkOrientation) {
             bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
@@ -144,13 +144,11 @@ export default {
 </script>
 
 <style scoped lang="scss">
-  #bookmarkcontainer{
-    margin-right: 20px;
-    margin-bottom: 20px;
-    margin-left: 20px;
-    display: inline-flex;
-    justify-content: flex-start;
-    flex: 1;
-    flex-direction: row;
-  }
+ .chart{
+   margin-right: 2px;
+   margin-bottom: 10px;
+   border-style: solid;
+   border-width: 1px;
+
+ }
   </style>

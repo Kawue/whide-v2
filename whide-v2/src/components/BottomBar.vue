@@ -28,7 +28,7 @@
       </div>
       <div id="bookmarkcontainer">
         <div id="bookmarkcontent" class="content-wrapper">
-          <bchart v-for="(key, index) in bookmarkIds" ref="key" :key="index" :prototypeid="key['id']">
+          <bchart v-for="(key) in bookmarkIds" ref="key" :key="key['id']" :prototypeid="key['id']">
           </bchart>
         </div>
       </div>
@@ -53,8 +53,7 @@ export default {
 
     };
   },
-  components: { Bchart
-  },
+  components: { Bchart },
   computed: {
     ...mapGetters({
       showMzBoolean: 'getShowMzInBchart',
@@ -125,17 +124,17 @@ export default {
         d3.select('.bottombarWidget')
           .style('height', '500px');
         store.commit('SET_BOTTOMBAR_HEIGHT', 500);
-        d3.select('.chart-wrapper').style('flex-direction', 'column');
+        d3.select('#bookmarkcontent').style('flex-direction', 'column');
       } else {
         d3.select('.bottombarWidget')
           .style('height', '350px');
         store.commit('SET_BOTTOMBAR_HEIGHT', 350);
-        d3.select('.chart-wrapper').style('flex-direction', 'row');
+        d3.select('#bookmarkcontent').style('flex-direction', 'row');
         this.fullscreen = false;
       }
 
       this.bookmarkIds.forEach(function (id) {
-        d3.select('#' + id['id']).remove();
+        d3.select('#' + id['id']).selectAll('*').remove();
       });
       store.commit('SET_BOOKMARKS_HORIZONTAL');
     },

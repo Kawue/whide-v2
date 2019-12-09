@@ -70,14 +70,9 @@ class BookmarkService {
       .domain([dataMin, dataMax])
       .range([0, barWidthMax + (barWidthMax * 0.05)], padding, outerPadding);
 
-    let svg = d3.select('#bookmarkcontent').append('svg')
-      .attr('id', bookmark['id'])
+    let svg = d3.select('#' + bookmark['id'])
       .attr('width', barWidthMax + margin.left + margin.right) //  margin.left + margin.right)
       .attr('height', height + margin.top + margin.bottom)
-      .style('margin-right', '2px')
-      .style('margin-bottom', '10px')
-      .style('border-style', 'solid')
-      .style('border-width', '1px')
       .style('background-color', backgroundColor)
       .on('mouseenter', function () {
         d3.select(this)
@@ -258,8 +253,7 @@ class BookmarkService {
     let xScaleAxis = d3.scaleLinear()
       .range([ 0, width ]);
 
-    let svg = d3.select('#bookmarkcontent').append('svg')
-      .attr('id', bookmark['id'])
+    let svg = d3.select('#' + bookmark['id'])
       .attr('width', width + margin.right + margin.left)
       .attr('height', height + margin.top + margin.bottom)
       .style('border-style', 'solid')
@@ -431,7 +425,7 @@ class BookmarkService {
     let xScaleAxis = d3.scaleLinear()
       .range([ 0, width ]);
 
-    let svg = d3.select('#bookmarkcontent').append('svg')
+    let svg = d3.select('#' + bookmark['id'])
       .attr('id', bookmark['id'])
       .attr('width', width + margin.right + margin.left)
       .attr('height', height + margin.top + margin.bottom)

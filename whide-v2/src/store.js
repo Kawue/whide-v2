@@ -221,7 +221,7 @@ export default new Vuex.Store({
       }
       Vue.set(state, 'choosedBookmarksIds', currentIds);
       Vue.set(state, 'choosedBookmarksOnlyIds', currentOnlyIds);
-      d3.select('#' + itemId).remove();
+      d3.select('#' + itemId).selectAll('*').remove();
       if (state.choosedBookmarksIds.length === 0) {
         state.colorSlider = false;
       }
