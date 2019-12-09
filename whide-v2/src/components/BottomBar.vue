@@ -26,14 +26,17 @@
         </div>
       </div>
       <div id="bookmarkcontent" class="content-wrapper">
-        <Bookmarks id="bookmarks" side="up"></Bookmarks>
+        <div class="chart-wrapper">
+          <bchart v-for="(key, index) in bookmarkDictIds" ref="key" :key="index" :prototypeid="key['id']">
+          </bchart>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import Bookmarks from './Bookmarks';
+import Bchart from './Bchart';
 import interact from 'interactjs';
 import store from '../store';
 import * as d3 from 'd3';
@@ -49,13 +52,16 @@ export default {
 
     };
   },
-  components: { Bookmarks },
+  components: { Bchart
+  },
   computed: {
     ...mapGetters({
       showMzBoolean: 'getShowMzInBchart',
       showAnnotations: 'getShowAnnotationInBchart',
       ownHeight: 'getBottonBarHeight',
-      bookmarkIds: 'getOnlyBookmarkIds'
+      bookmarkIds: 'getOnlyBookmarkIds',
+      bookmarkDictIds: 'getBookmarkIds'
+
     })
   },
   mounted () {
@@ -212,5 +218,9 @@ export default {
       color: #000000;
       background-color: orange;
     }
+
+  .chart-wrapper {
+    overflow: auto;
+  }
 
 </style>

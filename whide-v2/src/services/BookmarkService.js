@@ -235,7 +235,7 @@ class BookmarkService {
     let margin = {
       top: 25,
       right: 25,
-      bottom: 25,
+      bottom: 40,
       left: 40
     };
 
@@ -262,8 +262,6 @@ class BookmarkService {
       .attr('id', bookmark['id'])
       .attr('width', width + margin.right + margin.left)
       .attr('height', height + margin.top + margin.bottom)
-      // .attr('transform',
-      //  'translate(' + margin.left + ',' + margin.top + ')')
       .style('border-style', 'solid')
       .style('border-width', '1px')
       .style('background-color', backgroundColor)
@@ -304,7 +302,7 @@ class BookmarkService {
     xScaleAxis.domain([offsetsAr[0], offsetsAr[offsetsAr.length - 1]]);
     svg
       .append('g')
-      .attr('transform', 'translate(' + margin.left + ',' + 20 + ')')
+      .attr('transform', 'translate(' + margin.left + ',' + 40 + ')')
       .attr('class', 'hist-rects')
       .selectAll('.bar')
       .data(data)
@@ -340,7 +338,7 @@ class BookmarkService {
             label: d.mz
           },
           x: margin.left + xScaleAxis(offsetsAr[i]),
-          y: yScaleAxis(d.coefficient) + 20,
+          y: yScaleAxis(d.coefficient) + 40,
           dy: 10,
           dx: 10,
           color: 'black',
@@ -360,14 +358,14 @@ class BookmarkService {
     // add the y Axis
     svg.append('g')
       .attr('class', 'y_axis')
-      .attr('transform', 'translate(' + margin.left + ',' + 20 + ')')
+      .attr('transform', 'translate(' + margin.left + ',' + 40 + ')')
       .call(d3.axisLeft(yScaleAxis)
         .tickValues([dataMin, dataMax / 2, dataMax]));
 
     // add the x Axis
     svg.append('g')
       .attr('class', 'x_axis')
-      .attr('transform', 'translate(' + margin.left + ',' + (height + 20) + ')')
+      .attr('transform', 'translate(' + margin.left + ',' + (height + 40) + ')')
       .call(d3.axisBottom(xScaleAxis));
 
     if (showMzBoolean) {
@@ -389,6 +387,74 @@ class BookmarkService {
           return d.mz;
         });
     }
+    svg.append('foreignObject')
+      .attr('width', 30)
+      .attr('height', 35)
+      .append('xhtml:div')
+      .append('xhtml:button')
+      .attr('class', 'btn btn-outline-dark btn-sm')
+      .html('x')
+      .on('click', function () {
+        store.commit('DELETE_BOOKMARK', bookmark['id']);
+      });
+  }
+  lineChart (bookmark, givenHeight = 300) {
+    let backgroundColor = bookmark['color'].toString();
+    let mzItemList = Object.keys(bookmark['mzObject']);
+    let data = mzItemList.map(function (x, i) {
+      return { 'mz': x, 'coefficient': bookmark['data'][i] };
+    });
+
+    let margin = {
+      top: 25,
+      right: 25,
+      bottom: 40,
+      left: 40
+    };
+
+    let width = document.documentElement.clientWidth - 50 - margin.left - margin.right;
+    let height = 300 - margin.top - margin.bottom;
+    let padding = 0.1;
+    let outerPadding = 0.3;
+
+    data.forEach(function (d) {
+      d.coefficient = +d.coefficient;
+    });
+
+    let dataMin = d3.min(data, function (d) { return d.coefficient; });
+    let dataMax = d3.max(data, function (d) { return d.coefficient; });
+
+    let yScaleAxis = d3.scaleLinear()
+      .domain([dataMin, dataMax])
+      .range([ height, 0 ]);
+
+    let xScaleAxis = d3.scaleLinear()
+      .range([ 0, width ]);
+
+    let svg = d3.select('#graphic').append('svg')
+      .attr('id', bookmark['id'])
+      .attr('width', width + margin.right + margin.left)
+      .attr('height', height + margin.top + margin.bottom)
+      .style('border-style', 'solid')
+      .style('border-width', '1px')
+      .style('background-color', backgroundColor)
+      .on('mouseenter', function () {
+        d3.select(this)
+          .append('g')
+          .attr('class', 'annotation-group')
+          .style('pointer-events', 'none');
+      })
+      .on('mouseleave', function () { d3.select(this).select('.annotation-group').remove(); });
+
+    svg.on('mouseover', function () {
+      store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', bookmark['id']);
+      store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
+    })
+      .on('mouseout', function () {
+        store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
+        store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
+      });
+
   }
   alpha (values, width, padding, outerPadding) {
     let n = values.length;
