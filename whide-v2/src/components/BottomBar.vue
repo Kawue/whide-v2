@@ -27,7 +27,7 @@
       </div>
       <div id="bookmarkcontent" class="content-wrapper">
         <div class="chart-wrapper">
-          <bchart v-for="(key, index) in bookmarkDictIds" ref="key" :key="index" :prototypeid="key['id']">
+          <bchart v-for="(key, index) in bookmarkIds" ref="key" :key="index" :prototypeid="key['id']">
           </bchart>
         </div>
       </div>
@@ -59,8 +59,7 @@ export default {
       showMzBoolean: 'getShowMzInBchart',
       showAnnotations: 'getShowAnnotationInBchart',
       ownHeight: 'getBottonBarHeight',
-      bookmarkIds: 'getOnlyBookmarkIds',
-      bookmarkDictIds: 'getBookmarkIds'
+      bookmarkIds: 'getBookmarkIds'
 
     })
   },
@@ -134,8 +133,8 @@ export default {
         this.fullscreen = false;
       }
 
-      this.bookmarkIds.forEach(function (prototype) {
-        d3.select('#' + prototype).remove();
+      this.bookmarkIds.forEach(function (id) {
+        d3.select('#' + id['id']).remove();
       });
       store.commit('SET_BOOKMARKS_HORIZONTAL');
     },
