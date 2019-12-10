@@ -48,7 +48,8 @@ export default new Vuex.Store({
     first: true,
     showMzInBchart: false,
     showAnnotationInBchart: false,
-    horizonatlCharts: false
+    horizonatlCharts: false,
+    lineChart: false
 
   },
   getters: {
@@ -137,6 +138,9 @@ export default new Vuex.Store({
     },
     getBookmarkOrientation: state => {
       return state.horizonatlCharts;
+    },
+    getBookmarkLinechart: state => {
+      return state.lineChart;
     }
   },
   mutations: {
@@ -303,6 +307,9 @@ export default new Vuex.Store({
     },
     SET_BOOKMARKS_HORIZONTAL: state => {
       state.horizonatlCharts = !state.horizonatlCharts;
+    },
+    SET_BOOKMARKS_LINECHART: state => {
+      state.lineChart = !state.lineChart;
     }
   },
   actions: {

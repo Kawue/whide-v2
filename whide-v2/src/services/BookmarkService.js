@@ -256,8 +256,6 @@ class BookmarkService {
     let svg = d3.select('#' + bookmark['id'])
       .attr('width', width + margin.right + margin.left)
       .attr('height', height + margin.top + margin.bottom)
-      .style('border-style', 'solid')
-      .style('border-width', '1px')
       .style('background-color', backgroundColor)
       .on('mouseenter', function () {
         d3.select(this)
@@ -410,27 +408,33 @@ class BookmarkService {
     let height = 300 - margin.top - margin.bottom;
     let padding = 0.1;
     let outerPadding = 0.3;
-
+    let numberOfMzs = 0;
     data.forEach(function (d) {
       d.coefficient = +d.coefficient;
+      numberOfMzs -= -1;
     });
 
     let dataMin = d3.min(data, function (d) { return d.coefficient; });
     let dataMax = d3.max(data, function (d) { return d.coefficient; });
+    let mzMin = d3.min(data, function (d) { return parseFloat(d.mz); });
+    let mzMax = d3.max(data, function (d) { return parseFloat(d.mz); });
 
     let yScaleAxis = d3.scaleLinear()
       .domain([dataMin, dataMax])
       .range([ height, 0 ]);
 
     let xScaleAxis = d3.scaleLinear()
+      .domain([0, numberOfMzs - 1])
       .range([ 0, width ]);
 
+    let line = d3.line()
+      .x(function (d, i) { return xScaleAxis(i); })
+      .y(function (d) { return yScaleAxis(d.coefficient); })
+      .curve(d3.curveMonotoneX); // apply smoothing to the line
+
     let svg = d3.select('#' + bookmark['id'])
-      .attr('id', bookmark['id'])
       .attr('width', width + margin.right + margin.left)
       .attr('height', height + margin.top + margin.bottom)
-      .style('border-style', 'solid')
-      .style('border-width', '1px')
       .style('background-color', backgroundColor)
       .on('mouseenter', function () {
         d3.select(this)
@@ -449,6 +453,31 @@ class BookmarkService {
         store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
       });
 
+    svg.append('g')
+      .attr('class', 'x axis')
+      .attr('transform', 'translate(' + margin.left + ',' + (height + 40) + ')')
+      .call(d3.axisBottom(xScaleAxis));
+
+    svg.append('g')
+      .attr('class', 'y_axis')
+      .attr('transform', 'translate(' + margin.left + ',' + 40 + ')')
+      .call(d3.axisLeft(yScaleAxis)
+        .tickValues([dataMin, dataMax / 2, dataMax]));
+
+    svg.append('path')
+      .data(data)
+      .attr('class', 'line')
+      .attr('d', line);
+
+    svg.selectAll('.dot')
+      .data(data)
+      .enter().append('circle')
+      .attr('transform', 'translate(' + margin.left + ',' + 40 + ')')
+      .attr('height', height + margin.top + margin.bottom)
+      .attr('class', 'dot')
+      .attr('cx', function (d, i) { return xScaleAxis(i); })
+      .attr('cy', function (d) { return yScaleAxis(d.coefficient); })
+      .attr('r', 1);
   }
   alpha (values, width, padding, outerPadding) {
     let n = values.length;

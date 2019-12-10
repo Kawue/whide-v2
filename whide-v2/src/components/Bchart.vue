@@ -29,7 +29,8 @@ export default {
       height: 'getBottonBarHeight',
       showMzBoolean: 'getShowMzInBchart',
       showAnnotations: 'getShowAnnotationInBchart',
-      bookmarkOrientation: 'getBookmarkOrientation'
+      bookmarkOrientation: 'getBookmarkOrientation',
+      lineChart: 'getBookmarkLinechart'
     })
   },
   mounted () {
@@ -134,6 +135,13 @@ export default {
           bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
         } else {
           bookmarkService.createBchart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+        }
+      }
+      if (mutation.type === 'SET_BOOKMARKS_LINECHART') {
+        if (this.lineChart) {
+          bookmarkService.lineChart(this.bookmarkData, parseInt(this.height));
+        } else {
+          bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
         }
       }
     });

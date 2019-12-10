@@ -5,6 +5,7 @@
         <div class="spacer"></div>
         <h2 class="h2">Bookmarks</h2>
         <div class="buttonContainer">
+          <b-button id="lineBchart" v-if="horizontal" class="lineCharts" size="sm" v-on:click="lineChart">Line Chart </b-button>
           <b-button v-if="!horizontal" id="horizontalBcharts" class="horizonatlCharts" size="sm"
                     v-on:click="horizontalCharts">Horizontal Charts
           </b-button>
@@ -50,7 +51,8 @@ export default {
     return {
       windowHeight: document.documentElement.clientHeight,
       horizontal: false,
-      fullscreen: false
+      fullscreen: false,
+      lineCharts: false
 
     };
   },
@@ -142,11 +144,17 @@ export default {
         d3.select('#bookmarkcontainer').style('height', 350);
         this.fullscreen = false;
       }
-
       this.bookmarkIds.forEach(function (id) {
         d3.select('#' + id['id']).selectAll('*').remove();
       });
       store.commit('SET_BOOKMARKS_HORIZONTAL');
+    },
+    lineChart: function () {
+      this.lineCharts = !this.lineCharts;
+      this.bookmarkIds.forEach(function (id) {
+        d3.select('#' + id['id']).selectAll('*').remove();
+      });
+      store.commit('SET_BOOKMARKS_LINECHART');
     },
     bookmarkFullscreen: function () {
       if (this.fullscreen) {
@@ -219,6 +227,10 @@ export default {
       background-color: orange;
     }
     .fullScreenBookmarks {
+      color: #000000;
+      background-color: orange;
+    }
+    #lineBchart{
       color: #000000;
       background-color: orange;
     }
