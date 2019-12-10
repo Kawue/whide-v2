@@ -5,7 +5,6 @@
         <div class="spacer"></div>
         <h2 class="h2">Bookmarks</h2>
         <div class="buttonContainer">
-          <b-button v-if="!fullscreen" class="fullScreenBookmarks" size="sm" v-on:click="bookmarkFullscreen">Fullscreen</b-button>
           <b-button v-if="!horizontal" id="horizontalBcharts" class="horizonatlCharts" size="sm"
                     v-on:click="horizontalCharts">Horizontal Charts
           </b-button>
@@ -21,6 +20,8 @@
           <b-button v-if="!showMzBoolean" id="showMz" class="showMzs" size="sm" v-on:click="showMz">Show MZ-Values
           </b-button>
           <b-button v-else id="hide" class="showMzs" size="sm" v-on:click="showMz">Hide MZ-Values</b-button>
+          <b-button v-if="!fullscreen" class="fullScreenBookmarks" size="sm" v-on:click="bookmarkFullscreen">Fullscreen</b-button>
+          <b-button v-else class="fullScreenBookmarks" size="sm" v-on:click="bookmarkFullscreen"> Standard Screen</b-button>
           <b-button id="deleteButton" class="clearBookmarks" variant="" size="sm" v-on:click="clearAllBookmarks()">Clear
             Bookmarks
           </b-button>
@@ -68,8 +69,10 @@ export default {
       if (mutation.type === 'SET_CHOOSED_BOOKMARK') {
         if (this.ownHeight === 50) {
           d3.select('.bottombarWidget')
+            .style('height', '350px');
+          d3.select('#bookmarkcontainer')
             .style('height', '300px');
-          store.commit('SET_BOTTOMBAR_HEIGHT', 300);
+          store.commit('SET_BOTTOMBAR_HEIGHT', 350);
         }
       }
     });
@@ -101,7 +104,9 @@ export default {
         const regex = /[0-9]*\.?[0-9]+?/i;
         let heightNumber = height.match(regex);
         if (parseInt(heightNumber[0]) >= 50) {
-          store.commit('SET_BOTTOMBAR_HEIGHT', parseInt(heightNumber[0]));
+          const h = parseInt(heightNumber[0]);
+          store.commit('SET_BOTTOMBAR_HEIGHT', h);
+          d3.select('#bookmarkcontainer').style('height', (h - 40) + 'px');
         }
       });
   },
@@ -110,6 +115,7 @@ export default {
       store.commit('DELETE_ALL_BOOKMARKS');
       d3.select('.bottombarWidget')
         .style('height', '50px');
+      d3.select('#bookmarkcontainer').style('height', '0');
       store.commit('SET_BOTTOMBAR_HEIGHT', 50);
     },
     showMz: function () {
@@ -125,11 +131,15 @@ export default {
           .style('height', '500px');
         store.commit('SET_BOTTOMBAR_HEIGHT', 500);
         d3.select('#bookmarkcontent').style('flex-direction', 'column');
+        d3.select('#bookmarkcontainer').style('flex-direction', 'column');
+        d3.select('#bookmarkcontainer').style('height', '450px');
       } else {
         d3.select('.bottombarWidget')
           .style('height', '350px');
         store.commit('SET_BOTTOMBAR_HEIGHT', 350);
         d3.select('#bookmarkcontent').style('flex-direction', 'row');
+        d3.select('#bookmarkcontainer').style('flex-direction', 'row');
+        d3.select('#bookmarkcontainer').style('height', 350);
         this.fullscreen = false;
       }
 
@@ -215,7 +225,6 @@ export default {
 
   #bookmarkcontent {
     margin-right: 20px;
-    margin-bottom: 20px;
     margin-left: 20px;
     display: inline-flex;
     flex: 1;

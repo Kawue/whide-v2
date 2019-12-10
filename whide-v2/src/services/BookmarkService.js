@@ -37,7 +37,7 @@ class BookmarkService {
     return choosedBookmarks;
   }
   createBchart (bookmark, givenHeight = 300, showMzBoolean = false, mzAnnotations = false) {
-    const gHeight = givenHeight - 60;
+    const gHeight = givenHeight - 80;
     let backgroundColor = bookmark['color'].toString();
     let mzItemList;
     if (mzAnnotations) {

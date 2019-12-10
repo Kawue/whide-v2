@@ -37,10 +37,12 @@ export default {
     if (this.bookmarkOrientation) {
       d3.select('.bottombarWidget')
         .style('height', '500px');
+      d3.select('#bookmarkcontainer').style('height', '450px');
       store.commit('SET_BOTTOMBAR_HEIGHT', 500);
     } else {
       d3.select('.bottombarWidget')
         .style('height', '350px');
+      d3.select('#bookmarkcontainer').style('height', '300px');
       store.commit('SET_BOTTOMBAR_HEIGHT', 350);
     }
     this.bookmarkData = store.getters.getBookmarksData(this.prototypeid);
