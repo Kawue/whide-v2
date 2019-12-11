@@ -391,7 +391,7 @@ class BookmarkService {
       });
   }
 
-  lineChart (bookmark, givenHeight = 300) {
+  lineChart (bookmark, showMzBoolean = false, mzAnnotations = false) {
     let backgroundColor = bookmark['color'].toString();
     let mzItemList = Object.keys(bookmark['mzObject']);
     let data = mzItemList.map(function (x, i) {
@@ -412,12 +412,8 @@ class BookmarkService {
 
     let width = document.documentElement.clientWidth - 50 - margin.left - margin.right;
     let height = 300 - margin.top - margin.bottom;
-    let padding = 0.1;
-    let outerPadding = 0.3;
-    let numberOfMzs = 0;
     data.forEach(function (d) {
       d.coefficient = +d.coefficient;
-      numberOfMzs -= -1;
     });
 
     let dataMin = d3.min(data, function (d) {

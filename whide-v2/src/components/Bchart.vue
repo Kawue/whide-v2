@@ -50,13 +50,21 @@ export default {
 
     if (this.height !== 0) {
       if (this.bookmarkOrientation) {
-        bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+        if (this.lineChart) {
+          bookmarkService.lineChart(this.bookmarkData);
+        } else {
+          bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+        }
       } else {
         bookmarkService.createBchart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
       }
     } else {
       if (this.bookmarkOrientation) {
-        bookmarkService.createHorizontalChart(this.bookmarkData, 500, this.showMzBoolean, this.showAnnotations);
+        if (this.lineChart) {
+          bookmarkService.lineChart(this.bookmarkData);
+        } else {
+          bookmarkService.createHorizontalChart(this.bookmarkData, 300, this.showMzBoolean, this.showAnnotations);
+        }
       } else {
         bookmarkService.createBchart(this.bookmarkData, 300, this.showMzBoolean, this.showAnnotations);
       }
@@ -93,7 +101,11 @@ export default {
       if (mutation.type === 'SET_BOTTOMBAR_HEIGHT') {
         d3.select('#' + this.prototypeid).selectAll('*').remove();
         if (this.bookmarkOrientation) {
-          bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+          if (this.lineChart) {
+            bookmarkService.lineChart(this.bookmarkData);
+          } else {
+            bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+          }
         } else {
           bookmarkService.createBchart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
         }
@@ -102,13 +114,21 @@ export default {
         d3.select('#' + this.prototypeid).selectAll('*').remove();
         if (this.height !== 0) {
           if (this.bookmarkOrientation) {
-            bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+            if (this.lineChart) {
+              bookmarkService.lineChart(this.bookmarkData);
+            } else {
+              bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+            }
           } else {
             bookmarkService.createBchart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
           }
         } else {
           if (this.bookmarkOrientation) {
-            bookmarkService.createHorizontalChart(this.bookmarkData, 500, this.showMzBoolean, this.showAnnotations);
+            if (this.lineChart) {
+              bookmarkService.lineChart(this.bookmarkData);
+            } else {
+              bookmarkService.createHorizontalChart(this.bookmarkData, 300, this.showMzBoolean, this.showAnnotations);
+            }
           } else {
             bookmarkService.createBchart(this.bookmarkData, 300, this.showMzBoolean, this.showAnnotations);
           }
@@ -118,13 +138,21 @@ export default {
         d3.select('#' + this.prototypeid).selectAll('*').remove();
         if (this.height !== 0) {
           if (this.bookmarkOrientation) {
-            bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+            if (this.lineChart) {
+              bookmarkService.lineChart(this.bookmarkData);
+            } else {
+              bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+            }
           } else {
             bookmarkService.createBchart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
           }
         } else {
           if (this.bookmarkOrientation) {
-            bookmarkService.createHorizontalChart(this.bookmarkData, 500, this.showMzBoolean, this.showAnnotations);
+            if (this.lineChart) {
+              bookmarkService.lineChart(this.bookmarkData);
+            } else {
+              bookmarkService.createHorizontalChart(this.bookmarkData, 300, this.showMzBoolean, this.showAnnotations);
+            }
           } else {
             bookmarkService.createBchart(this.bookmarkData, 300, this.showMzBoolean, this.showAnnotations);
           }
@@ -132,14 +160,18 @@ export default {
       }
       if (mutation.type === 'SET_BOOKMARKS_HORIZONTAL') {
         if (this.bookmarkOrientation) {
-          bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+          if (this.lineChart) {
+            bookmarkService.lineChart(this.bookmarkData);
+          } else {
+            bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+          }
         } else {
           bookmarkService.createBchart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
         }
       }
       if (mutation.type === 'SET_BOOKMARKS_LINECHART') {
         if (this.lineChart) {
-          bookmarkService.lineChart(this.bookmarkData, parseInt(this.height));
+          bookmarkService.lineChart(this.bookmarkData);
         } else {
           bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
         }
