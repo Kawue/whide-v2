@@ -331,7 +331,7 @@ class BookmarkService {
           },
           x: margin.left + xScaleAxis(offsetsAr[i]),
           y: yScaleAxis(d.coefficient) + 40,
-          dy: 10,
+          dy: -10,
           dx: 10,
           color: 'black',
           type: d3annotate.annotationCalloutElbow
@@ -390,12 +390,18 @@ class BookmarkService {
         store.commit('DELETE_BOOKMARK', bookmark['id']);
       });
   }
+
   lineChart (bookmark, givenHeight = 300) {
     let backgroundColor = bookmark['color'].toString();
     let mzItemList = Object.keys(bookmark['mzObject']);
     let data = mzItemList.map(function (x, i) {
       return { 'mz': x, 'coefficient': bookmark['data'][i] };
     });
+    let mzList = [];
+    data.forEach(function (d) {
+      mzList.push(d.mz);
+    });
+    const mzlistLength = mzList.length;
 
     let margin = {
       top: 25,
@@ -414,22 +420,34 @@ class BookmarkService {
       numberOfMzs -= -1;
     });
 
-    let dataMin = d3.min(data, function (d) { return d.coefficient; });
-    let dataMax = d3.max(data, function (d) { return d.coefficient; });
-    let mzMin = d3.min(data, function (d) { return parseFloat(d.mz); });
-    let mzMax = d3.max(data, function (d) { return parseFloat(d.mz); });
+    let dataMin = d3.min(data, function (d) {
+      return d.coefficient;
+    });
+    let dataMax = d3.max(data, function (d) {
+      return d.coefficient;
+    });
+    let mzMin = d3.min(data, function (d) {
+      return parseFloat(d.mz);
+    });
+    let mzMax = d3.max(data, function (d) {
+      return parseFloat(d.mz);
+    });
 
     let yScaleAxis = d3.scaleLinear()
       .domain([dataMin, dataMax])
-      .range([ height, 0 ]);
+      .range([height, 0]);
 
     let xScaleAxis = d3.scaleLinear()
-      .domain([0, numberOfMzs - 1])
-      .range([ 0, width ]);
+      .domain([mzMin, mzMax])
+      .range([0, width]);
 
     let line = d3.line()
-      .x(function (d, i) { return xScaleAxis(i); })
-      .y(function (d) { return yScaleAxis(d.coefficient); })
+      .x(function (d, i) {
+        return xScaleAxis(parseFloat(d.mz));
+      })
+      .y(function (d) {
+        return yScaleAxis(d.coefficient);
+      })
       .curve(d3.curveMonotoneX); // apply smoothing to the line
 
     let svg = d3.select('#' + bookmark['id'])
@@ -442,7 +460,9 @@ class BookmarkService {
           .attr('class', 'annotation-group')
           .style('pointer-events', 'none');
       })
-      .on('mouseleave', function () { d3.select(this).select('.annotation-group').remove(); });
+      .on('mouseleave', function () {
+        d3.select(this).select('.annotation-group').remove();
+      });
 
     svg.on('mouseover', function () {
       store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', bookmark['id']);
@@ -456,7 +476,9 @@ class BookmarkService {
     svg.append('g')
       .attr('class', 'x axis')
       .attr('transform', 'translate(' + margin.left + ',' + (height + 40) + ')')
-      .call(d3.axisBottom(xScaleAxis));
+      .call(d3.axisBottom(xScaleAxis)
+        .tickValues([mzList[0], mzList[parseInt(mzlistLength * 0.25)], mzList[parseInt(mzlistLength * 0.5)], mzList[parseInt(mzlistLength * 0.75)], mzList[mzlistLength - 1]])
+        .tickFormat(d3.format('r')));
 
     svg.append('g')
       .attr('class', 'y_axis')
@@ -465,9 +487,14 @@ class BookmarkService {
         .tickValues([dataMin, dataMax / 2, dataMax]));
 
     svg.append('path')
-      .data(data)
+      .data([data])
+      .attr('transform', 'translate(' + margin.left + ',' + 40 + ')')
+      .attr('height', height + margin.top + margin.bottom)
       .attr('class', 'line')
-      .attr('d', line);
+      .attr('d', line)
+      .style('fill', 'none')
+      .style('stroke', 'black')
+      .style('stroke-width', '0.2em');
 
     svg.selectAll('.dot')
       .data(data)
@@ -475,9 +502,44 @@ class BookmarkService {
       .attr('transform', 'translate(' + margin.left + ',' + 40 + ')')
       .attr('height', height + margin.top + margin.bottom)
       .attr('class', 'dot')
-      .attr('cx', function (d, i) { return xScaleAxis(i); })
-      .attr('cy', function (d) { return yScaleAxis(d.coefficient); })
-      .attr('r', 1);
+      .attr('cx', function (d) {
+        return xScaleAxis(parseFloat(d.mz));
+      })
+      .attr('cy', function (d) {
+        return yScaleAxis(d.coefficient);
+      })
+      .attr('r', 3.5)
+      .style('fill', 'whitesmoke')
+      .on('mouseenter', function () {
+        d3.select(this)
+          .attr('r', 6);
+      })
+      .on('mouseleave', function () {
+        d3.select(this)
+          .attr('r', 3.5);
+      })
+      .on('mouseover', function (d, i) {
+        const property = [{
+          note: {
+            label: d.mz
+          },
+          x: margin.left + xScaleAxis(parseFloat(d.mz)),
+          y: yScaleAxis(d.coefficient) + 40,
+          dy: -10,
+          dx: 10,
+          color: 'whitesmoke',
+          type: d3annotate.annotationCalloutElbow
+        }];
+        svg
+          .select('.annotation-group')
+          .call(d3annotate.annotation()
+            .annotations(property));
+      })
+      .on('mouseout', () => {
+        svg
+          .select('.annotations')
+          .remove();
+      });
   }
   alpha (values, width, padding, outerPadding) {
     let n = values.length;
