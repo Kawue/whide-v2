@@ -305,6 +305,7 @@ export default {
     display: flex;
     flex-direction: row;
     justify-content: center;
+    margin-bottom: 5px;
   }
   .controlls {
     display: flex;

@@ -160,12 +160,16 @@ export default {
       if (this.fullscreen) {
         d3.select('.bottombarWidget')
           .style('height', '350px');
+        d3.select('#bookmarkcontainer').style('height', 300);
+
         store.commit('SET_BOTTOMBAR_HEIGHT', 350);
         this.fullscreen = false;
       } else {
         this.fullscreen = true;
         d3.select('.bottombarWidget')
           .style('height', '100%');
+        d3.select('#bookmarkcontainer').style('height', '95%');
+
         store.commit('SET_BOTTOMBAR_HEIGHT', document.documentElement.clientHeight);
       }
     }

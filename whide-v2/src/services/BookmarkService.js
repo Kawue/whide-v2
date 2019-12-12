@@ -443,8 +443,7 @@ class BookmarkService {
       })
       .y(function (d) {
         return yScaleAxis(d.coefficient);
-      })
-      .curve(d3.curveMonotoneX); // apply smoothing to the line
+      });
 
     let svg = d3.select('#' + bookmark['id'])
       .attr('width', width + margin.right + margin.left)

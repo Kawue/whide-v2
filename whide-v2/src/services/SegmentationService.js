@@ -6,7 +6,6 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
   const dimX = dimensions['x'] + 1;
   const dimY = dimensions['y'] + 1;
   let uInt8IndexSample = {};
-  const backGroundColorRGBA = 'rgba(64,64,64,255)';
   let scalor = 1;
   let selectedPrototype;
   let first = true;
@@ -87,7 +86,7 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
 
   // opacity scalor for Hellfeldbild
   ctx.globalAlpha = alpha;
-  firstDraw(imageData, ctx, true);
+  draw(imageData, ctx, true);
 
   // draw virtCanvas
   Object.keys(colorDataDict).forEach(function (pixel) {
@@ -97,7 +96,7 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
     virtData[dict.indize + 2] = dict.rgb[2];
     virtData[dict.indize + 3] = 255;
   });
-  firstDraw(virtImageData, virtCtx, false);
+  draw(virtImageData, virtCtx, true);
 
   // add highlight and zoom
   let zoom = d3.zoom()
@@ -121,14 +120,14 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.translate(tform.x, tform.y);
     ctx.scale(tform.k, tform.k);
-    draw(imageData, ctx, true);
+    draw(imageData, ctx);
     ctx.restore();
 
     virtCtx.save();
     virtCtx.clearRect(0, 0, virtCanvas.width, virtCanvas.height);
     virtCtx.translate(tform.x, tform.y);
     virtCtx.scale(tform.k, tform.k);
-    draw(virtImageData, virtCtx, false);
+    draw(virtImageData, virtCtx);
     virtCtx.restore();
   }
 
@@ -148,7 +147,7 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.translate(tform.x, tform.y);
       ctx.scale(tform.k, tform.k);
-      draw(imageData, ctx, true);
+      draw(imageData, ctx);
       ctx.restore();
 
       // virtuellCanvas
@@ -156,12 +155,11 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
       virtCtx.clearRect(0, 0, virtCanvas.width, virtCanvas.height);
       virtCtx.translate(tform.x, tform.y);
       virtCtx.scale(tform.k, tform.k);
-      draw(virtImageData, virtCtx, false);
+      draw(virtImageData, virtCtx);
       virtCtx.restore();
     }
   }
 
-  // zoomed(d3.zoomIdentity);
 
   function highlightPrototype (e) {
     let mouse = getMousePos(virtCanvas, e);
@@ -184,7 +182,7 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
           data[index + 3] = 255;
         });
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        draw(imageData, ctx, true);
+        draw(imageData, ctx);
         ctx.restore();
       }
       if (selectedPrototype !== mousePrototype) {
@@ -199,7 +197,7 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
           data[index + 3] = 255;
         });
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        draw(imageData, ctx, true);
+        draw(imageData, ctx);
         ctx.restore();
       }
     } else {
@@ -225,33 +223,17 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
     }
   }
 
-  function draw (givenImageData, context, visible) {
+  function draw (givenImageData, context, firstDraw = false) {
     let newCanvas = document.createElement('canvas');
     newCanvas.width = givenImageData.width;
     newCanvas.height = givenImageData.height;
     newCanvas.getContext('2d').putImageData(givenImageData, 0, 0);
     context.save();
-    context.scale(scalor, scalor);
-    if (visible) {
-      context.fillStyle = backGroundColorRGBA;
-      context.fillRect(0, 0, canvas.width, canvas.height);
-    }
-    context.drawImage(newCanvas, 0, 0);
-    context.restore();
-    newCanvas.remove();
-  }
-
-  function firstDraw (givenImageData, context, visible) {
-    let newCanvas = document.createElement('canvas');
-    newCanvas.width = givenImageData.width;
-    newCanvas.height = givenImageData.height;
-    newCanvas.getContext('2d').putImageData(givenImageData, 0, 0);
-    context.save();
-    context.translate(tform.x, tform.y);
-    context.scale(tform.k * scalor, tform.k * scalor);
-    if (visible) {
-      context.fillStyle = backGroundColorRGBA;
-      context.fillRect(0, 0, canvas.width, canvas.height);
+    if (firstDraw) {
+      context.translate(tform.x, tform.y);
+      context.scale(tform.k * scalor, tform.k * scalor);
+    } else {
+      context.scale(scalor, scalor);
     }
     context.drawImage(newCanvas, 0, 0);
     context.restore();

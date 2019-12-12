@@ -4,7 +4,11 @@
       <canvas id="virtCanvas" class="virtSegmentationCanvas" style="width: 70vw; height: 90vh"></canvas>
       <canvas id="segMap" class="segmentationCanvas" style="width: 70vw; height: 90vh"></canvas>
     </p>
-    <b-form-input v-model="alphaValue" v-bind:type="'range'" min="0" max="1" step="0.05" id="alphaChanger" class="slider" @change="changeAlphaValue"></b-form-input>
+    <div class="transparancy-container">
+      <p style="color: white">Transparancy</p>
+      <b-form-input v-model="alphaValue" v-bind:type="'range'" min="0" max="1" step="0.05" id="alphaChanger" class="slider" @change="changeAlphaValue"></b-form-input>
+
+    </div>
   </div>
 </template>
 
@@ -64,7 +68,6 @@ export default {
         .attr('class', 'virtSegmentationCanvas')
         .attr('id', 'virtCanvas')
         .style('z-index', '101')
-        .style('background-color', '#404040')
         .style('width', '70vw')
         .style('  height', '90vh')
         .style('top', '30px')
@@ -78,7 +81,6 @@ export default {
         .attr('class', 'segmentationCanvas')
         .attr('id', 'segMap')
         .style('pointer-events', 'none')
-        .style('background-color', '#404040')
         .style('width', '70vw')
         .style('height', '90vh')
         .style('top', '30px')
@@ -114,7 +116,6 @@ export default {
     left: 0px;
     margin-left:10vw;
     margin-right: 310px;
-    background-color:  #404040;;
   }
 
 .virtSegmentationCanvas {
@@ -123,14 +124,15 @@ export default {
   left: 0px;
   margin-left:10vw;
   margin-right: 310px;
-  background-color:  #404040;;
 }
+.transparancy-container{
+  position: absolute;
+  left: 45vw;
+  align-content: center;
+  z-index: 102;
   .slider{
-    position: absolute;
-    width: 200px;
-    align-self: center;
-    left: 500px;
-    z-index: 102;
+    width: 7vw;
   }
+}
 
 </style>
