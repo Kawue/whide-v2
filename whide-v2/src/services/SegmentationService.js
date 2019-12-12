@@ -1,7 +1,7 @@
 import store from '../store';
 import * as d3 from 'd3';
 
-var drawSegmentationMap = function (dimensions, highlightOutside = false, prototypeOutside = '', transformation = { k: 1, x: 0, y: 0 }) {
+var drawSegmentationMap = function (dimensions, highlightOutside = false, prototypeOutside = '', transformation = { k: 1, x: 0, y: 0 }, alpha = 1) {
   const ringData = store.state.currentRingData;
   const dimX = dimensions['x'] + 1;
   const dimY = dimensions['y'] + 1;
@@ -84,7 +84,11 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
       data[index + 3] = 255;
     });
   });
+
+  // opacity scalor for Hellfeldbild
+  ctx.globalAlpha = alpha;
   firstDraw(imageData, ctx, true);
+
   // draw virtCanvas
   Object.keys(colorDataDict).forEach(function (pixel) {
     const dict = colorDataDict[pixel];
@@ -270,12 +274,6 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
   function indexAccess (i, j) {
     const NUM_CHANNELS = 4;
     return j * dimX * NUM_CHANNELS + i * NUM_CHANNELS;
-  }
-
-  function copyImageData (ctx, src) {
-    let dst = ctx.createImageData(src.width, src.height);
-    dst.data.set(src.data);
-    return dst;
   }
 
   function getColor (index) {

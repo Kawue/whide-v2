@@ -4,6 +4,7 @@
       <canvas id="virtCanvas" class="virtSegmentationCanvas" style="width: 70vw; height: 90vh"></canvas>
       <canvas id="segMap" class="segmentationCanvas" style="width: 70vw; height: 90vh"></canvas>
     </p>
+    <b-form-input v-model="alphaValue" v-bind:type="'range'" min="0" max="1" step="0.05" id="alphaChanger" class="slider" @change="changeAlphaValue"></b-form-input>
   </div>
 </template>
 
@@ -15,6 +16,11 @@ import * as d3 from 'd3';
 
 export default {
   name: 'MainPlane.vue',
+  data: function () {
+    return {
+      alphaValue: 1
+    };
+  },
   computed: {
     ...mapGetters({
       dim: 'getSegmentationDim',
@@ -32,10 +38,10 @@ export default {
       if (mutation.type === 'HIGHLIGHT_PROTOTYPE_OUTSIDE') {
         if (this.outsideHighlight['outside']) {
           this.clearSegmentation();
-          this.drawSegmentation(this.outsideHighlight['outside'], this.outsideHighlight['id'], this.transformation);
+          this.drawSegmentation(this.outsideHighlight['outside'], this.outsideHighlight['id'], this.transformation, this.alphaValue);
         } else {
           this.clearSegmentation();
-          this.drawSegmentation(false, '', this.transformation);
+          this.drawSegmentation(false, '', this.transformation, this.alphaValue);
         }
       }
     });
@@ -46,7 +52,7 @@ export default {
   methods: {
     drawSegmentation: function (outside = false, prototype = '', transformation = { k: 1, x: 0, y: 0 }) {
       if (this.colorsReady) {
-        sm.drawSegmentationMap(this.dim, outside, prototype, transformation);
+        sm.drawSegmentationMap(this.dim, outside, prototype, transformation, this.alphaValue);
       }
     },
     clearSegmentation: function () {
@@ -80,6 +86,10 @@ export default {
         .style('left', '0px')
         .style('margin-left', '190px')
         .style('margin-right', '350px');
+    },
+    changeAlphaValue: function () {
+      this.clearSegmentation();
+      this.drawSegmentation(this.outsideHighlight['outside'], this.outsideHighlight['id'], this.transformation, this.alphaValue);
     }
   }
 };
@@ -115,5 +125,12 @@ export default {
   margin-right: 310px;
   background-color:  #404040;;
 }
+  .slider{
+    position: absolute;
+    width: 200px;
+    align-self: center;
+    left: 500px;
+    z-index: 102;
+  }
 
 </style>
