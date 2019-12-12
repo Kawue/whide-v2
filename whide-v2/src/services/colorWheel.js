@@ -30,6 +30,7 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0, ringInd
   context.clearRect(0, 0, canvas.width, canvas.height);
   context.putImageData(bgImage, 0, 0);
 
+  let allPrototypeColors = {};
   const idList = Object.keys(protoId);
   const numberOfPrototypes = idList.length;
   Object.keys(protoId).forEach(function (id) {
@@ -40,20 +41,18 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0, ringInd
     } else {
       newIdNumber = idNumber + (posSwitcher % numberOfPrototypes);
     }
-    // let newIdNumber = (idNumber + posSwitcher) % (numberOfPrototypes);
     let newPrototypeString = 'prototyp' + newIdNumber;
     let posColor = renderColorMarker((Object.values(protoId[newPrototypeString])), id);
     posDict[id] = {
       color: posColor,
       position: Object.values(protoId[id])
     };
-    let idWithColor = {};
-    idWithColor[id] = posColor;
-    store.commit('ADD_COLOR_TO_FULL_DATA', idWithColor);
+    allPrototypeColors[id] = posColor;
   });
-
+  store.commit('ADD_COLOR_TO_FULL_DATA', allPrototypeColors);
   store.commit('SET_POS_COLOR', posDict);
   store.commit('SET_COLORS_READY', true);
+  return allPrototypeColors;
 
   function renderColorMarker (position, id) {
     const markerRadius = 6;

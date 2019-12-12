@@ -83,7 +83,9 @@ export default {
       currentMarkedPrototypeColor: null,
       currentMarkedPrototype: null,
       rotations: 0,
-      posSwitcher: 0
+      posSwitcher: 0,
+      markedColor: 'rgba(255,255,255,255)',
+      allPrototypeColors: {}
     };
   },
   computed: {
@@ -93,7 +95,7 @@ export default {
       sliderDisabled: 'getColorSlider',
       sagmentationScalor: 'getSegmentationScalor',
       highlightedPrototype: 'getCurrentHighlightedPrototype',
-      coefficientsLoaded: 'getCoefficientLoad'
+      coefficientsLoaded: 'getCoefficientLoad',
 
     })
   },
@@ -127,23 +129,21 @@ export default {
           if (this.currentMarkedPrototype !== this.highlightedPrototype) {
             if (this.currentMarkedPrototype !== null) {
               d3.select('.' + this.currentMarkedPrototype)
-                .style('fill', this.currentMarkedPrototypeColor);
-              this.currentMarkedPrototypeColor = d3.select('.' + this.highlightedPrototype).style('fill');
-              let markedColor = 'rgba(255,255,255,255)';
+                .style('fill', this.allPrototypeColors[this.currentMarkedPrototype]);
+              // this.currentMarkedPrototypeColor = d3.select('.' + this.highlightedPrototype).style('fill');
               d3.select('.' + this.highlightedPrototype)
-                .style('fill', markedColor);
+                .style('fill', this.markedColor);
               this.currentMarkedPrototype = this.highlightedPrototype;
             } else {
-              this.currentMarkedPrototypeColor = d3.select('.' + this.highlightedPrototype).style('fill');
-              let markedColor = 'rgba(255,255,255,255)';
+              // this.currentMarkedPrototypeColor = d3.select('.' + this.highlightedPrototype).style('fill');
               d3.select('.' + this.highlightedPrototype)
-                .style('fill', markedColor);
+                .style('fill', this.markedColor);
               this.currentMarkedPrototype = this.highlightedPrototype;
             }
           }
         } else {
           d3.select('.' + this.currentMarkedPrototype)
-            .style('fill', this.currentMarkedPrototypeColor);
+            .style('fill', this.allPrototypeColors[this.currentMarkedPrototype]);
           this.currentMarkedPrototype = null;
           this.currentMarkedPrototypeColor = null;
         }
@@ -152,7 +152,7 @@ export default {
   },
   methods: {
     getPos: function () {
-      cw.createColorWheel(this.prototypesPosition, this.rotations, this.posSwitcher, parseInt(this.ringGranularity));
+      this.allPrototypeColors = cw.createColorWheel(this.prototypesPosition, this.rotations, this.posSwitcher, parseInt(this.ringGranularity));
     },
     setGranulaity: function () {
       this.lengthRings = this.numberOfRings - 1;

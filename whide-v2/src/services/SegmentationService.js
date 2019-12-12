@@ -160,7 +160,6 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
     }
   }
 
-
   function highlightPrototype (e) {
     let mouse = getMousePos(virtCanvas, e);
     const imageDataMouse = virtCtx
