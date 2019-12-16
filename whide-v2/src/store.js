@@ -1,12 +1,12 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-import * as d3 from 'd3'
+import Vue from 'vue';
+import Vuex from 'vuex';
+import * as d3 from 'd3';
 
-import ApiService from './services/ApiService'
-import MzService from './services/MzService'
-import BookmarkService from './services/BookmarkService'
-import axios from 'axios'
-import {moebiustransformation} from './services/colorWheel'
+import ApiService from './services/ApiService';
+import MzService from './services/MzService';
+import BookmarkService from './services/BookmarkService';
+import axios from 'axios';
+import { moebiustransformation } from './services/colorWheel';
 
 const API_URL = 'http://localhost:5000';
 

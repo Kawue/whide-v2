@@ -95,8 +95,7 @@ export default {
       sliderDisabled: 'getColorSlider',
       sagmentationScalor: 'getSegmentationScalor',
       highlightedPrototype: 'getCurrentHighlightedPrototype',
-      coefficientsLoaded: 'getCoefficientLoad',
-
+      coefficientsLoaded: 'getCoefficientLoad'
     })
   },
 
