@@ -1,7 +1,7 @@
 import store from '../store';
 import * as d3 from 'd3';
 
-var drawSegmentationMap = function (dimensions, highlightOutside = false, prototypeOutside = '', transformation = { k: 1, x: 0, y: 0 }, alpha = 1) {
+var drawSegmentationMap = function (dimensions, prototypeOutside = '', transformation = { k: 1, x: 0, y: 0 }, alpha = 1) {
   const ringData = store.state.currentRingData;
   const dimX = dimensions['x'] + 1;
   const dimY = dimensions['y'] + 1;
@@ -23,7 +23,7 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
     });
     let indizes = [];
     pixels.forEach(function (pixel) {
-      let indize = indexAccess(pixel[0], pixel[1]);
+      let indize = indexAccess(pixel[0], pixel[1], dimX);
       indizes.push(indize);
       pixel.push(indize);
       const colorOfIndex = getColor(colorIndex);
@@ -107,29 +107,6 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
   virtCanvas.addEventListener('mousemove', zoomed, false);
   virtCanvas.addEventListener('click', addBookmark, false);
 
-  // if Prototype is highlightet from Colorwheel, the color changes in Segmentation Map
-  if (highlightOutside) {
-    let prototypeSample = uInt8IndexSample[prototypeOutside]['indizes'];
-    ctx.save();
-    prototypeSample.forEach(function (index) {
-      data[index] = 255;
-      data[index + 1] = 255;
-      data[index + 2] = 255;
-      data[index + 3] = 255;
-    });
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.translate(tform.x, tform.y);
-    ctx.scale(tform.k, tform.k);
-    draw(imageData, ctx);
-    ctx.restore();
-
-    virtCtx.save();
-    virtCtx.clearRect(0, 0, virtCanvas.width, virtCanvas.height);
-    virtCtx.translate(tform.x, tform.y);
-    virtCtx.scale(tform.k, tform.k);
-    draw(virtImageData, virtCtx);
-    virtCtx.restore();
-  }
 
   function zoomed (transform) {
     if (transform.type === 'mousemove') {
@@ -141,6 +118,7 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
     }
     // viewingCanvas
     if (typeof transform.k === 'number') {
+      store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
       tform = transform;
       store.commit('SET_SEGMENTATION_TRANSFORMATION', tform);
       ctx.save();
@@ -167,47 +145,19 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
     const mouseColor = d3.rgb.apply(null, imageDataMouse.data).toString();
     if (mouseColor !== 'rgba(0, 0, 0, 0)') {
       const mousePrototype = colorDataDict[mouseColor].id;
-      let prototypeSample = uInt8IndexSample[mousePrototype]['indizes'];
-
       if (first) {
         selectedPrototype = mousePrototype;
         store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', selectedPrototype);
         first = false;
-        ctx.save();
-        prototypeSample.forEach(function (index) {
-          data[index] = 255;
-          data[index + 1] = 255;
-          data[index + 2] = 255;
-          data[index + 3] = 255;
-        });
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        draw(imageData, ctx);
-        ctx.restore();
       }
       if (selectedPrototype !== mousePrototype) {
         selectedPrototype = mousePrototype;
         store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', selectedPrototype);
-        setImagedataDefault();
-        ctx.save();
-        prototypeSample.forEach(function (index) {
-          data[index] = 255;
-          data[index + 1] = 255;
-          data[index + 2] = 255;
-          data[index + 3] = 255;
-        });
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        draw(imageData, ctx);
-        ctx.restore();
       }
     } else {
       selectedPrototype = null;
       first = true;
-      ctx.save();
       store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      setImagedataDefault();
-      draw(imageData, ctx);
-      ctx.restore();
     }
   }
 
@@ -252,11 +202,6 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
     };
   }
 
-  function indexAccess (i, j) {
-    const NUM_CHANNELS = 4;
-    return j * dimX * NUM_CHANNELS + i * NUM_CHANNELS;
-  }
-
   function getColor (index) {
     return d3.rgb(
       (index & 0b111111110000000000000000) >> 16,
@@ -264,17 +209,68 @@ var drawSegmentationMap = function (dimensions, highlightOutside = false, protot
       (index & 0b000000000000000011111111))
       .toString();
   }
-  function setImagedataDefault () {
-    Object.keys(uInt8IndexSample).forEach(function (prototype) {
-      let sample = uInt8IndexSample[prototype]['indizes'];
-      let color = uInt8IndexSample[prototype]['color'];
-      sample.forEach(function (index) {
-        data[index] = color[0];
-        data[index + 1] = color[1];
-        data[index + 2] = color[2];
-        data[index + 3] = 255;
-      });
-    });
+};
+var highlightprototypeSegmentation = function (dimensions, prototyp, transformation) {
+  const prototypData = store.state.currentRingData[prototyp];
+  const dimX = dimensions['x'] + 1;
+  const dimY = dimensions['y'] + 1;
+  let scalor = 1;
+  let pixels = prototypData['pixels'];
+
+  let indizes = [];
+  pixels.forEach(function (pixel) {
+    let indize = indexAccess(pixel[0], pixel[1], dimX);
+    indizes.push(indize);
+  });
+  const highlightCanvas = document.getElementById('highlightSeg');
+  const regex = /[0-9]*\.?[0-9]+(px|%)?/i;
+  const w = highlightCanvas.style.width.match(regex);
+  const h = highlightCanvas.style.height.match(regex);
+  const computedWidth = (w[0] * document.documentElement.clientWidth) / 100;
+  const computedHeight = (h[0] * document.documentElement.clientHeight) / 100;
+  highlightCanvas.width = computedWidth;
+  highlightCanvas.height = computedHeight;
+  const highCtx = highlightCanvas.getContext('2d');
+  highCtx.clearRect(0, 0, highlightCanvas.width, highlightCanvas.height);
+  highCtx.webkitImageSmoothingEnabled = false;
+  highCtx.imageSmoothingEnabled = false;
+
+  if (dimX >= dimY) {
+    scalor = Math.floor(highlightCanvas.width / (dimX + 10));
+  } else {
+    scalor = Math.floor(highlightCanvas.height / (dimY + 10));
+  }
+
+  let highImageData = highCtx.createImageData(dimX, dimY);
+  let highData = highImageData.data;
+
+  highCtx.save();
+  indizes.forEach(function (index) {
+    highData[index] = 255;
+    highData[index + 1] = 255;
+    highData[index + 2] = 255;
+    highData[index + 3] = 255;
+  });
+  highCtx.clearRect(0, 0, highlightCanvas.width, highlightCanvas.height);
+  highCtx.translate(transformation.x, transformation.y);
+  highCtx.scale(transformation.k, transformation.k);
+  draw(highImageData, highCtx);
+  highCtx.restore();
+
+  function draw (givenImageData, context, firstDraw = false) {
+    let newCanvas = document.createElement('canvas');
+    newCanvas.width = givenImageData.width;
+    newCanvas.height = givenImageData.height;
+    newCanvas.getContext('2d').putImageData(givenImageData, 0, 0);
+    context.save();
+    context.scale(scalor, scalor);
+    context.drawImage(newCanvas, 0, 0);
+    context.restore();
+    newCanvas.remove();
   }
 };
-export { drawSegmentationMap };
+function indexAccess (i, j, dim) {
+  const NUM_CHANNELS = 4;
+  return j * dim * NUM_CHANNELS + i * NUM_CHANNELS;
+}
+export { drawSegmentationMap, highlightprototypeSegmentation };

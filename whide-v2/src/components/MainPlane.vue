@@ -3,6 +3,7 @@
     <p id="segmentationAlignment" align="center">
       <canvas id="virtCanvas" class="virtSegmentationCanvas" style="width: 70vw; height: 90vh"></canvas>
       <canvas id="segMap" class="segmentationCanvas" style="width: 70vw; height: 90vh"></canvas>
+      <canvas id="highlightSeg" class="segmentationCanvas" style="width: 70vw; height: 90vh"></canvas>
     </p>
     <div class="transparancy-container">
       <p style="color: white">Transparancy</p>
@@ -38,19 +39,18 @@ export default {
     this.unsubscribe = store.subscribe(mutation => {
       if (mutation.type === 'SET_COLORS_READY') {
         this.clearSegmentation();
-        this.drawSegmentation(this.outsideHighlight['outside'], this.outsideHighlight['id'], this.currentTransformation, this.alphaValue);
+        this.drawSegmentation(this.outsideHighlight['id'], this.currentTransformation, this.alphaValue);
       }
       if (mutation.type === 'HIGHLIGHT_PROTOTYPE_OUTSIDE') {
         if (this.outsideHighlight['outside']) {
-          this.clearSegmentation();
-          this.drawSegmentation(this.outsideHighlight['outside'], this.outsideHighlight['id'], this.currentTransformation, this.alphaValue);
-        } else {
-          this.clearSegmentation();
-          this.drawSegmentation(false, '', this.currentTransformation, this.alphaValue);
+          this.drawHighlight(this.outsideHighlight['id'], this.currentTransformation);
         }
       }
       if (mutation.type === 'SET_SEGMENTATION_TRANSFORMATION') {
         this.currentTransformation = this.transformation;
+      }
+      if (mutation.type === 'SET_CURRENT_HIGHLIGHTED_PROTOTYPE') {
+        this.drawHighlight(this.outsideHighlight['id'], this.currentTransformation);
       }
     });
   },
@@ -58,14 +58,38 @@ export default {
     this.unsubscribe();
   },
   methods: {
-    drawSegmentation: function (outside = false, prototype = '', transformation = { k: 1, x: 0, y: 0 }, alpha = 1) {
+    drawSegmentation: function (prototype = '', transformation = { k: 1, x: 0, y: 0 }, alpha = 1) {
       if (this.colorsReady) {
-        sm.drawSegmentationMap(this.dim, outside, prototype, transformation, alpha);
+        sm.drawSegmentationMap(this.dim, prototype, transformation, alpha);
+      }
+    },
+    drawHighlight: function (prototyp, transformation) {
+      if (this.colorsReady) {
+        if (prototyp !== null) {
+          sm.highlightprototypeSegmentation(this.dim, prototyp, transformation);
+        } else {
+          d3.select('#highlightSeg').remove();
+          d3.select('#segmentationAlignment')
+            .append('canvas')
+            .style('position', 'absolute')
+            .attr('class', 'segmentationCanvas')
+            .attr('id', 'highlightSeg')
+            .style('pointer-events', 'none')
+            .style('width', '70vw')
+            .style('height', '90vh')
+            .style('top', '30px')
+            .style('z-index', '101')
+            .style('left', '0px')
+            .style('margin-left', '190px')
+            .style('margin-right', '350px');
+        }
       }
     },
     clearSegmentation: function () {
       d3.select('#virtCanvas').remove();
       d3.select('#segMap').remove();
+      d3.select('#highlightSeg').remove();
+
       d3.select('#segmentationAlignment')
         .append('canvas')
         .style('position', 'absolute')
@@ -92,10 +116,24 @@ export default {
         .style('left', '0px')
         .style('margin-left', '190px')
         .style('margin-right', '350px');
+
+      d3.select('#segmentationAlignment')
+        .append('canvas')
+        .style('position', 'absolute')
+        .attr('class', 'segmentationCanvas')
+        .attr('id', 'highlightSeg')
+        .style('pointer-events', 'none')
+        .style('width', '70vw')
+        .style('height', '90vh')
+        .style('top', '30px')
+        .style('z-index', '101')
+        .style('left', '0px')
+        .style('margin-left', '190px')
+        .style('margin-right', '350px');
     },
     changeAlphaValue: function () {
       this.clearSegmentation();
-      this.drawSegmentation(this.outsideHighlight['outside'], this.outsideHighlight['id'], this.currentTransformation, this.alphaValue);
+      this.drawSegmentation(this.outsideHighlight['id'], this.currentTransformation, this.alphaValue);
     }
   }
 };
@@ -129,6 +167,7 @@ export default {
   margin-left:10vw;
   margin-right: 310px;
 }
+
 .transparancy-container{
   position: absolute;
   left: 45vw;
