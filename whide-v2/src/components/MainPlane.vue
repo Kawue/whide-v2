@@ -22,7 +22,8 @@ export default {
   name: 'MainPlane.vue',
   data: function () {
     return {
-      alphaValue: 1
+      alphaValue: 1,
+      currentTransformation: { k: 1, x: 0, y: 0 }
     };
   },
   computed: {
@@ -37,16 +38,19 @@ export default {
     this.unsubscribe = store.subscribe(mutation => {
       if (mutation.type === 'SET_COLORS_READY') {
         this.clearSegmentation();
-        this.drawSegmentation();
+        this.drawSegmentation(this.outsideHighlight['outside'], this.outsideHighlight['id'], this.currentTransformation, this.alphaValue);
       }
       if (mutation.type === 'HIGHLIGHT_PROTOTYPE_OUTSIDE') {
         if (this.outsideHighlight['outside']) {
           this.clearSegmentation();
-          this.drawSegmentation(this.outsideHighlight['outside'], this.outsideHighlight['id'], this.transformation, this.alphaValue);
+          this.drawSegmentation(this.outsideHighlight['outside'], this.outsideHighlight['id'], this.currentTransformation, this.alphaValue);
         } else {
           this.clearSegmentation();
-          this.drawSegmentation(false, '', this.transformation, this.alphaValue);
+          this.drawSegmentation(false, '', this.currentTransformation, this.alphaValue);
         }
+      }
+      if (mutation.type === 'SET_SEGMENTATION_TRANSFORMATION') {
+        this.currentTransformation = this.transformation;
       }
     });
   },
@@ -54,9 +58,9 @@ export default {
     this.unsubscribe();
   },
   methods: {
-    drawSegmentation: function (outside = false, prototype = '', transformation = { k: 1, x: 0, y: 0 }) {
+    drawSegmentation: function (outside = false, prototype = '', transformation = { k: 1, x: 0, y: 0 }, alpha = 1) {
       if (this.colorsReady) {
-        sm.drawSegmentationMap(this.dim, outside, prototype, transformation, this.alphaValue);
+        sm.drawSegmentationMap(this.dim, outside, prototype, transformation, alpha);
       }
     },
     clearSegmentation: function () {
@@ -91,7 +95,7 @@ export default {
     },
     changeAlphaValue: function () {
       this.clearSegmentation();
-      this.drawSegmentation(this.outsideHighlight['outside'], this.outsideHighlight['id'], this.transformation, this.alphaValue);
+      this.drawSegmentation(this.outsideHighlight['outside'], this.outsideHighlight['id'], this.currentTransformation, this.alphaValue);
     }
   }
 };
