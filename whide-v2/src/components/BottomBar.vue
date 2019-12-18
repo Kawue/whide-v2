@@ -102,7 +102,6 @@ export default {
         });
 
         Object.assign(event.target.dataset, { x, y });
-       
       }).on('resizeend', event => {
         Object.assign(event.target.style, {
           width: `${event.rect.width}px`,
