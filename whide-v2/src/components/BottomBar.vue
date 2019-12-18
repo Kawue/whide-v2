@@ -98,10 +98,19 @@ export default {
           width: `${event.rect.width}px`,
           height: `${event.rect.height}px`,
           bottom: `0`,
-          transform: `translate(${event.deltaRect.left}px, ${event.deltaRect.top}px)`
+          transform: `translate(0px, 0px)`
         });
 
         Object.assign(event.target.dataset, { x, y });
+       
+      }).on('resizeend', event => {
+        Object.assign(event.target.style, {
+          width: `${event.rect.width}px`,
+          height: `${event.rect.height}px`,
+          bottom: `0`,
+          transform: `translate(0px, 0px)`
+        });
+
         let height = event.target.style.height;
         const regex = /[0-9]*\.?[0-9]+?/i;
         let heightNumber = height.match(regex);
@@ -192,7 +201,7 @@ export default {
     left: 0;
     z-index: 101;
     background-color: #4f5051;
-    bottom: 0;
+    bottom: 0 !important;
     float: bottom;
     border-top-style: solid;
     border-top-color: orange;
