@@ -359,6 +359,17 @@ export default new Vuex.Store({
         .catch(function () {
           alert('Error while getting coefficients or set Focus');
         });
+    },
+    getBrightfieldImage: context => {
+      const url = API_URL + '/brightfieldimage';
+      axios
+        .get(url)
+        .then(response => {
+          console.log(response.data);
+        })
+        .catch(function (err) {
+          console.log(err);
+        });
     }
   }
 });

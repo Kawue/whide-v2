@@ -60,5 +60,18 @@ def getDimensions():
     dim['x'] = int(dim['x'])
     dim['y'] = int(dim['y'])
     return json.dumps(dim)
+
+@app.route('/brightfieldimage')
+def getBrightfieldImage():
+    dir = os.listdir('../whide-v2/src/assets/')
+    pattern = re.compile("[.(?i:jpg|gif|png|bmp)")
+    pictures = []
+    for x in dir:
+        if pattern.match(x):
+            pictures.append(x)
+
+
+    return json.dumps(pictures)
+
 if __name__ == '__main__':
     app.run(debug=True)

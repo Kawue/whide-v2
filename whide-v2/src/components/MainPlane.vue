@@ -2,7 +2,9 @@
   <div class="mainPlane">
     <p id="segmentationAlignment" align="center">
       <canvas id="virtCanvas" class="virtSegmentationCanvas" style="width: 70vw; height: 90vh"></canvas>
+      <canvas id="brightfield" class="brightfieldCanvas" style="width: 70vw; height: 90vh"></canvas>
       <canvas id="segMap" class="segmentationCanvas" style="width: 70vw; height: 90vh"></canvas>
+      <canvas id="mzChannelImage" class="mzImageCanvas" style="width: 70vw; height: 90vh"></canvas>
       <canvas id="highlightSeg" class="segmentationCanvas" style="width: 70vw; height: 90vh"></canvas>
     </p>
     <div class="transparancy-container">

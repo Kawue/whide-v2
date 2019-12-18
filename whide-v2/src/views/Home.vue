@@ -33,6 +33,7 @@ export default {
     Store.dispatch('getDimensions');
     Store.dispatch('getRingCoefficients');
     Store.dispatch('fetchData');
+    Store.dispatch('getBrightfieldImage');
     this.showPanels = true;
   }
 };

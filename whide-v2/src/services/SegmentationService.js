@@ -107,7 +107,6 @@ var drawSegmentationMap = function (dimensions, prototypeOutside = '', transform
   virtCanvas.addEventListener('mousemove', zoomed, false);
   virtCanvas.addEventListener('click', addBookmark, false);
 
-
   function zoomed (transform) {
     if (transform.type === 'mousemove') {
       ctx.save();
