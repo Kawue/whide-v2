@@ -233,7 +233,8 @@ def createJson(h2som, data, dframe):
 
 
 ### Spectral workflow
-path = "../datasets/barley_101.h5"
+
+path = "../datasets/barley101GrineV2.h5"
 dframe, data = read_data(path)
 ### For spatial workflow add:
 #data = data.T.copy(order="C")

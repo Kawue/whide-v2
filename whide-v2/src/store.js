@@ -49,7 +49,22 @@ export default new Vuex.Store({
     showMzInBchart: false,
     showAnnotationInBchart: false,
     horizonatlCharts: false,
-    lineChart: false
+    lineChart: false,
+    colorScale: 'interpolateViridis',
+    colorScales: {
+      interpolateMagma: 'Magma',
+      interpolatePiYG: 'PiYG',
+      interpolateViridis: 'Viridis',
+      interpolatePlasma: 'Plasma',
+      interpolateInferno: 'Inferno'
+    },
+    currentMergeMethod: 'methodMean',
+    mergeMethods: {
+      methodMean: 'mean',
+      methodMedian: 'median',
+      methodMin: 'min',
+      methodMax: 'max'
+    }
 
   },
   getters: {
@@ -326,7 +341,7 @@ export default new Vuex.Store({
     },
     fetchData: context => {
       context.commit('SET_ORIGINAL_DATA', apiService.fetchData());
-      const url = API_URL + '/coefficientsindex';
+      const url = API_URL + '/ringdata';
       axios
         .get(url)
         .then(response => {
@@ -370,6 +385,27 @@ export default new Vuex.Store({
         .catch(function (err) {
           console.log(err);
         });
+    },
+    fetchImageData: (context) => {
+      let mzValues = '';
+      // do an api fetch for a combination image of multiple mz values
+      if (mzValues.length > 0) {
+        const mergeMethod = context.state.currentMergeMethod;
+        const colorscale = context.state.colorScale;
+        const url = API_URL + '/datasets/' + datasetName + '/mzimage';
+        const postData = {
+          mzValues: mzValues,
+          colorscale: context.state.colorScales[colorscale],
+          method: mergeMethod
+        };
+        axios
+          .post(url, postData)
+          .then(response => {
+
+          })
+          .catch(function () {
+          });
+      }
     }
   }
 });

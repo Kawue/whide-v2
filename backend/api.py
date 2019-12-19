@@ -2,22 +2,69 @@ from flask import Flask
 from flask import abort
 from flask import request
 from flask_cors import CORS
+from mzDataset import MzDataSet
+from PIL import Image
+from io import BytesIO
+import numpy as np
+import pandas as pd
 import pickle
 import json
 import os
 import re
+import base64
+
+path_to_assets = '../whide-v2/src/assets/'
+path_to_datasets = '../datasets/'
+current_dataset = 'barley101GrineV2.h5'
+
+datasets = {}
+
+colorscales = {
+        'Viridis': 'viridis',
+        'Magma': 'magma',
+        'Inferno': 'inferno',
+        'Plasma': 'plasma',
+        'PiYG': 'PiYG'
+    }
+
+aggregation_methods = {
+    'mean': np.mean,
+    'median': np.median,
+    'min': np.min,
+    'max': np.max
+}
+
+try:
+    dirs = os.listdir()
+    pattern = re.compile("ring[0-9]+.h2som")
+    for x in dirs:
+        if pattern.match(x):
+            split = x.split('.')
+            datasets[split[0]] = ''
+except:
+    print('h2Som.py was not executed till now, please execute it!')
+
+print(datasets)
+def read_data(path):
+    dframe = pd.read_hdf(path)
+    # Rows = pixel, Columns = m/z channels
+    data = dframe.values
+    #print(data.shape)
+    return dframe, data
+
+dframe, data = read_data(path_to_datasets + current_dataset)
+print(dframe)
+dataset = MzDataSet(dframe)
+print(dataset)
+
 
 app = Flask(__name__)
 CORS(app)
 
-def loadCoefficienten():
-    h2som = pickle.load(open("ring-1.h2som","rb"))
-    print(h2som)
-    return h2som
-
 
 @app.route('/coefficients')
 def getCoefficienten():
+    # request.args.get('index') is the argument given (now the ring0)
     h2som = pickle.load(open(request.args.get('index')+".h2som","rb"))
     givenlastIdx = request.args.get('lastIndex')
     data = {}
@@ -28,7 +75,7 @@ def getCoefficienten():
     data['coefficients'] = coefficients
     return json.dumps(data)
 
-@app.route('/coefficientsindex')
+@app.route('/ringdata')
 def getCoefIndeizes():
     entries = os.listdir()
     pattern = re.compile("ring[0-9]+.h2som")
@@ -51,7 +98,6 @@ def getCoefIndeizes():
            indexList[i] = indexList[i] + indexList[i-1]
     indexList = indexList[:-1]
     returnData = {'indizes' : indexList}
-    print(returnData)
     return json.dumps(returnData)
 
 @app.route('/dimensions')
@@ -61,9 +107,41 @@ def getDimensions():
     dim['y'] = int(dim['y'])
     return json.dumps(dim)
 
+# get mz image data for dataset and mz values
+# specified merge method is passed via GET parameter
+# mz values are passed via post request
+@app.route('/datasets/<dataset_name>/mzimage', methods=['POST'])
+def datasets_imagedata_multiple_mz_action(dataset_name):
+    if dataset_name not in dataset_names():
+        return abort(400)
+    try:
+        post_data = request.get_data()
+        post_data_json = json.loads(post_data.decode('utf-8'))
+        aggeregation_method = post_data_json['method']
+        colorscale = post_data_json['colorscale']
+        post_data_mz_values = [float(i) for i in post_data_json['mzValues']]
+    except:
+        return abort(400)
+
+    if len(post_data_mz_values) == 0:
+        return abort(400)
+
+    img_io = BytesIO()
+    Image.fromarray(
+        datasets[dataset_name]['dataset'].getColorImage(
+            post_data_mz_values,
+            method=aggregation_methods[aggeregation_method],
+            cmap=colorscales[colorscale]),
+        mode='RGBA'
+    ).save(img_io, 'PNG')
+    img_io.seek(0)
+    response = make_response('data:image/png;base64,' + base64.b64encode(img_io.getvalue()).decode('utf-8'), 200)
+    response.mimetype = 'text/plain'
+    return response
+
 @app.route('/brightfieldimage')
 def getBrightfieldImage():
-    dir = os.listdir('../whide-v2/src/assets/')
+    dir = os.listdir(path_to_assets)
     pattern = re.compile("[.(?i:jpg|gif|png|bmp)")
     pictures = []
     for x in dir:
