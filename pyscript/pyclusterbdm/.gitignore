@@ -1,0 +1,6 @@
+*.pyc
+pycluster/core.c
+build
+core.so
+dist
+pyCluster.egg-info
