@@ -50,20 +50,24 @@ export default new Vuex.Store({
     showAnnotationInBchart: false,
     horizonatlCharts: false,
     lineChart: false,
-    colorScale: 'interpolateViridis',
-    colorScales: {
-      interpolateMagma: 'Magma',
-      interpolatePiYG: 'PiYG',
-      interpolateViridis: 'Viridis',
-      interpolatePlasma: 'Plasma',
-      interpolateInferno: 'Inferno'
-    },
-    currentMergeMethod: 'methodMean',
-    mergeMethods: {
-      methodMean: 'mean',
-      methodMedian: 'median',
-      methodMin: 'min',
-      methodMax: 'max'
+    mzImage: {
+      colorScale: 'interpolateViridis',
+      colorScales: {
+        interpolateMagma: 'Magma',
+        interpolatePiYG: 'PiYG',
+        interpolateViridis: 'Viridis',
+        interpolatePlasma: 'Plasma',
+        interpolateInferno: 'Inferno'
+      },
+      currentMergeMethod: 'mean',
+      mergeMethods: {
+        methodMean: 'mean',
+        methodMedian: 'median',
+        methodMin: 'min',
+        methodMax: 'max'
+      },
+      selectedMzValues: [74.651, 104.107],
+      base64Image: null
     }
 
   },
@@ -325,6 +329,10 @@ export default new Vuex.Store({
     },
     SET_BOOKMARKS_LINECHART: state => {
       state.lineChart = !state.lineChart;
+    },
+    SET_IMAGE_DATA_VALUES: (state, image) => {
+      state.mzImage.base64Image = image;
+      console.log('jau');
     }
   },
   actions: {
@@ -387,23 +395,24 @@ export default new Vuex.Store({
         });
     },
     fetchImageData: (context) => {
-      let mzValues = '';
+      let mzValues = context.state.mzImage.selectedMzValues;
       // do an api fetch for a combination image of multiple mz values
       if (mzValues.length > 0) {
-        const mergeMethod = context.state.currentMergeMethod;
-        const colorscale = context.state.colorScale;
-        const url = API_URL + '/datasets/' + datasetName + '/mzimage';
+        const mergeMethod = context.state.mzImage.currentMergeMethod;
+        const colorscale = context.state.mzImage.colorScale;
+        const url = API_URL + '/mzimage';
         const postData = {
           mzValues: mzValues,
-          colorscale: context.state.colorScales[colorscale],
+          colorscale: context.state.mzImage.colorScales[colorscale],
           method: mergeMethod
         };
         axios
           .post(url, postData)
           .then(response => {
-
+            context.commit('SET_IMAGE_DATA_VALUES', response.data);
           })
-          .catch(function () {
+          .catch(function (e) {
+            console.log(e);
           });
       }
     }

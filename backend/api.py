@@ -1,6 +1,4 @@
-from flask import Flask
-from flask import abort
-from flask import request
+from flask import Flask, make_response, abort, request
 from flask_cors import CORS
 from mzDataset import MzDataSet
 from PIL import Image
@@ -17,8 +15,6 @@ path_to_assets = '../whide-v2/src/assets/'
 path_to_datasets = '../datasets/'
 current_dataset = 'barley101GrineV2.h5'
 
-datasets = {}
-
 colorscales = {
         'Viridis': 'viridis',
         'Magma': 'magma',
@@ -34,17 +30,6 @@ aggregation_methods = {
     'max': np.max
 }
 
-try:
-    dirs = os.listdir()
-    pattern = re.compile("ring[0-9]+.h2som")
-    for x in dirs:
-        if pattern.match(x):
-            split = x.split('.')
-            datasets[split[0]] = ''
-except:
-    print('h2Som.py was not executed till now, please execute it!')
-
-print(datasets)
 def read_data(path):
     dframe = pd.read_hdf(path)
     # Rows = pixel, Columns = m/z channels
@@ -53,9 +38,15 @@ def read_data(path):
     return dframe, data
 
 dframe, data = read_data(path_to_datasets + current_dataset)
-print(dframe)
 dataset = MzDataSet(dframe)
-print(dataset)
+
+# returns list of all mz_values
+def mz_values():
+    return dataset.getMzValues()
+
+vals = mz_values()
+print(vals)
+
 
 
 app = Flask(__name__)
@@ -110,10 +101,8 @@ def getDimensions():
 # get mz image data for dataset and mz values
 # specified merge method is passed via GET parameter
 # mz values are passed via post request
-@app.route('/datasets/<dataset_name>/mzimage', methods=['POST'])
-def datasets_imagedata_multiple_mz_action(dataset_name):
-    if dataset_name not in dataset_names():
-        return abort(400)
+@app.route('/mzimage', methods=['POST'])
+def imagedata_multiple_mz_action():
     try:
         post_data = request.get_data()
         post_data_json = json.loads(post_data.decode('utf-8'))
@@ -128,7 +117,7 @@ def datasets_imagedata_multiple_mz_action(dataset_name):
 
     img_io = BytesIO()
     Image.fromarray(
-        datasets[dataset_name]['dataset'].getColorImage(
+        dataset.getColorImage(
             post_data_mz_values,
             method=aggregation_methods[aggeregation_method],
             cmap=colorscales[colorscale]),
