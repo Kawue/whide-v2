@@ -1,0 +1,196 @@
+<template>
+  <svg class="chart" v-bind:id="this.prototypeid"></svg>
+</template>
+
+<script>
+import * as d3 from 'd3';
+import { mapGetters } from 'vuex';
+import store from '../store';
+import BookmarkService from '../services/BookmarkService';
+
+export default {
+  name: 'Bchart',
+  data: function () {
+    return {
+      currentMarkedPrototype: null,
+      bookmarkData: {},
+      bookmarkColor: String,
+      mzText: false
+    };
+  },
+  props: {
+    prototypeid: {
+      type: String
+    }
+  },
+  computed: {
+    ...mapGetters({
+      highlightedPrototype: 'getCurrentHighlightedPrototype',
+      height: 'getBottonBarHeight',
+      showMzBoolean: 'getShowMzInBchart',
+      showAnnotations: 'getShowAnnotationInBchart',
+      bookmarkOrientation: 'getBookmarkOrientation',
+      lineChart: 'getBookmarkLinechart'
+    })
+  },
+  mounted () {
+    let bookmarkService = new BookmarkService();
+    if (this.bookmarkOrientation) {
+      d3.select('.bottombarWidget')
+        .style('height', '500px');
+      d3.select('#bookmarkcontainer').style('height', '450px');
+      store.commit('SET_BOTTOMBAR_HEIGHT', 500);
+    } else {
+      d3.select('.bottombarWidget')
+        .style('height', '350px');
+      d3.select('#bookmarkcontainer').style('height', '300px');
+      store.commit('SET_BOTTOMBAR_HEIGHT', 350);
+    }
+    this.bookmarkData = store.getters.getBookmarksData(this.prototypeid);
+
+    if (this.height !== 0) {
+      if (this.bookmarkOrientation) {
+        if (this.lineChart) {
+          bookmarkService.lineChart(this.bookmarkData);
+        } else {
+          bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+        }
+      } else {
+        bookmarkService.createBchart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+      }
+    } else {
+      if (this.bookmarkOrientation) {
+        if (this.lineChart) {
+          bookmarkService.lineChart(this.bookmarkData);
+        } else {
+          bookmarkService.createHorizontalChart(this.bookmarkData, 300, this.showMzBoolean, this.showAnnotations);
+        }
+      } else {
+        bookmarkService.createBchart(this.bookmarkData, 300, this.showMzBoolean, this.showAnnotations);
+      }
+    }
+    this.unsubscribe = store.subscribe(mutation => {
+      if (mutation.type === 'SET_MOEBIUS') {
+        this.bookmarkColor = store.getters.getBookmarkColor(this.prototypeid);
+        d3.select('#' + this.bookmarkData['id'])
+          .style('background-color', this.bookmarkColor);
+      } else if (mutation.type === 'SET_DEFAULT_POSITION') {
+        this.bookmarkColor = store.getters.getBookmarkColor(this.prototypeid);
+        d3.select('#' + this.bookmarkData['id'])
+          .style('background-color', this.bookmarkColor);
+      }
+      if (mutation.type === 'UPDATE_COLOR') {
+        this.bookmarkColor = store.getters.getBookmarkColor(this.prototypeid);
+        d3.select('#' + this.bookmarkData['id'])
+          .style('background-color', this.bookmarkColor);
+      }
+      if (mutation.type === 'SET_CURRENT_HIGHLIGHTED_PROTOTYPE') {
+        if (this.highlightedPrototype === this.prototypeid) {
+          let markedColor = 'rgba(255,255,255,255)';
+          this.currentMarkedPrototype = this.prototypeid;
+          d3.select('#' + this.bookmarkData['id'])
+            .style('border-width', '3px')
+            .style('border-color', markedColor);
+        } else if (this.currentMarkedPrototype === this.prototypeid) {
+          d3.select('#' + this.currentMarkedPrototype)
+            .style('border-width', '1px')
+            .style('border-color', 'black');
+          this.currentMarkedPrototype = null;
+        }
+      }
+      if (mutation.type === 'SET_BOTTOMBAR_HEIGHT') {
+        d3.select('#' + this.prototypeid).selectAll('*').remove();
+        if (this.bookmarkOrientation) {
+          if (this.lineChart) {
+            bookmarkService.lineChart(this.bookmarkData);
+          } else {
+            bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+          }
+        } else {
+          bookmarkService.createBchart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+        }
+      }
+      if (mutation.type === 'SET_SHOW_MZ_IN_BCHART') {
+        d3.select('#' + this.prototypeid).selectAll('*').remove();
+        if (this.height !== 0) {
+          if (this.bookmarkOrientation) {
+            if (this.lineChart) {
+              bookmarkService.lineChart(this.bookmarkData);
+            } else {
+              bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+            }
+          } else {
+            bookmarkService.createBchart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+          }
+        } else {
+          if (this.bookmarkOrientation) {
+            if (this.lineChart) {
+              bookmarkService.lineChart(this.bookmarkData);
+            } else {
+              bookmarkService.createHorizontalChart(this.bookmarkData, 300, this.showMzBoolean, this.showAnnotations);
+            }
+          } else {
+            bookmarkService.createBchart(this.bookmarkData, 300, this.showMzBoolean, this.showAnnotations);
+          }
+        }
+      }
+      if (mutation.type === 'SET_SHOW_ANNOTATION_IN_BCHART') {
+        d3.select('#' + this.prototypeid).selectAll('*').remove();
+        if (this.height !== 0) {
+          if (this.bookmarkOrientation) {
+            if (this.lineChart) {
+              bookmarkService.lineChart(this.bookmarkData);
+            } else {
+              bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+            }
+          } else {
+            bookmarkService.createBchart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+          }
+        } else {
+          if (this.bookmarkOrientation) {
+            if (this.lineChart) {
+              bookmarkService.lineChart(this.bookmarkData);
+            } else {
+              bookmarkService.createHorizontalChart(this.bookmarkData, 300, this.showMzBoolean, this.showAnnotations);
+            }
+          } else {
+            bookmarkService.createBchart(this.bookmarkData, 300, this.showMzBoolean, this.showAnnotations);
+          }
+        }
+      }
+      if (mutation.type === 'SET_BOOKMARKS_HORIZONTAL') {
+        if (this.bookmarkOrientation) {
+          if (this.lineChart) {
+            bookmarkService.lineChart(this.bookmarkData);
+          } else {
+            bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+          }
+        } else {
+          bookmarkService.createBchart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+        }
+      }
+      if (mutation.type === 'SET_BOOKMARKS_LINECHART') {
+        if (this.lineChart) {
+          bookmarkService.lineChart(this.bookmarkData);
+        } else {
+          bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+        }
+      }
+    });
+  },
+  beforeDestroy () {
+    this.unsubscribe();
+  }
+
+};
+</script>
+
+<style scoped lang="scss">
+ .chart{
+   margin-right: 2px;
+   margin-bottom: 10px;
+   border-style: solid;
+   border-width: 1px;
+
+ }
+  </style>

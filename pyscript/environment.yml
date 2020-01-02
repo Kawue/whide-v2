@@ -1,0 +1,7 @@
+name: whide
+channels:
+  - conda-forge
+  - defaults
+  - bioconda
+prefix: C:\Users\kwuellems\Anaconda3\envs\whide
+

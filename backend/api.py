@@ -10,10 +10,15 @@ import json
 import os
 import re
 import base64
+from sys import argv
 
-path_to_assets = '../whide-v2/src/assets/'
-path_to_datasets = '../datasets/'
-current_dataset = 'barley101GrineV2.h5'
+path_to_assets = './modalities/'
+path_to_datasets = './datasets/'
+path_to_json = './json/'
+path_to_h2som_data = './h2som'
+
+datasets = {}
+ringdata = {}
 
 colorscales = {
         'Viridis': 'viridis',
@@ -30,6 +35,14 @@ aggregation_methods = {
     'max': np.max
 }
 
+
+if len(argv[3:]) == 0:
+    print('h2Som.py was not executed till now, please execute it!')
+else:
+    for f in argv[4:]:
+        split = f.split('_')[-1].split(".")[0]
+        ringdata[split] = pickle.load(open(os.path.join(path_to_h2som_data, f), "rb"))
+
 def read_data(path):
     dframe = pd.read_hdf(path)
     # Rows = pixel, Columns = m/z channels
@@ -44,19 +57,27 @@ dataset = MzDataSet(dframe)
 def mz_values():
     return dataset.getMzValues()
 
-vals = mz_values()
-print(vals)
 
+
+#dframe, data = read_data(path_to_datasets + argv[2])
+#dataset = MzDataSet(dframe)
 
 
 app = Flask(__name__)
 CORS(app)
 
 
+@app.route('/json')
+def getJson():
+    with open(os.path.join(path_to_json, argv[1])) as json_file:
+        json_data = json.load(json_file)
+    return json.dumps(json_data)
+
 @app.route('/coefficients')
 def getCoefficienten():
     # request.args.get('index') is the argument given (now the ring0)
-    h2som = pickle.load(open(request.args.get('index')+".h2som","rb"))
+    #h2som = pickle.load(open(request.args.get('index')+".h2som","rb"))
+    h2som = ringdata[request.args.get('index')]
     givenlastIdx = request.args.get('lastIndex')
     data = {}
     coefficients = {}
@@ -68,18 +89,19 @@ def getCoefficienten():
 
 @app.route('/ringdata')
 def getCoefIndeizes():
-    entries = os.listdir()
-    pattern = re.compile("ring[0-9]+.h2som")
-    files = []
-    for x in entries:
-        if pattern.match(x):
-            files.append(x)
+    rings = []
+    for key, value in ringdata.items():
+        pattern = re.compile("ring[0-9]")
+        if pattern.match(key):
+            rings.append((key, value))
+    rings.sort(key=lambda x: int(x[0].split("ring")[1]))
+    rings = list(zip(*rings))[1]
+
 
     indexList = [0]
-    for y in files:
-        dummy = pickle.load(open(y, "rb"))
+    for ring in rings:
         counter = 0
-        for i in range(len(dummy)):
+        for i in range(len(ring)):
             counter += 1
         indexList.append(counter)
 
@@ -93,7 +115,8 @@ def getCoefIndeizes():
 
 @app.route('/dimensions')
 def getDimensions():
-    dim = pickle.load(open('info.h2som', "rb"))
+    #dim = pickle.load(open('info.h2som', "rb"))
+    dim = ringdata["info"]
     dim['x'] = int(dim['x'])
     dim['y'] = int(dim['y'])
     return json.dumps(dim)
@@ -130,14 +153,7 @@ def imagedata_multiple_mz_action():
 
 @app.route('/brightfieldimage')
 def getBrightfieldImage():
-    dir = os.listdir(path_to_assets)
-    pattern = re.compile("[.(?i:jpg|gif|png|bmp)")
-    pictures = []
-    for x in dir:
-        if pattern.match(x):
-            pictures.append(x)
-
-
+    picture = os.path.join(path_to_assets, argv[3])
     return json.dumps(pictures)
 
 if __name__ == '__main__':
