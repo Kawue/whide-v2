@@ -272,4 +272,31 @@ function indexAccess (i, j, dim) {
   const NUM_CHANNELS = 4;
   return j * dim * NUM_CHANNELS + i * NUM_CHANNELS;
 }
-export { drawSegmentationMap, highlightprototypeSegmentation };
+// TODO correct the upload from the brightfieldimage, also from backend to frontend via python
+var brightfieldImage = function () {
+  const canvas = document.getElementById('brightfield');
+  const ctx = canvas.getContext('2d');
+  ctx.webkitImageSmoothingEnabled = false;
+  ctx.imageSmoothingEnabled = false;
+
+  let picture = new Image();
+  picture.src = '../assets/testmask.png';
+  picture.onload = function () {
+    ctx.drawImage(picture, 0, 0);
+  };
+};
+var drawMzImage = function (base64Image) {
+  const canvas = document.getElementById('mzChannelImage');
+  const image = new Image();
+
+  image.onload = () => {
+    const ctx = canvas.getContext('2d');
+    ctx.save();
+    ctx.webkitImageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(image, 0, 0);
+    ctx.restore();
+  };
+  image.src = base64Image;
+};
+export { drawSegmentationMap, highlightprototypeSegmentation, brightfieldImage, drawMzImage };

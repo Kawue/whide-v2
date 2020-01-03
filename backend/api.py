@@ -45,10 +45,6 @@ dataset = MzDataSet(dframe)
 def mz_values():
     return dataset.getMzValues()
 
-vals = mz_values()
-print(vals)
-
-
 
 app = Flask(__name__)
 CORS(app)

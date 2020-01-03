@@ -160,6 +160,9 @@ export default new Vuex.Store({
     },
     getBookmarkLinechart: state => {
       return state.lineChart;
+    },
+    getBase64Image: state => {
+      return state.mzImage.base64Image;
     }
   },
   mutations: {
@@ -332,7 +335,6 @@ export default new Vuex.Store({
     },
     SET_IMAGE_DATA_VALUES: (state, image) => {
       state.mzImage.base64Image = image;
-      console.log('jau');
     }
   },
   actions: {

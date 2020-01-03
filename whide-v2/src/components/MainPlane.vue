@@ -34,10 +34,12 @@ export default {
       dim: 'getSegmentationDim',
       colorsReady: 'getIfColorsReady',
       outsideHighlight: 'getHighlightedPrototypeOutside',
-      transformation: 'getSegmentationTransformation'
+      transformation: 'getSegmentationTransformation',
+      base64Image: 'getBase64Image'
     })
   },
   mounted () {
+    this.drawBrightfiledImage();
     this.unsubscribe = store.subscribe(mutation => {
       if (mutation.type === 'SET_COLORS_READY') {
         this.clearSegmentation();
@@ -53,6 +55,9 @@ export default {
       }
       if (mutation.type === 'SET_CURRENT_HIGHLIGHTED_PROTOTYPE') {
         this.drawHighlight(this.outsideHighlight['id'], this.currentTransformation);
+      }
+      if (mutation.type === 'SET_IMAGE_DATA_VALUES') {
+        this.drawMzImage();
       }
     });
   },
@@ -86,6 +91,36 @@ export default {
             .style('margin-right', '350px');
         }
       }
+    },
+    drawBrightfiledImage: function () {
+      d3.select('#brightfield')
+        .append('canvas')
+        .style('position', 'absolute')
+        .attr('class', 'brightfieldCanvas')
+        .attr('id', 'brightfield')
+        .style('z-index', '101')
+        .style('width', '70vw')
+        .style('  height', '90vh')
+        .style('top', '30px')
+        .style('left', '0px')
+        .style('margin-left', '190px')
+        .style('margin-right', '350px');
+      sm.brightfieldImage();
+    },
+    drawMzImage: function () {
+      d3.select('#mzChannelImage')
+        .append('canvas')
+        .style('position', 'absolute')
+        .attr('class', 'mzImageCanvas')
+        .attr('id', 'mzChannelImage')
+        .style('z-index', '101')
+        .style('width', '70vw')
+        .style('  height', '90vh')
+        .style('top', '30px')
+        .style('left', '0px')
+        .style('margin-left', '190px')
+        .style('margin-right', '350px');
+      sm.drawMzImage(this.base64Image);
     },
     clearSegmentation: function () {
       d3.select('#virtCanvas').remove();
