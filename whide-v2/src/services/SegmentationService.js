@@ -285,8 +285,27 @@ var brightfieldImage = function () {
     ctx.drawImage(picture, 0, 0);
   };
 };
-var drawMzImage = function (base64Image) {
+
+// TODO: make backgroundcolor in backend different to white
+var drawMzImage = function (base64Image, dimensions, transformation) {
+  const dimX = dimensions['x'] + 1;
+  const dimY = dimensions['y'] + 1;
+  let scalor = 1;
+
   const canvas = document.getElementById('mzChannelImage');
+  const regex = /[0-9]*\.?[0-9]+(px|%)?/i;
+  const w = canvas.style.width.match(regex);
+  const h = canvas.style.height.match(regex);
+  const computedWidth = (w[0] * document.documentElement.clientWidth) / 100;
+  const computedHeight = (h[0] * document.documentElement.clientHeight) / 100;
+  canvas.width = computedWidth;
+  canvas.height = computedHeight;
+
+  if (dimX >= dimY) {
+    scalor = Math.floor(canvas.width / (dimX + 10));
+  } else {
+    scalor = Math.floor(canvas.height / (dimY + 10));
+  }
   const image = new Image();
 
   image.onload = () => {
@@ -294,9 +313,13 @@ var drawMzImage = function (base64Image) {
     ctx.save();
     ctx.webkitImageSmoothingEnabled = false;
     ctx.imageSmoothingEnabled = false;
+    ctx.translate(transformation.x, transformation.y);
+    ctx.scale(transformation.k, transformation.k);
+    ctx.scale(scalor, scalor);
     ctx.drawImage(image, 0, 0);
     ctx.restore();
   };
+
   image.src = base64Image;
 };
 export { drawSegmentationMap, highlightprototypeSegmentation, brightfieldImage, drawMzImage };
