@@ -59,7 +59,7 @@ export default new Vuex.Store({
         interpolatePlasma: 'Plasma',
         interpolateInferno: 'Inferno'
       },
-      currentMergeMethod: 'mean',
+      currentMergeMethod: 'methodMean',
       mergeMethods: {
         methodMean: 'mean',
         methodMedian: 'median',
@@ -335,6 +335,12 @@ export default new Vuex.Store({
     },
     SET_IMAGE_DATA_VALUES: (state, image) => {
       state.mzImage.base64Image = image;
+    },
+    SET_MERGE_METHOD: (state, method) => {
+      state.mzImage.currentMergeMethod = method;
+    },
+    SET_COLORSCALE: (state, colorscale) => {
+      state.mzImage.colorScale = colorscale;
     }
   },
   actions: {
@@ -406,7 +412,7 @@ export default new Vuex.Store({
         const postData = {
           mzValues: mzValues,
           colorscale: context.state.mzImage.colorScales[colorscale],
-          method: mergeMethod
+          method: context.state.mzImage.mergeMethods[mergeMethod]
         };
         axios
           .post(url, postData)

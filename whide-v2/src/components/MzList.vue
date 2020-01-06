@@ -1,101 +1,108 @@
 <template>
   <div class="mzComp" id="mzComponent">
-      <div style="color: white">MZs</div>
-      <span
-        style="float: left;margin-left: 30px; color: white"
-        v-on:click="toggleShowAnnotation"
-        v-b-tooltip.hover.top="'Show Annotations'"
-      >
+    <div style="color: white">MZs</div>
+    <span
+      style="float: left;margin-left: 30px; color: white"
+      v-on:click="toggleShowAnnotation"
+      v-b-tooltip.hover.top="'Show Annotations'"
+    >
           <v-icon
             name="pencil-alt" style="color: orange"
-          ></v-icon>
+          />
         </span>
-      <span
-        v-on:click="toggleAsc(), sortMZ()"
-        style="float: right; margin-right: 30px; padding: 2px; color :white"
-        v-b-tooltip.hover.top="'Sort'"
-      >
+    <span
+      style="align: center; color: white"
+      v-on:click="toggleMzImage"
+      v-b-tooltip.hover.top="'mark Values for MZ-Image'">
+      <v-icon
+        v-bind:name="markForMzImage ? 'play' : 'pause'" style="color: orange"/>
+    </span>
+    <span
+      v-on:click="toggleAsc(), sortMZ()"
+      style="float: right; margin-right: 30px; padding: 2px; color :white"
+      v-b-tooltip.hover.top="'Sort'"
+    >
         <v-icon
           v-bind:name="asc ? 'sort-amount-up' : 'sort-amount-down'" style="color: orange"
-        ></v-icon>
+        />
         </span>
-      <label for="mzlistid"></label>
-      <select class="list" id="mzlistid" multiple>
-        <option
-          style="color: white"
-          v-for="(key, val) in mzObjects"
-          v-bind:key="key"
-          v-bind:value="key"
-          v-on:dblclick="annotateMzItem(val, key)"
-            >
-          {{showAnnotation ? key : val}} <!--first mzItem is the name-->
-        </option>
-      </select>
-
-      <b-modal
-        id="nameModal"
-        ref="nameModal"
-        @ok="submitAnnotation"
-        @cancel="handleCancle"
-        title="Rename m/z Value"
+    <label for="mzlistid"/>
+    <select class="list" id="mzlistid" multiple>
+      <option
+        style="color: white"
+        v-for="(key, val) in mzObjects"
+        v-bind:key="key"
+        v-bind:value="key"
+        v-on:dblclick="annotateMzItem(val, key)"
       >
-        <template slot="default">
-          <b-row>
-            <b-col sm="3" class="align-self-center">
-              <p>m/z Value:</p>
-            </b-col>
-            <b-col sm="9">
-              <p id="annotation-mz-value">{{ nameModalMz.mzValue }}</p>
-            </b-col>
-            <b-col sm="3" class="align-self-center">
-              <label for="annotationinput">Annotation:</label>
-            </b-col>
-            <b-col sm="9">
-              <b-form ref="form" @submit.stop.prevent="handleSubmit">
-                <b-input
-                  v-model="nameModalMz.name"
-                  placeholder="MZ Name"
-                  required
-                  maxlength="30"
-                  :state="nameModalMz.name.length > 0 ? null : false"
-                  id="annotationinput"
-                  trim
-                  ref="annotationinput"
-                ></b-input>
-              </b-form>
-            </b-col>
-          </b-row>
-          <b-row>
-            <b-col offset-sm="3">
-              <b-form-invalid-feedback
+        {{showAnnotation ? key : val}} <!--first mzItem is the name-->
+      </option>
+    </select>
+
+    <b-modal
+      id="nameModal"
+      ref="nameModal"
+      @ok="submitAnnotation"
+      @cancel="handleCancle"
+      title="Rename m/z Value"
+    >
+      <template slot="default">
+        <b-row>
+          <b-col sm="3" class="align-self-center">
+            <p>m/z Value:</p>
+          </b-col>
+          <b-col sm="9">
+            <p id="annotation-mz-value">{{ nameModalMz.mzValue }}</p>
+          </b-col>
+          <b-col sm="3" class="align-self-center">
+            <label for="annotationinput">Annotation:</label>
+          </b-col>
+          <b-col sm="9">
+            <b-form ref="form" @submit.stop.prevent="handleSubmit">
+              <b-input
+                v-model="nameModalMz.name"
+                placeholder="MZ Name"
+                required
+                maxlength="30"
                 :state="nameModalMz.name.length > 0 ? null : false"
-              >
-                The Annotation can't be empty
-              </b-form-invalid-feedback>
-            </b-col>
-          </b-row>
-        </template>
-        <template
-          slot="modal-footer"
-          style="display: block !important;"
-          slot-scope="{ cancel, ok }"
+                id="annotationinput"
+                trim
+                ref="annotationinput"
+              />
+            </b-form>
+          </b-col>
+        </b-row>
+        <b-row>
+          <b-col offset-sm="3">
+            <b-form-invalid-feedback
+              :state="nameModalMz.name.length > 0 ? null : false"
+            >
+              The Annotation can't be empty
+            </b-form-invalid-feedback>
+          </b-col>
+        </b-row>
+      </template>
+      <template
+        slot="modal-footer"
+        style="display: block !important;"
+        slot-scope="{ cancel, ok }"
+      >
+        <b-button
+          variant="outline-danger"
+          @click="cancel()"
+          v-bind:disabled="nameModalMz.mzValue === nameModalMz.name"
         >
-          <b-button
-            variant="outline-danger"
-            @click="cancel()"
-            v-bind:disabled="nameModalMz.mzValue === nameModalMz.name"
-          >
-            Reset
-          </b-button>
-          <b-button
-            variant="success"
-            @click="ok()"
-            v-bind:disabled="nameModalMz.name.length === 0"
-          >
-            Save
-          </b-button>
-        </template>
-      </b-modal>
+          Reset
+        </b-button>
+        <b-button
+          variant="success"
+          @click="ok()"
+          v-bind:disabled="nameModalMz.name.length === 0"
+        >
+          Save
+        </b-button>
+      </template>
+    </b-modal>
   </div>
 </template>
 
@@ -114,7 +121,8 @@ export default {
         mzValue: 0
       },
       windowHeight: document.documentElement.clientHeight,
-      firstBuild: true
+      firstBuild: true,
+      markForMzImage: true
 
     };
   },
@@ -186,6 +194,9 @@ export default {
     handleCancle: function () {
       var mzResetting = [this.nameModalMz.mzValue, this.nameModalMz.mzValue];
       store.commit('SET_MZ_ANNOTATION', mzResetting);
+    },
+    toggleMzImage: function () {
+      this.markForMzImage = !this.markForMzImage;
     }
   },
   created () {

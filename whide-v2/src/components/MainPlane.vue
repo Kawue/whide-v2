@@ -13,6 +13,26 @@
                     class="slider" @change="changeAlphaValue"/>
 
     </div>
+    <div class="mzImageButtonContainer">
+      <b-button-group>
+        <b-button v-if="!this.showMzImage" id="mzImageOn" v-on:click="toggleMzImage">MZ-Image On</b-button>
+        <b-button v-if="this.showMzImage" id="mzImageOff" v-on:click="toggleMzImage">MZ-Image Off</b-button>
+
+        <b-dropdown right text="Method" >
+          <b-dropdown-item id="methodMean" style="background-color: orange" v-on:click="chooseMethod('methodMean')">Mean</b-dropdown-item>
+          <b-dropdown-item id="methodMedian" v-on:click="chooseMethod('methodMedian')">Median</b-dropdown-item>
+          <b-dropdown-item id="methodMin" v-on:click="chooseMethod('methodMin')">Min</b-dropdown-item>
+          <b-dropdown-item id="methodMax" v-on:click="chooseMethod('methodMax')">Max</b-dropdown-item>
+        </b-dropdown>
+        <b-dropdown right text="Colorscale">
+          <b-dropdown-item id="interpolateViridis" style="background-color: orange" v-on:click="chooseColorscale('interpolateViridis')">Viridris</b-dropdown-item>
+          <b-dropdown-item id="interpolateMagma" v-on:click="chooseColorscale('interpolateMagma')">Magma</b-dropdown-item>
+          <b-dropdown-item id="interpolatePiYG" v-on:click="chooseColorscale('interpolatePiYG')">PiYG</b-dropdown-item>
+          <b-dropdown-item id="interpolatePlasma" v-on:click="chooseColorscale('interpolatePlasma')">Plasma</b-dropdown-item>
+          <b-dropdown-item id="interpolateInferno" v-on:click="chooseColorscale('interpolateInferno')">Inferno</b-dropdown-item>
+        </b-dropdown>
+      </b-button-group>
+    </div>
   </div>
 </template>
 
@@ -27,7 +47,10 @@ export default {
   data: function () {
     return {
       alphaValue: 1,
-      currentTransformation: { k: 1, x: 0, y: 0 }
+      currentTransformation: { k: 1, x: 0, y: 0 },
+      currentMethod: 'mean',
+      currentColorscale: 'interpolateViridis',
+      showMzImage: false
     };
   },
   computed: {
@@ -52,7 +75,7 @@ export default {
       }
       if (mutation.type === 'SET_SEGMENTATION_TRANSFORMATION') {
         this.currentTransformation = this.transformation;
-
+        this.drawMzImage();
       }
       if (mutation.type === 'SET_CURRENT_HIGHLIGHTED_PROTOTYPE') {
         this.drawHighlight(this.outsideHighlight['id'], this.currentTransformation);
@@ -83,6 +106,9 @@ export default {
       }
     },
     drawMzImage: function () {
+      const mzCanvas = document.getElementById('mzChannelImage');
+      const mzCtx = mzCanvas.getContext('2d');
+      mzCtx.clearRect(0, 0, mzCanvas.width, mzCanvas.height);
       sm.drawMzImage(this.base64Image, this.dim, this.transformation);
     },
     clearSegmentation: function () {
@@ -101,6 +127,28 @@ export default {
     changeAlphaValue: function () {
       this.clearSegmentation();
       this.drawSegmentation(this.outsideHighlight['id'], this.currentTransformation, this.alphaValue);
+    },
+    chooseMethod: function (id) {
+      d3.select('#' + this.currentMethod).style('background-color', '');
+      d3.select('#' + id).style('background-color', 'orange');
+      this.currentMethod = id;
+      store.commit('SET_MERGE_METHOD', id);
+    },
+    chooseColorscale: function (id) {
+      d3.select('#' + this.currentColorscale).style('background-color', '');
+      d3.select('#' + id).style('background-color', 'orange');
+      this.currentColorscale = id;
+      store.commit('SET_COLORSCALE', id);
+    },
+    toggleMzImage: function () {
+      this.showMzImage = !this.showMzImage;
+      if (this.showMzImage) {
+        d3.select('#mzChannelImage')
+          .style('z-index', '104');
+      } else {
+        d3.select('#mzChannelImage')
+          .style('z-index', '100');
+      }
     }
   }
 };
@@ -140,7 +188,7 @@ export default {
   left: 45vw;
   top:10px;
   align-content: center;
-  z-index: 102;
+  z-index: 110;
   .slider{
     width: 7vw;
   }
@@ -162,7 +210,7 @@ export default {
   width: 70vw;
   height: 90vh;
   top: 30px;
-  z-index: 90;
+  z-index: 100;
   left: 0;
   margin-left: 190px;
   margin-right: 350px;
@@ -173,7 +221,7 @@ export default {
   width: 70vw;
   height: 90vh;
   top: 30px;
-  z-index: 103;
+  z-index: 104;
   left: 0;
   margin-left: 190px;
   margin-right: 350px;
@@ -198,6 +246,12 @@ export default {
     left: 0;
     margin-left: 190px;
     margin-right: 350px;
+  }
+  .mzImageButtonContainer{
+    position: absolute;
+    left: 11vw;
+    top: 10px;
+    width: auto;
   }
 
 </style>

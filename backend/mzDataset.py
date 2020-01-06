@@ -64,5 +64,5 @@ class MzDataSet:
 
     def getColorImage(self, mzValues, method=np.mean, cmap='viridis', bytes=True):
         colorMap = cm.get_cmap(cmap)
-        colorMap.set_bad(color='white')
+        #colorMap.set_bad(color='white')
         return colorMap(np.ma.masked_invalid(self.getGreyImage(mzValues, method)), bytes=bytes)
