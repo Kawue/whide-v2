@@ -34,7 +34,6 @@ export default {
     Store.dispatch('getRingCoefficients');
     Store.dispatch('fetchData');
     // Store.dispatch('getBrightfieldImage');
-    Store.dispatch('fetchImageData');
     this.showPanels = true;
   }
 };

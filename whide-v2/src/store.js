@@ -66,7 +66,7 @@ export default new Vuex.Store({
         methodMin: 'min',
         methodMax: 'max'
       },
-      selectedMzValues: [74.651, 104.107],
+      selectedMzValues: [],
       base64Image: null
     }
 
@@ -341,6 +341,17 @@ export default new Vuex.Store({
     },
     SET_COLORSCALE: (state, colorscale) => {
       state.mzImage.colorScale = colorscale;
+    },
+    SET_NEW_MZ_VALUE: (state, mzPackage) => {
+      if (mzPackage['add']) {
+        state.mzImage.selectedMzValues.push(mzPackage['mzValue']);
+      } else {
+        for (var i = 0; i < state.mzImage.selectedMzValues.length; i++) {
+          if (state.mzImage.selectedMzValues[i] === mzPackage['mzValue']) {
+            state.mzImage.selectedMzValues.splice(i, 1);
+          }
+        }
+      }
     }
   },
   actions: {

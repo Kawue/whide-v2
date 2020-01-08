@@ -15,7 +15,7 @@
       v-on:click="toggleMzImage"
       v-b-tooltip.hover.top="'mark Values for MZ-Image'">
       <v-icon
-        v-bind:name="markForMzImage ? 'play' : 'pause'" style="color: orange"/>
+        v-bind:name="markForMzImage ? 'pause' : 'play'" style="color: orange"/>
     </span>
     <span
       v-on:click="toggleAsc(), sortMZ()"
@@ -26,19 +26,22 @@
           v-bind:name="asc ? 'sort-amount-up' : 'sort-amount-down'" style="color: orange"
         />
         </span>
-    <label for="mzlistid"/>
+    <div id="selectionContainer">
+    <label id="mzListLabel" for="mzlistid"/>
     <select class="list" id="mzlistid" multiple>
       <option
         style="color: white"
         v-for="(key, val) in mzObjects"
         v-bind:key="key"
         v-bind:value="key"
+        v-bind:id="val.toString()"
         v-on:dblclick="annotateMzItem(val, key)"
+        v-on:click="addMzItem(key)"
       >
         {{showAnnotation ? key : val}} <!--first mzItem is the name-->
       </option>
     </select>
-
+    </div>
     <b-modal
       id="nameModal"
       ref="nameModal"
@@ -115,14 +118,14 @@ export default {
   name: 'mzlist',
   data: function () {
     return {
-      localSelectedMz: [],
       nameModalMz: {
         name: '',
         mzValue: 0
       },
       windowHeight: document.documentElement.clientHeight,
       firstBuild: true,
-      markForMzImage: true
+      markForMzImage: false,
+      localSelectedMz: []
 
     };
   },
@@ -197,6 +200,40 @@ export default {
     },
     toggleMzImage: function () {
       this.markForMzImage = !this.markForMzImage;
+      if (this.markForMzImage === true) {
+        d3.select('#selectionContainer')
+          .append('select')
+          .attr('id', 'listMzImage')
+          .style('padding', 0)
+          .style('font-size', '0.9em')
+          .style('width', '100%')
+          .style('text-align', 'center')
+          .style('background-color', '#4f5051');
+      } else {
+        d3.select('#listMzImage').remove();
+      }
+    },
+    addMzItem: function (val) {
+      if (!this.localSelectedMz.includes(parseFloat(val))) {
+        this.localSelectedMz.push(val);
+        const sendPackage = {
+          add: true,
+          mzValue: parseFloat(val)
+        };
+        store.commit('SET_NEW_MZ_VALUE', sendPackage);
+        this.localSelectedMz.push(parseFloat(val));
+      } else {
+        const sendPackage = {
+          add: false,
+          mzValue: parseFloat(val)
+        };
+        store.commit('SET_NEW_MZ_VALUE', sendPackage);
+        for (var i = 0; i < this.localSelectedMz.length; i++) {
+          if (this.localSelectedMz[i] === parseFloat(val)) {
+            this.localSelectedMz.splice(i, 1);
+          }
+        }
+      }
     }
   },
   created () {
@@ -217,7 +254,13 @@ export default {
     text-align: center;
     margin-top: 8px;
     background-color: #4f5051;
-
+  }
+  .listMz {
+    padding: 0;
+    font-size: 0.9em;
+    width: 100%;
+    text-align: center;
+    background-color: #4f5051;
   }
   .options {
     background-color: darkgray;

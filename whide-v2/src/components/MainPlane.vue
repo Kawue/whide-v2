@@ -133,16 +133,19 @@ export default {
       d3.select('#' + id).style('background-color', 'orange');
       this.currentMethod = id;
       store.commit('SET_MERGE_METHOD', id);
+      store.dispatch('fetchImageData');
     },
     chooseColorscale: function (id) {
       d3.select('#' + this.currentColorscale).style('background-color', '');
       d3.select('#' + id).style('background-color', 'orange');
       this.currentColorscale = id;
       store.commit('SET_COLORSCALE', id);
+      store.dispatch('fetchImageData');
     },
     toggleMzImage: function () {
       this.showMzImage = !this.showMzImage;
       if (this.showMzImage) {
+        store.dispatch('fetchImageData');
         d3.select('#mzChannelImage')
           .style('z-index', '104');
       } else {
