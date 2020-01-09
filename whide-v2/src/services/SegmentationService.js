@@ -2,6 +2,7 @@ import store from '../store';
 import * as d3 from 'd3';
 
 var drawSegmentationMap = function (dimensions, prototypeOutside = '', transformation = { k: 1, x: 0, y: 0 }, alpha = 1) {
+  console.log('hi');
   const ringData = store.state.currentRingData;
   const dimX = dimensions['x'] + 1;
   const dimY = dimensions['y'] + 1;
@@ -273,20 +274,28 @@ function indexAccess (i, j, dim) {
   return j * dim * NUM_CHANNELS + i * NUM_CHANNELS;
 }
 // TODO correct the upload from the brightfieldimage, also from backend to frontend via python
-var brightfieldImage = function () {
-  const canvas = document.getElementById('brightfield');
-  const ctx = canvas.getContext('2d');
-  ctx.webkitImageSmoothingEnabled = false;
-  ctx.imageSmoothingEnabled = false;
+var brightfieldImage = function (image, transformation) {
+  let scalor = 1;
 
-  let picture = new Image();
-  picture.src = '../assets/testmask.png';
-  picture.onload = function () {
-    ctx.drawImage(picture, 0, 0);
+  const canvas = document.getElementById('brightfield');
+
+  const brightfieldImage = new Image();
+  brightfieldImage.onload = () => {
+    const ctx = canvas.getContext('2d');
+    ctx.save();
+    ctx.webkitImageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = false;
+    ctx.translate(transformation.x, transformation.y);
+    ctx.scale(transformation.k, transformation.k);
+    ctx.scale(scalor, scalor);
+    ctx.drawImage(brightfieldImage, 0, 0);
+    ctx.restore();
   };
+
+  brightfieldImage.src = image;
+
 };
 
-// TODO: make backgroundcolor in backend different to white
 var drawMzImage = function (base64Image, dimensions, transformation) {
   const dimX = dimensions['x'] + 1;
   const dimY = dimensions['y'] + 1;

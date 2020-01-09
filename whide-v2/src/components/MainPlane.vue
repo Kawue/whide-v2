@@ -1,5 +1,5 @@
 <template>
-  <div class="mainPlane">
+  <div class="mainPlane" id="mp">
     <p id="segmentationAlignment" align="center">
       <canvas id="virtCanvas" class="virtSegmentationCanvas" style="width: 70vw; height: 90vh"/>
       <canvas id="brightfield" class="brightfieldCanvas" style="width: 70vw; height: 90vh"/>
@@ -15,16 +15,16 @@
     </div>
     <div class="mzImageButtonContainer">
       <b-button-group>
-        <b-button v-if="!this.showMzImage" id="mzImageOn" v-on:click="toggleMzImage">MZ-Image On</b-button>
-        <b-button v-if="this.showMzImage" id="mzImageOff" v-on:click="toggleMzImage">MZ-Image Off</b-button>
+        <b-button v-if="!this.showMzImage" class="onOffButton" id="mzImageOn" v-on:click="toggleMzImage">MZ-Image On</b-button>
+        <b-button v-if="this.showMzImage" class="onOffButton" id="mzImageOff" v-on:click="toggleMzImage">MZ-Image Off</b-button>
 
-        <b-dropdown right text="Method" >
+        <b-dropdown right text="Method" class="methodDropdown">
           <b-dropdown-item id="methodMean" style="background-color: orange" v-on:click="chooseMethod('methodMean')">Mean</b-dropdown-item>
           <b-dropdown-item id="methodMedian" v-on:click="chooseMethod('methodMedian')">Median</b-dropdown-item>
           <b-dropdown-item id="methodMin" v-on:click="chooseMethod('methodMin')">Min</b-dropdown-item>
           <b-dropdown-item id="methodMax" v-on:click="chooseMethod('methodMax')">Max</b-dropdown-item>
         </b-dropdown>
-        <b-dropdown right text="Colorscale">
+        <b-dropdown right text="Colorscale" class="colorscaleDropdown">
           <b-dropdown-item id="interpolateViridis" style="background-color: orange" v-on:click="chooseColorscale('interpolateViridis')">Viridris</b-dropdown-item>
           <b-dropdown-item id="interpolateMagma" v-on:click="chooseColorscale('interpolateMagma')">Magma</b-dropdown-item>
           <b-dropdown-item id="interpolatePiYG" v-on:click="chooseColorscale('interpolatePiYG')">PiYG</b-dropdown-item>
@@ -59,7 +59,8 @@ export default {
       colorsReady: 'getIfColorsReady',
       outsideHighlight: 'getHighlightedPrototypeOutside',
       transformation: 'getSegmentationTransformation',
-      base64Image: 'getBase64Image'
+      base64Image: 'getBase64Image',
+      brightfieldImage: 'getBrightFieldImage'
     })
   },
   mounted () {
@@ -82,6 +83,9 @@ export default {
       }
       if (mutation.type === 'SET_IMAGE_DATA_VALUES') {
         this.drawMzImage();
+      }
+      if (mutation.type === 'SET_BRIGHTFIELD_IMAGE') {
+        this.drawBrightfieldImage();
       }
     });
   },
@@ -106,10 +110,15 @@ export default {
       }
     },
     drawMzImage: function () {
-      const mzCanvas = document.getElementById('mzChannelImage');
+      /* const mzCanvas = document.getElementById('mzChannelImage');
       const mzCtx = mzCanvas.getContext('2d');
       mzCtx.clearRect(0, 0, mzCanvas.width, mzCanvas.height);
+
+       */
       sm.drawMzImage(this.base64Image, this.dim, this.transformation);
+    },
+    drawBrightfieldImage: function () {
+      sm.brightfieldImage(this.briefcase, this.transformation);
     },
     clearSegmentation: function () {
       const virtCanvas = document.getElementById('virtCanvas');
@@ -255,6 +264,18 @@ export default {
     left: 11vw;
     top: 10px;
     width: auto;
+  }
+  .onOffButton {
+    padding: 0;
+    z-index: 110;
+  }
+  .methodDropdown {
+    padding: 0;
+    z-index: 110;
+  }
+  .colorscaleDropdown {
+    padding: 0;
+    z-index: 110;
   }
 
 </style>

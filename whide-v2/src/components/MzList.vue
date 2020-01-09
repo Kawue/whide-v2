@@ -1,6 +1,5 @@
 <template>
   <div class="mzComp" id="mzComponent">
-    <div style="color: white">MZs</div>
     <span
       style="float: left;margin-left: 30px; color: white"
       v-on:click="toggleShowAnnotation"
@@ -11,13 +10,6 @@
           />
         </span>
     <span
-      style="align: center; color: white"
-      v-on:click="toggleMzImage"
-      v-b-tooltip.hover.top="'mark Values for MZ-Image'">
-      <v-icon
-        v-bind:name="markForMzImage ? 'pause' : 'play'" style="color: orange"/>
-    </span>
-    <span
       v-on:click="toggleAsc(), sortMZ()"
       style="float: right; margin-right: 30px; padding: 2px; color :white"
       v-b-tooltip.hover.top="'Sort'"
@@ -27,16 +19,18 @@
         />
         </span>
     <div id="selectionContainer">
+      <select class="listMz" id="listForMzImage" multiple>
+
+      </select>
     <label id="mzListLabel" for="mzlistid"/>
-    <select class="list" id="mzlistid" multiple>
+    <select class="list" id="mzlistid" multiple v-on:focusout="changeFocus">
       <option
         style="color: white"
         v-for="(key, val) in mzObjects"
         v-bind:key="key"
         v-bind:value="key"
         v-bind:id="val.toString()"
-        v-on:dblclick="annotateMzItem(val, key)"
-        v-on:click="addMzItem(key)"
+        v-on:click="clickChecker($event, val, key)"
       >
         {{showAnnotation ? key : val}} <!--first mzItem is the name-->
       </option>
@@ -124,8 +118,10 @@ export default {
       },
       windowHeight: document.documentElement.clientHeight,
       firstBuild: true,
-      markForMzImage: false,
-      localSelectedMz: []
+      localSelectedMz: [],
+      delay: 600,
+      clicks: 0,
+      timer: null
 
     };
   },
@@ -135,7 +131,8 @@ export default {
       mzAnnotations: 'getMzAnnotations',
       showAnnotation: 'mzShowAnnotation',
       asc: 'mzAsc',
-      height: 'getBottonBarHeight'
+      height: 'getBottonBarHeight',
+      focusMzList: 'getFocusMzList'
     })
   },
   mounted () {
@@ -144,6 +141,17 @@ export default {
         let newHeight = this.windowHeight - parseInt(this.height);
         d3.select('.list')
           .style('height', newHeight - 90 + 'px');
+      }
+      if (mutation.type === 'SET_FOCUS_MZ_LIST') {
+        if (!this.focusMzList) {
+          document.querySelector('#mzlistid').removeEventListener('keydown', this.showSingleImage);
+        } else {
+          let that = this;
+          document.querySelector('#mzlistid').addEventListener('change', function () {
+            that.showSingleImage(this.value);
+          });
+
+        }
       }
       if (this.firstBuild) {
         let height = this.windowHeight - 40;
@@ -154,6 +162,9 @@ export default {
     });
   },
   methods: {
+    changeFocus: function () {
+      store.commit('SET_FOCUS_MZ_LIST', false);
+    },
     toggleAsc: function () {
       store.commit('MZLIST_TOOGLE_ASC');
     },
@@ -193,29 +204,29 @@ export default {
           mzValue: 0
         };
       }, 1000);
+      store.commit('SET_FOCUS_MZ_LIST', true);
     },
     handleCancle: function () {
       var mzResetting = [this.nameModalMz.mzValue, this.nameModalMz.mzValue];
       store.commit('SET_MZ_ANNOTATION', mzResetting);
     },
-    toggleMzImage: function () {
-      this.markForMzImage = !this.markForMzImage;
-      if (this.markForMzImage === true) {
-        d3.select('#selectionContainer')
-          .append('select')
-          .attr('id', 'listMzImage')
-          .style('padding', 0)
-          .style('font-size', '0.9em')
-          .style('width', '100%')
-          .style('text-align', 'center')
-          .style('background-color', '#4f5051');
-      } else {
-        d3.select('#listMzImage').remove();
-      }
-    },
+    // TODO: add visiualisation for current MzValues
     addMzItem: function (val) {
       if (!this.localSelectedMz.includes(parseFloat(val))) {
-        this.localSelectedMz.push(val);
+        if (this.localSelectedMz.length === 0) {
+          d3.select('#listForMzImage')
+            .style('height', 'auto')
+            .append('option')
+            .text(val)
+            .style('color', 'white')
+            .attr('id', val.toString());
+        } else {
+          d3.select('#listForMzImage')
+            .append('option')
+            .text(val)
+            .style('color', 'white')
+            .attr('id', val.toString());
+        }
         const sendPackage = {
           add: true,
           mzValue: parseFloat(val)
@@ -223,6 +234,7 @@ export default {
         store.commit('SET_NEW_MZ_VALUE', sendPackage);
         this.localSelectedMz.push(parseFloat(val));
       } else {
+        d3.select('[id="' + val.toString() + '"]').remove();
         const sendPackage = {
           add: false,
           mzValue: parseFloat(val)
@@ -233,6 +245,27 @@ export default {
             this.localSelectedMz.splice(i, 1);
           }
         }
+      }
+      store.dispatch('fetchImageData');
+    },
+    showSingleImage: function (mzItem) {
+      const mzList = [mzItem];
+      store.commit('SET_NEW_MZ_VALUE', mzList);
+      store.dispatch('fetchImageData');
+    },
+    clickChecker: function (event, val, key) {
+      this.clicks++;
+      if (this.clicks === 1) {
+        var self = this;
+        this.timer = setTimeout(function () {
+          self.showSingleImage(val);
+          self.clicks = 0;
+          store.commit('SET_FOCUS_MZ_LIST', true);
+        }, this.delay);
+      } else {
+        clearTimeout(this.timer);
+        this.annotateMzItem(val, key);
+        this.clicks = 0;
       }
     }
   },
@@ -259,6 +292,7 @@ export default {
     padding: 0;
     font-size: 0.9em;
     width: 100%;
+    height: 0;
     text-align: center;
     background-color: #4f5051;
   }

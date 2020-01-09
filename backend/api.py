@@ -127,15 +127,14 @@ def imagedata_multiple_mz_action():
 
 @app.route('/brightfieldimage')
 def getBrightfieldImage():
-    dir = os.listdir(path_to_assets)
-    pattern = re.compile("[.(?i:jpg|gif|png|bmp)")
-    pictures = []
-    for x in dir:
-        if pattern.match(x):
-            pictures.append(x)
+    img_io = BytesIO()
+    Image.open(path_to_assets+'testmask.png').save(img_io,'PNG')
+    img_io.seek(0)
+    response = make_response('data:image/png;base64,' + base64.b64encode(img_io.getvalue()).decode('utf-8'), 200)
+    response.mimetype = 'text/plain'
+    print(response)
 
-
-    return json.dumps(pictures)
+    return response
 
 if __name__ == '__main__':
     app.run(debug=True)

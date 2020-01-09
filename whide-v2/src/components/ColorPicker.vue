@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="cw">
     <div>
       <canvas id="colorwheelCanvas" width="310" height="310">
       </canvas>
@@ -9,30 +9,30 @@
         <p style="color: white" v-if="!sliderDisabled">Set Granularity:</p>
         <p v-else>Clear Bookmarks to set Granularity!</p>
         <b-form-input v-model="ringGranularity" v-bind:type="'range'" :disabled="sliderDisabled" min="0"
-                      v-bind:max="lengthRings" class="slider" id="ringGranularity" @change="changePos"></b-form-input>
+                      v-bind:max="lengthRings" class="slider" id="ringGranularity" @change="changePos"/>
       </div>
       <div class="container">
         <div class="position-g">
           <div class="controlls">
             <div class="topControll">
               <b-button id="up" size="sm">
-                <v-icon name="arrow-up" style="color: orange"></v-icon>
+                <v-icon name="arrow-up" style="color: orange"/>
               </b-button>
             </div>
             <div class="midControll">
               <b-button id="left" size="sm">
-                <v-icon name="arrow-left" style="color: orange"></v-icon>
+                <v-icon name="arrow-left" style="color: orange"/>
               </b-button>
               <b-button id="down" size="sm">
-                <v-icon name="arrow-down" style="color: orange"></v-icon>
+                <v-icon name="arrow-down" style="color: orange"/>
               </b-button>
               <b-button id="right" size="sm">
-                <v-icon name="arrow-right" style="color: orange"></v-icon>
+                <v-icon name="arrow-right" style="color: orange"/>
               </b-button>
             </div>
             <div class="bottomControll">
               <b-button id="default " size="sm" v-on:click="setDefault()">
-                <v-icon name="backward" style="color: orange"></v-icon>
+                <v-icon name="backward" style="color: orange"/>
               </b-button>
             </div>
           </div>
@@ -40,24 +40,24 @@
         <div class="rotate">
           <div class="topControll">
             <b-button id="diskus" size="sm">
-              <v-icon name="redo" style="color: orange"></v-icon>
+              <v-icon name="redo" style="color: orange"/>
             </b-button>
           </div>
           <div class="bottomControll">
             <b-button id="diskusBack" size="sm" v-on:click="spinDiskusBack">
-              <v-icon name="backward" style="color: orange"></v-icon>
+              <v-icon name="backward" style="color: orange"/>
             </b-button>
           </div>
         </div>
         <div class="rotate">
           <div class="topControll">
             <b-button id="posSwitcher" size="sm" v-on:click="switchPos">
-              <v-icon name="spinner" style="color: orange"></v-icon>
+              <v-icon name="spinner" style="color: orange"/>
             </b-button>
           </div>
           <div class="bottomControll">
             <b-button id="'backPosSwitcher" size="sm" v-on:click="switchPosBack">
-              <v-icon name="backward" style="color: orange"></v-icon>
+              <v-icon name="backward" style="color: orange"/>
             </b-button>
           </div>
         </div>
@@ -95,14 +95,13 @@ export default {
       sliderDisabled: 'getColorSlider',
       sagmentationScalor: 'getSegmentationScalor',
       highlightedPrototype: 'getCurrentHighlightedPrototype',
-      coefficientsLoaded: 'getCoefficientLoad'
+      coefficientsLoaded: 'getCoefficientLoad',
+      focusMzList: 'getFocusMzList'
+
     })
   },
-
-  created: function () {
-    window.addEventListener('keydown', this.chooseMove);
-  },
   mounted () {
+    window.addEventListener('keydown', this.chooseMove);
     this.buttonEvent('diskus', this.rotatetDiskus);
     this.buttonEvent('up', this.moveUp);
     this.buttonEvent('left', this.moveLeft);
@@ -145,6 +144,13 @@ export default {
             .style('fill', this.allPrototypeColors[this.currentMarkedPrototype]);
           this.currentMarkedPrototype = null;
           this.currentMarkedPrototypeColor = null;
+        }
+      }
+      if (mutation.type === 'SET_FOCUS_MZ_LIST') {
+        if (!this.focusMzList) {
+          window.addEventListener('keydown', this.chooseMove);
+        } else {
+          window.removeEventListener('keydown', this.chooseMove);
         }
       }
     });

@@ -68,7 +68,9 @@ export default new Vuex.Store({
       },
       selectedMzValues: [],
       base64Image: null
-    }
+    },
+    brightFieldImage: null,
+    focusMzList: false
 
   },
   getters: {
@@ -163,6 +165,12 @@ export default new Vuex.Store({
     },
     getBase64Image: state => {
       return state.mzImage.base64Image;
+    },
+    getBrightFieldImage: state => {
+      return state.brightFieldImage;
+    },
+    getFocusMzList: state => {
+      return state.focusMzList;
     }
   },
   mutations: {
@@ -342,8 +350,8 @@ export default new Vuex.Store({
     SET_COLORSCALE: (state, colorscale) => {
       state.mzImage.colorScale = colorscale;
     },
-    SET_NEW_MZ_VALUE: (state, mzPackage) => {
-      if (mzPackage['add']) {
+    SET_NEW_MZ_VALUE: (state, mzList) => {
+      /* if (mzPackage['add']) {
         state.mzImage.selectedMzValues.push(mzPackage['mzValue']);
       } else {
         for (var i = 0; i < state.mzImage.selectedMzValues.length; i++) {
@@ -351,7 +359,16 @@ export default new Vuex.Store({
             state.mzImage.selectedMzValues.splice(i, 1);
           }
         }
+
       }
+      */
+      state.mzImage.selectedMzValues = mzList;
+    },
+    SET_BRIGHTFIELD_IMAGE: (state, image) => {
+      state.brightFieldImage = image;
+    },
+    SET_FOCUS_MZ_LIST: (state, bool) => {
+      state.focusMzList = bool;
     }
   },
   actions: {
@@ -407,7 +424,7 @@ export default new Vuex.Store({
       axios
         .get(url)
         .then(response => {
-          console.log(response.data);
+          context.commit('SET_BRIGHTFIELD_IMAGE', response.data);
         })
         .catch(function (err) {
           console.log(err);
