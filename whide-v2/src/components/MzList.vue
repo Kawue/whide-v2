@@ -1,29 +1,68 @@
 <template>
   <div class="mzComp" id="mzComponent">
-    <span
-      style="float: left;margin-left: 30px; color: white"
-      v-on:click="toggleShowAnnotation"
-      v-b-tooltip.hover.top="'Show Annotations'"
-    >
+    <div class="button-area-line">
+      <span
+        class="mzButtonLine"
+        v-on:click="toggleShowAnnotation"
+        v-b-tooltip.hover.top="'Show Annotations'"
+      >
           <v-icon
             name="pencil-alt" style="color: orange"
           />
         </span>
-    <span
-      v-on:click="toggleAsc(), sortMZ()"
-      style="float: right; margin-right: 30px; padding: 2px; color :white"
-      v-b-tooltip.hover.top="'Sort'"
-    >
+      <span
+        class="mzButtonLine"
+        v-on:click="addMzToAggregationList"
+        v-b-tooltip.hover.top="'Focused MZ-Value to Aggregation List'"
+      >
+          <v-icon
+            name="arrow-up" style="color: orange"
+          />
+        </span>
+      <span
+        class="mzButtonLine"
+        v-on:click="removeMzFromAggregationList"
+        v-b-tooltip.hover.top="'Remove MZ-Values from Aggregation List'"
+      >
+          <v-icon
+            name="arrow-down" style="color: orange"
+          />
+        </span>
+      <span
+        class="mzButtonLine"
+        v-on:click="clearAggregationList"
+        v-b-tooltip.hover.top="'Remove all MZ-Values from Aggregation List'"
+      >
+          <v-icon
+            name="broom" style="color: orange"
+          />
+        </span>
+      <span
+        class="mzButtonLine"
+        v-on:click="showMzImageAggregationList"
+        v-b-tooltip.hover.top="'Show MZ-Image from Aggregation List'"
+      >
+          <v-icon
+            name="sign-in-alt" style="color: orange"
+          />
+        </span>
+      <span
+        class="mzButtonLine"
+        v-on:click="toggleAsc(), sortMZ()"
+        style="float: right; margin-right: 30px; padding: 2px; color :white"
+        v-b-tooltip.hover.top="'Sort'"
+      >
         <v-icon
           v-bind:name="asc ? 'sort-amount-up' : 'sort-amount-down'" style="color: orange"
         />
         </span>
+    </div>
     <div id="selectionContainer">
-      <select class="listMz" id="listForMzImage" multiple>
+      <select class="listMz" id="listForMzImage" multiple v-on:focus="setAggregationFocus" v-on:focusout="changeFocus">
 
       </select>
     <label id="mzListLabel" for="mzlistid"/>
-    <select class="list" id="mzlistid" multiple v-on:focusout="changeFocus">
+    <select class="list" id="mzlistid" multiple v-on:focus="setListFocus" v-on:focusout="changeFocus" >
       <option
         style="color: white"
         v-for="(key, val) in mzObjects"
@@ -118,11 +157,14 @@ export default {
       },
       windowHeight: document.documentElement.clientHeight,
       firstBuild: true,
-      localSelectedMz: [],
-      delay: 600,
+      aggregationList: [],
+      aggregationListGrey: [],
+      delay: 190,
       clicks: 0,
-      timer: null
-
+      aggregationClicks: 0,
+      timer: null,
+      currentMzValueToAdd: null,
+      currentMzValueToRemove: null
     };
   },
   computed: {
@@ -136,27 +178,29 @@ export default {
     })
   },
   mounted () {
+    // TODO fix bottombar height adjustmentg
     store.subscribe(mutation => {
       if (mutation.type === 'SET_BOTTOMBAR_HEIGHT') {
-        let newHeight = this.windowHeight - parseInt(this.height);
-        d3.select('.list')
-          .style('height', newHeight - 90 + 'px');
+        let newHeight = this.windowHeight - parseInt(this.height) - 50;
+        d3.select('#selectionContainer')
+          .style('height', newHeight + 'px');
+        d3.select('#mzlistid').style('height', newHeight / 2 + 'px');
+        d3.select('#listFormzImage').style('height', newHeight / 2 + 'px');
       }
       if (mutation.type === 'SET_FOCUS_MZ_LIST') {
         if (!this.focusMzList) {
-          document.querySelector('#mzlistid').removeEventListener('keydown', this.showSingleImage);
-        } else {
-          let that = this;
-          document.querySelector('#mzlistid').addEventListener('change', function () {
-            that.showSingleImage(this.value);
-          });
-
+          let mzListId = document.querySelector('#mzlistid');
+          mzListId.removeEventListener('change', this.showSingleImage);
+          mzListId.removeEventListener('keydown', this.chooseKey);
+          let aggregationList = document.querySelector('#listForMzImage');
+          aggregationList.removeEventListener('keydown', this.chooseKeyAggregation);
+          aggregationList.removeEventListener('change', this.setMzValueToRemove);
         }
       }
       if (this.firstBuild) {
         let height = this.windowHeight - 40;
-        d3.select('.list')
-          .style('height', height - 90 + 'px');
+        d3.select('#selectionContainer')
+          .style('height', height - 50 + 'px');
         this.firstBuild = false;
       }
     });
@@ -164,6 +208,32 @@ export default {
   methods: {
     changeFocus: function () {
       store.commit('SET_FOCUS_MZ_LIST', false);
+    },
+    setListFocus: function () {
+      store.commit('SET_FOCUS_MZ_LIST', true);
+      let that = this;
+      let mzList = document.querySelector('#mzlistid');
+      mzList.addEventListener('change', function (e) {
+        var selected = this.value;
+        console.dir(selected);
+        that.showSingleImage(this.value);
+      });
+      mzList.addEventListener('keydown', function (event) {
+        let key = event.keyCode;
+        that.chooseKey(this.value, key);
+      });
+    },
+    setAggregationFocus: function () {
+      store.commit('SET_FOCUS_MZ_LIST', true);
+      let that = this;
+      let listForMzImage = document.querySelector('#listForMzImage');
+      listForMzImage.addEventListener('keydown', function (event) {
+        let key = event.keyCode;
+        that.chooseKeyAggregation(this.value, key);
+      });
+      listForMzImage.addEventListener('change', function () {
+        that.setMzValueToRemove(this.value);
+      });
     },
     toggleAsc: function () {
       store.commit('MZLIST_TOOGLE_ASC');
@@ -210,48 +280,120 @@ export default {
       var mzResetting = [this.nameModalMz.mzValue, this.nameModalMz.mzValue];
       store.commit('SET_MZ_ANNOTATION', mzResetting);
     },
-    // TODO: add visiualisation for current MzValues
     addMzItem: function (val) {
-      if (!this.localSelectedMz.includes(parseFloat(val))) {
-        if (this.localSelectedMz.length === 0) {
+      let that = this;
+      if (!this.aggregationList.includes(val)) {
+        let height = d3.select('#listForMzImage').node().getBoundingClientRect().height + 22;
+        let mzListHeight = d3.select('#mzlistid').node().getBoundingClientRect().height - 22;
+        if (height <= mzListHeight) {
           d3.select('#listForMzImage')
-            .style('height', 'auto')
+            .style('height', height + 'px')
             .append('option')
             .text(val)
             .style('color', 'white')
-            .attr('id', val.toString());
+            .attr('id', val.toString())
+            .on('click', function () {
+              that.greyMzItem(val);
+            });
+          d3.select('#mzlistid').style('height', mzListHeight + 'px');
         } else {
           d3.select('#listForMzImage')
             .append('option')
             .text(val)
             .style('color', 'white')
-            .attr('id', val.toString());
+            .attr('id', val.toString())
+            .on('click', function () {
+              that.greyMzItem(val);
+            });
         }
-        const sendPackage = {
-          add: true,
-          mzValue: parseFloat(val)
-        };
-        store.commit('SET_NEW_MZ_VALUE', sendPackage);
-        this.localSelectedMz.push(parseFloat(val));
-      } else {
+        this.aggregationList.push(val);
+      } /* else {
         d3.select('[id="' + val.toString() + '"]').remove();
-        const sendPackage = {
-          add: false,
-          mzValue: parseFloat(val)
-        };
-        store.commit('SET_NEW_MZ_VALUE', sendPackage);
         for (var i = 0; i < this.localSelectedMz.length; i++) {
-          if (this.localSelectedMz[i] === parseFloat(val)) {
+          if (this.localSelectedMz[i] === val) {
             this.localSelectedMz.splice(i, 1);
           }
         }
+        */
+    },
+    addMzToAggregationList: function () {
+      this.addMzItem(this.currentMzValueToAdd);
+      let select = document.getElementById('#mzlistid');
+      console.log(select);
+      /*
+      let result = [];
+      let options = select && select.options;
+      let opt;
+
+      for (var i = 0, iLen = options.length; i < iLen; i++) {
+        opt = options[i];
+
+        if (opt.selected) {
+          result.push(opt.value || opt.text);
+        }
       }
-      store.dispatch('fetchImageData');
+
+       */
+    },
+    greyMzItem: function (mzItem) {
+      if (this.aggregationList.includes(mzItem)) {
+        d3.select('[id="' + mzItem.toString() + '"]').style('color', 'grey');
+        for (let i = 0; i < this.aggregationList.length; i++) {
+          if (this.aggregationList[i] === mzItem) {
+            this.aggregationList.splice(i, 1);
+          }
+        }
+        this.aggregationListGrey.push(mzItem);
+      } else {
+        d3.select('[id="' + mzItem.toString() + '"]').style('color', 'white');
+        for (let i = 0; i < this.aggregationListGrey.length; i++) {
+          if (this.aggregationListGrey[i] === mzItem) {
+            this.aggregationListGrey.splice(i, 1);
+          }
+        }
+        this.aggregationList.push(mzItem);
+      }
+      this.currentMzValueToRemove = mzItem;
+    },
+
+    removeMzFromAggregationList: function () {
+      const item = parseFloat(this.currentMzValueToRemove);
+      d3.select('[id="' + item.toString() + '"]').remove();
+      const height = d3.select('#listForMzImage').node().getBoundingClientRect().height - 22;
+      d3.select('#listForMzImage').style('height', height + 'px');
+      if (this.aggregationList.includes(item)) {
+        for (let i = 0; i < this.aggregationList.length; i++) {
+          if (this.aggregationList[i] === item) {
+            this.aggregationList.splice(i, 1);
+          }
+        }
+      } else {
+        for (let i = 0; i < this.aggregationListGrey.length; i++) {
+          if (this.aggregationListGrey[i] === item) {
+            this.aggregationListGrey.splice(i, 1);
+          }
+        }
+      }
     },
     showSingleImage: function (mzItem) {
+      this.currentMzValueToAdd = mzItem;
       const mzList = [mzItem];
       store.commit('SET_NEW_MZ_VALUE', mzList);
       store.dispatch('fetchImageData');
+    },
+    chooseKey: function (mzItem, key) {
+      if (key === 13) {
+        this.addMzItem(parseFloat(mzItem));
+      } else if (key === 46) {
+        console.log('removeMzList');
+      }
+    },
+    chooseKeyAggregation: function (mzItem, key) {
+      if (key === 13) {
+        this.greyMzItem(parseFloat(mzItem));
+      } else if (key === 46) {
+        this.removeMzFromAggregationList();
+      }
     },
     clickChecker: function (event, val, key) {
       this.clicks++;
@@ -267,6 +409,34 @@ export default {
         this.annotateMzItem(val, key);
         this.clicks = 0;
       }
+    },
+    clickCheckerAggregation: function (event, val, key) {
+      this.aggregationClicks++;
+      if (this.aggregationClicks === 1) {
+        var self = this;
+        this.timer = setTimeout(function () {
+          this.greyMzItem(val);
+          self.aggregationClicks = 0;
+        }, this.delay);
+      } else {
+        clearTimeout(this.timer);
+        this.annotateMzItem(val, key);
+        this.aggregationClicks = 0;
+      }
+    },
+    clearAggregationList: function () {
+      d3.select('#listForMzImage')
+        .style('height', 0)
+        .selectAll('*').remove();
+      this.aggregationList = [];
+      this.aggregationListGrey = [];
+    },
+    showMzImageAggregationList: function () {
+      store.commit('SET_NEW_MZ_VALUE', this.aggregationList);
+      store.dispatch('fetchImageData');
+    },
+    setMzValueToRemove: function (mzItem) {
+      this.currentMzValueToRemove = mzItem;
     }
   },
   created () {
@@ -286,17 +456,29 @@ export default {
     width: 100%;
     text-align: center;
     margin-top: 8px;
+    height: 96%;
     background-color: #4f5051;
   }
   .listMz {
     padding: 0;
     font-size: 0.9em;
     width: 100%;
-    height: 0;
+    height: 22px;
     text-align: center;
     background-color: #4f5051;
   }
   .options {
     background-color: darkgray;
+  }
+  .button-area-line {
+    margin: 2px auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    max-width: 90%;
+  }
+  .mzButtonLine {
+    color: white;
   }
 </style>

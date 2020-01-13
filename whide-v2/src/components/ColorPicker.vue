@@ -171,7 +171,7 @@ export default {
       store.dispatch('getRingCoefficients');
       store.commit('SET_COLORS_READY', false);
     },
-    chooseMove: function () {
+    chooseMove: function (event) {
       if (event.keyCode === 38) {
         this.moveUp();
       } else if (event.keyCode === 37) {

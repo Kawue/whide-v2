@@ -2,7 +2,6 @@ import store from '../store';
 import * as d3 from 'd3';
 
 var drawSegmentationMap = function (dimensions, prototypeOutside = '', transformation = { k: 1, x: 0, y: 0 }, alpha = 1) {
-  console.log('hi');
   const ringData = store.state.currentRingData;
   const dimX = dimensions['x'] + 1;
   const dimY = dimensions['y'] + 1;
