@@ -46,16 +46,6 @@
             name="sign-in-alt" style="color: orange"
           />
         </span>
-      <span
-        class="mzButtonLine"
-        v-on:click="toggleAsc(), sortMZ()"
-        style="float: right; margin-right: 30px; padding: 2px; color :white"
-        v-b-tooltip.hover.top="'Sort'"
-      >
-        <v-icon
-          v-bind:name="asc ? 'sort-amount-up' : 'sort-amount-down'" style="color: orange"
-        />
-        </span>
     </div>
     <div id="selectionContainer">
       <select class="listMz" id="listForMzImage" multiple v-on:focus="setAggregationFocus" v-on:focusout="changeFocus">
@@ -163,7 +153,7 @@ export default {
       clicks: 0,
       aggregationClicks: 0,
       timer: null,
-      currentMzValueToAdd: null,
+      currentMzValueToAdd: [],
       currentMzValueToRemove: null
     };
   },
@@ -172,7 +162,6 @@ export default {
       mzObjects: 'getMzObject',
       mzAnnotations: 'getMzAnnotations',
       showAnnotation: 'mzShowAnnotation',
-      asc: 'mzAsc',
       height: 'getBottonBarHeight',
       focusMzList: 'getFocusMzList'
     })
@@ -214,13 +203,21 @@ export default {
       let that = this;
       let mzList = document.querySelector('#mzlistid');
       mzList.addEventListener('change', function (e) {
-        var selected = this.value;
-        console.dir(selected);
-        that.showSingleImage(this.value);
+        let arrayOfSelecedIDs = [];
+        let elements = document.getElementById(this.id).childNodes;
+        for (let i = 0; i < elements.length; i++) {
+          if (elements[i].selected) {
+            arrayOfSelecedIDs.push(elements[i].value);
+          }
+        }
+        that.currentMzValueToAdd = Array.from(arrayOfSelecedIDs);
+        if (arrayOfSelecedIDs.length === 1) {
+          that.showSingleImage(this.value);
+        }
       });
       mzList.addEventListener('keydown', function (event) {
         let key = event.keyCode;
-        that.chooseKey(this.value, key);
+        that.chooseKey(that.currentMzValueToAdd, key);
       });
     },
     setAggregationFocus: function () {
@@ -234,12 +231,6 @@ export default {
       listForMzImage.addEventListener('change', function () {
         that.setMzValueToRemove(this.value);
       });
-    },
-    toggleAsc: function () {
-      store.commit('MZLIST_TOOGLE_ASC');
-    },
-    sortMZ: function () {
-      store.commit('MZLIST_SORT_MZ');
     },
     toggleShowAnnotation: function () {
       store.commit('MZLIST_SHOW_ANNOTATIONS');
@@ -307,33 +298,13 @@ export default {
             });
         }
         this.aggregationList.push(val);
-      } /* else {
-        d3.select('[id="' + val.toString() + '"]').remove();
-        for (var i = 0; i < this.localSelectedMz.length; i++) {
-          if (this.localSelectedMz[i] === val) {
-            this.localSelectedMz.splice(i, 1);
-          }
-        }
-        */
+      }
     },
     addMzToAggregationList: function () {
-      this.addMzItem(this.currentMzValueToAdd);
-      let select = document.getElementById('#mzlistid');
-      console.log(select);
-      /*
-      let result = [];
-      let options = select && select.options;
-      let opt;
-
-      for (var i = 0, iLen = options.length; i < iLen; i++) {
-        opt = options[i];
-
-        if (opt.selected) {
-          result.push(opt.value || opt.text);
-        }
-      }
-
-       */
+      let that = this;
+      this.currentMzValueToAdd.forEach(function (item) {
+        that.addMzItem(parseFloat(item));
+      });
     },
     greyMzItem: function (mzItem) {
       if (this.aggregationList.includes(mzItem)) {
@@ -376,14 +347,17 @@ export default {
       }
     },
     showSingleImage: function (mzItem) {
-      this.currentMzValueToAdd = mzItem;
       const mzList = [mzItem];
+      this.currentMzValueToAdd = mzList;
       store.commit('SET_NEW_MZ_VALUE', mzList);
       store.dispatch('fetchImageData');
     },
     chooseKey: function (mzItem, key) {
+      let that = this;
       if (key === 13) {
-        this.addMzItem(parseFloat(mzItem));
+        mzItem.forEach(function (item) {
+          that.addMzItem(parseFloat(item));
+        });
       } else if (key === 46) {
         console.log('removeMzList');
       }

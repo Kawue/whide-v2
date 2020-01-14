@@ -3,7 +3,6 @@ import Vuex from 'vuex';
 import * as d3 from 'd3';
 
 import ApiService from './services/ApiService';
-import MzService from './services/MzService';
 import BookmarkService from './services/BookmarkService';
 import axios from 'axios';
 import { moebiustransformation } from './services/colorWheel';
@@ -12,7 +11,6 @@ const API_URL = 'http://localhost:5000';
 
 Vue.use(Vuex);
 let apiService = new ApiService();
-let mzService = new MzService();
 let bookmarkService = new BookmarkService();
 
 export default new Vuex.Store({
@@ -85,9 +83,6 @@ export default new Vuex.Store({
     },
     mzShowAnnotation: state => {
       return state.mzList.showAnnotation;
-    },
-    mzAsc: state => {
-      return state.mzList.asc;
     },
     getBookmarksData: (state) => (givenId) => {
       let bookmarkData = state.currentRingData[givenId];
@@ -213,12 +208,6 @@ export default new Vuex.Store({
       Object.keys(allPrototypeColors).forEach(function (pro) {
         state.currentRingData[pro.toString()]['color'] = allPrototypeColors[pro].toString();
       });
-    },
-    MZLIST_TOOGLE_ASC: state => {
-      state.mzList.asc = !state.mzList.asc;
-    },
-    MZLIST_SORT_MZ: state => {
-      state.mzObjects = mzService.sortMzList(state.mzObjects, state.mzList.asc);
     },
     MZLIST_SHOW_ANNOTATIONS: state => {
       state.mzList.showAnnotation = !state.mzList.showAnnotation;
