@@ -57,7 +57,7 @@
     <select class="list" id="mzlistid" multiple v-on:focus="setListFocus" v-on:focusout="changeFocus" >
       <option
         style="color: white"
-        v-for="(key, val) in mzObjects"
+        v-for="(key, val) in mzObject"
         v-bind:key="key"
         v-bind:value="key"
         v-bind:id="val.toString()"
@@ -150,6 +150,7 @@ export default {
       windowHeight: document.documentElement.clientHeight,
       firstBuild: true,
       aggregationList: [],
+      newAggregationList: {},
       aggregationListGrey: [],
       delay: 190,
       clicks: 0,
@@ -161,7 +162,7 @@ export default {
   },
   computed: {
     ...mapGetters({
-      mzObjects: 'getMzObject',
+      mzObject: 'getMzObject',
       mzAnnotations: 'getMzAnnotations',
       showAnnotation: 'mzShowAnnotation',
       height: 'getBottonBarHeight',
@@ -255,7 +256,10 @@ export default {
       if (!this.$refs.form.checkValidity()) {
         return;
       }
-      var mzToAnnotate = [this.nameModalMz.mzValue, this.nameModalMz.name];
+      let mzToAnnotate = [this.nameModalMz.mzValue, this.nameModalMz.name];
+      if (this.nameModalMz.mzValue.toString() in this.newAggregationList) {
+        this.newAggregationList[this.nameModalMz.mzValue.toString()] = this.nameModalMz.name;
+      }
       store.commit('SET_MZ_ANNOTATION', mzToAnnotate);
 
       this.$nextTick(() => {
@@ -270,13 +274,17 @@ export default {
       store.commit('SET_FOCUS_MZ_LIST', true);
     },
     handleCancle: function () {
-      var mzResetting = [this.nameModalMz.mzValue, this.nameModalMz.mzValue];
+      let mzResetting = [this.nameModalMz.mzValue, this.nameModalMz.mzValue];
+      if (this.nameModalMz.mzValue.toString() in this.newAggregationList) {
+        this.newAggregationList[this.nameModalMz.mzValue.toString()] = this.nameModalMz.mzValue;
+      }
       store.commit('SET_MZ_ANNOTATION', mzResetting);
     },
     addMzItem: function (val) {
       let that = this;
       if (!this.aggregationList.includes(val)) {
         this.aggregationList.push(val);
+        this.newAggregationList[val] = parseFloat(val);
         let combinedList = this.aggregationList.concat(this.aggregationListGrey);
         combinedList.sort(function (a, b) {
           return a - b;
