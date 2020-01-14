@@ -10,6 +10,7 @@
             name="pencil-alt" style="color: orange"
           />
         </span>
+      <div class="vl"/>
       <span
         class="mzButtonLine"
         v-on:click="addMzToAggregationList"
@@ -19,6 +20,7 @@
             name="arrow-up" style="color: orange"
           />
         </span>
+      <div class="vl"/>
       <span
         class="mzButtonLine"
         v-on:click="removeMzFromAggregationList"
@@ -81,7 +83,7 @@
             <p id="annotation-mz-value">{{ nameModalMz.mzValue }}</p>
           </b-col>
           <b-col sm="3" class="align-self-center">
-            <label for="annotationinput">Annotation:</label>
+            <label>Annotation:</label>
           </b-col>
           <b-col sm="9">
             <b-form ref="form" @submit.stop.prevent="handleSubmit">
@@ -274,30 +276,46 @@ export default {
     addMzItem: function (val) {
       let that = this;
       if (!this.aggregationList.includes(val)) {
+        this.aggregationList.push(val);
+        let combinedList = this.aggregationList.concat(this.aggregationListGrey);
+        combinedList.sort(function (a, b) {
+          return a - b;
+        });
+        d3.select('#listForMzImage')
+          .selectAll('*').remove();
         let height = d3.select('#listForMzImage').node().getBoundingClientRect().height + 22;
         let mzListHeight = d3.select('#mzlistid').node().getBoundingClientRect().height - 22;
         if (height <= mzListHeight) {
-          d3.select('#listForMzImage')
-            .style('height', height + 'px')
-            .append('option')
-            .text(val)
-            .style('color', 'white')
-            .attr('id', val.toString())
-            .on('click', function () {
-              that.greyMzItem(val);
-            });
+          combinedList.forEach(function (item) {
+            d3.select('#listForMzImage')
+              .append('option')
+              .text(item)
+              .style('color', 'white')
+              .attr('id', item.toString())
+              .on('click', function () {
+                that.greyMzItem(item);
+              });
+            if (that.aggregationListGrey.includes(item)) {
+              d3.select('[id="' + item.toString() + '"]').style('color', 'grey');
+            }
+          });
+
           d3.select('#mzlistid').style('height', mzListHeight + 'px');
         } else {
-          d3.select('#listForMzImage')
-            .append('option')
-            .text(val)
-            .style('color', 'white')
-            .attr('id', val.toString())
-            .on('click', function () {
-              that.greyMzItem(val);
-            });
+          combinedList.forEach(function (item) {
+            d3.select('#listForMzImage')
+              .append('option')
+              .text(item)
+              .style('color', 'white')
+              .attr('id', item.toString())
+              .on('click', function () {
+                that.greyMzItem(item);
+              });
+            if (that.aggregationListGrey.includes(item)) {
+              d3.select('[id="' + item.toString() + '"]').style('color', 'grey');
+            }
+          });
         }
-        this.aggregationList.push(val);
       }
     },
     addMzToAggregationList: function () {
@@ -437,7 +455,7 @@ export default {
     padding: 0;
     font-size: 0.9em;
     width: 100%;
-    height: 22px;
+    height: auto;
     text-align: center;
     background-color: #4f5051;
   }
@@ -451,8 +469,13 @@ export default {
     justify-content: space-between;
     flex-wrap: nowrap;
     max-width: 90%;
+    height: 3vh;
   }
   .mzButtonLine {
     color: white;
+  }
+  .vl {
+    border-left: 1px solid orange;
+    height: 3vh;
   }
 </style>
