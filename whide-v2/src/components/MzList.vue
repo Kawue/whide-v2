@@ -155,8 +155,8 @@ export default {
       clicks: 0,
       aggregationClicks: 0,
       timer: null,
-      currentMzValueToAdd: [],
-      currentMzValueToRemove: null
+      selectedMzValues: [],
+      selectedAggregationValues: null
     };
   },
   computed: {
@@ -287,49 +287,14 @@ export default {
     },
     addMzItem: function (val, annotation) {
       let that = this;
-      let combinedListe;
       if (!(val in this.aggregationList)) {
-        d3.select('#listForMzImage')
-          .selectAll('*').remove();
         this.aggregationList[val] = annotation;
-        combinedListe = Object.keys(this.aggregationList).concat(Object.keys(this.aggregationListGrey));
-        combinedListe.sort(function (a, b) {
-          return a - b;
-        });
-        if (this.showAnnotation) {
-          combinedListe.forEach(function (mzKey) {
-            d3.select('#listForMzImage')
-              .append('option')
-              .text(that.aggregationList[mzKey])
-              .style('color', 'white')
-              .attr('id', mzKey.toString())
-              .on('click', function (event) {
-                that.clickCheckerAggregation(event, mzKey, that.aggregationList[mzKey]);
-              });
-            if (mzKey in that.aggregationListGrey) {
-              d3.select('[id="' + mzKey.toString() + '"]').style('color', 'grey');
-            }
-          });
-        } else {
-          combinedListe.forEach(function (mzKey) {
-            d3.select('#listForMzImage')
-              .append('option')
-              .text(mzKey)
-              .style('color', 'white')
-              .attr('id', mzKey.toString())
-              .on('click', function (event) {
-                that.clickCheckerAggregation(event, mzKey, that.aggregationList[mzKey]);
-              });
-            if (mzKey in that.aggregationListGrey) {
-              d3.select('[id="' + mzKey.toString() + '"]').style('color', 'grey');
-            }
-          });
-        }
+        that.renderAggregationList();
       }
     },
     addMzToAggregationList: function () {
       let that = this;
-      this.currentMzValueToAdd.forEach(function (item) {
+      this.selectedMzValues.forEach(function (item) {
         that.addMzItem(parseFloat(item), that.mzObject[item]);
       });
     },
@@ -343,11 +308,11 @@ export default {
         this.aggregationList[mzItem] = this.aggregationListGrey[mzItem];
         delete this.aggregationListGrey[mzItem];
       }
-      this.currentMzValueToRemove = mzItem;
+      this.selectedAggregationValues = mzItem;
     },
 
     removeMzFromAggregationList: function () {
-      const item = parseFloat(this.currentMzValueToRemove);
+      const item = parseFloat(this.selectedAggregationValues);
       d3.select('[id="' + item.toString() + '"]').remove();
       if (item in this.aggregationList) {
         delete this.aggregationList[item];
@@ -357,7 +322,7 @@ export default {
     },
     showSingleImage: function (mzItem) {
       const mzList = [mzItem];
-      this.currentMzValueToAdd = mzList;
+      this.selectedMzValues = mzList;
       store.commit('SET_NEW_MZ_VALUE', mzList);
       store.dispatch('fetchImageData');
     },
@@ -368,7 +333,7 @@ export default {
           that.addMzItem(parseFloat(item), that.mzObject[item]);
         });
       } else if (key === 46) {
-        console.log('removeMzList');
+        that.ignoreMzValues();
       }
     },
     chooseKeyAggregation: function (mzItem, key) {
@@ -409,7 +374,6 @@ export default {
     },
     clearAggregationList: function () {
       d3.select('#listForMzImage')
-        .style('height', 0)
         .selectAll('*').remove();
       this.aggregationListGrey = {};
       this.aggregationList = {};
@@ -419,7 +383,7 @@ export default {
       store.dispatch('fetchImageData');
     },
     setMzValueToRemove: function (mzItem) {
-      this.currentMzValueToRemove = mzItem;
+      this.selectedAggregationValues = mzItem;
     },
     renderAggregationList: function () {
       let that = this;
@@ -459,6 +423,9 @@ export default {
           }
         });
       }
+    },
+    ignoreMzValues: function () {
+      console.log(this.selectedMzValues);
     }
   },
   created () {
