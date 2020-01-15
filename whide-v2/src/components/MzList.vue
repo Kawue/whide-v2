@@ -57,13 +57,13 @@
     <select class="list" id="mzlistid" multiple v-on:focus="setListFocus" v-on:focusout="changeFocus" >
       <option
         style="color: white"
-        v-for="(key, val) in mzObject"
-        v-bind:key="key"
-        v-bind:value="key"
-        v-bind:id="val.toString()"
-        v-on:click="clickChecker($event, val, key)"
+        v-for="(annotation, mzVal) in mzObject"
+        v-bind:key="mzVal"
+        v-bind:value="mzVal"
+        v-bind:id="mzVal.toString()"
+        v-on:click="clickChecker($event, mzVal, annotation)"
       >
-        {{showAnnotation ? key : val}} <!--first mzItem is the name-->
+        {{showAnnotation ? annotation : mzVal}} <!--first mzItem is the name-->
       </option>
     </select>
     </div>
@@ -149,8 +149,8 @@ export default {
       },
       windowHeight: document.documentElement.clientHeight,
       firstBuild: true,
-      newAggregationList: {},
-      newAggregationListGrey: {},
+      aggregationList: {},
+      aggregationListGrey: {},
       delay: 190,
       clicks: 0,
       aggregationClicks: 0,
@@ -187,6 +187,9 @@ export default {
           aggregationList.removeEventListener('keydown', this.chooseKeyAggregation);
           aggregationList.removeEventListener('change', this.setMzValueToRemove);
         }
+      }
+      if (mutation.type === 'MZLIST_SHOW_ANNOTATIONS') {
+        this.renderAggregationList();
       }
       if (this.firstBuild) {
         let height = this.windowHeight - 40;
@@ -256,11 +259,12 @@ export default {
         return;
       }
       let mzToAnnotate = [this.nameModalMz.mzValue, this.nameModalMz.name];
-      if (this.nameModalMz.mzValue.toString() in this.newAggregationList) {
-        this.newAggregationList[this.nameModalMz.mzValue.toString()] = this.nameModalMz.name;
-      } else if (this.nameModalMz.mzValue.toString() in this.newAggregationListGrey) {
-        this.newAggregationListGrey[this.nameModalMz.mzValue.toString()] = this.nameModalMz.name;
+      if (this.nameModalMz.mzValue.toString() in this.aggregationList) {
+        this.aggregationList[this.nameModalMz.mzValue.toString()] = this.nameModalMz.name;
+      } else if (this.nameModalMz.mzValue.toString() in this.aggregationListGrey) {
+        this.aggregationListGrey[this.nameModalMz.mzValue.toString()] = this.nameModalMz.name;
       }
+      this.renderAggregationList();
       store.commit('SET_MZ_ANNOTATION', mzToAnnotate);
 
       this.$nextTick(() => {
@@ -276,19 +280,19 @@ export default {
     },
     handleCancle: function () {
       let mzResetting = [this.nameModalMz.mzValue, this.nameModalMz.mzValue];
-      if (this.nameModalMz.mzValue.toString() in this.newAggregationList) {
-        this.newAggregationList[this.nameModalMz.mzValue.toString()] = this.nameModalMz.mzValue;
+      if (this.nameModalMz.mzValue.toString() in this.aggregationList) {
+        this.aggregationList[this.nameModalMz.mzValue.toString()] = this.nameModalMz.mzValue;
       }
       store.commit('SET_MZ_ANNOTATION', mzResetting);
     },
-    addMzItem: function (val) {
+    addMzItem: function (val, annotation) {
       let that = this;
       let combinedListe;
-      if (!(val in this.newAggregationList)) {
+      if (!(val in this.aggregationList)) {
         d3.select('#listForMzImage')
           .selectAll('*').remove();
-        this.newAggregationList[val] = parseFloat(val);
-        combinedListe = Object.keys(this.newAggregationList).concat(Object.keys(this.newAggregationListGrey));
+        this.aggregationList[val] = annotation;
+        combinedListe = Object.keys(this.aggregationList).concat(Object.keys(this.aggregationListGrey));
         combinedListe.sort(function (a, b) {
           return a - b;
         });
@@ -296,13 +300,13 @@ export default {
           combinedListe.forEach(function (mzKey) {
             d3.select('#listForMzImage')
               .append('option')
-              .text(that.newAggregationList[mzKey])
+              .text(that.aggregationList[mzKey])
               .style('color', 'white')
               .attr('id', mzKey.toString())
               .on('click', function (event) {
-                that.clickCheckerAggregation(event, that.newAggregationList[mzKey], that.newAggregationList[mzKey]);
+                that.clickCheckerAggregation(event, mzKey, that.aggregationList[mzKey]);
               });
-            if (mzKey in that.newAggregationListGrey) {
+            if (mzKey in that.aggregationListGrey) {
               d3.select('[id="' + mzKey.toString() + '"]').style('color', 'grey');
             }
           });
@@ -310,13 +314,13 @@ export default {
           combinedListe.forEach(function (mzKey) {
             d3.select('#listForMzImage')
               .append('option')
-              .text(that.newAggregationList[mzKey])
+              .text(mzKey)
               .style('color', 'white')
-              .attr('id', that.newAggregationList[mzKey].toString())
+              .attr('id', mzKey.toString())
               .on('click', function (event) {
-                that.clickCheckerAggregation(event, that.newAggregationList[mzKey], that.newAggregationList[mzKey]);
+                that.clickCheckerAggregation(event, mzKey, that.aggregationList[mzKey]);
               });
-            if (mzKey in that.newAggregationListGrey) {
+            if (mzKey in that.aggregationListGrey) {
               d3.select('[id="' + mzKey.toString() + '"]').style('color', 'grey');
             }
           });
@@ -326,18 +330,18 @@ export default {
     addMzToAggregationList: function () {
       let that = this;
       this.currentMzValueToAdd.forEach(function (item) {
-        that.addMzItem(parseFloat(item));
+        that.addMzItem(parseFloat(item), that.mzObject[item]);
       });
     },
     greyMzItem: function (mzItem) {
-      if (mzItem in this.newAggregationList) {
+      if (mzItem in this.aggregationList) {
         d3.select('[id="' + mzItem.toString() + '"]').style('color', 'grey');
-        this.newAggregationListGrey[mzItem] = this.newAggregationList[mzItem];
-        delete this.newAggregationList[mzItem];
+        this.aggregationListGrey[mzItem] = this.aggregationList[mzItem];
+        delete this.aggregationList[mzItem];
       } else {
         d3.select('[id="' + mzItem.toString() + '"]').style('color', 'white');
-        this.newAggregationList[mzItem] = this.newAggregationListGrey[mzItem];
-        delete this.newAggregationListGrey[mzItem];
+        this.aggregationList[mzItem] = this.aggregationListGrey[mzItem];
+        delete this.aggregationListGrey[mzItem];
       }
       this.currentMzValueToRemove = mzItem;
     },
@@ -345,10 +349,10 @@ export default {
     removeMzFromAggregationList: function () {
       const item = parseFloat(this.currentMzValueToRemove);
       d3.select('[id="' + item.toString() + '"]').remove();
-      if (item in this.newAggregationList) {
-        delete this.newAggregationList[item];
+      if (item in this.aggregationList) {
+        delete this.aggregationList[item];
       } else {
-        delete this.newAggregationListGrey[item];
+        delete this.aggregationListGrey[item];
       }
     },
     showSingleImage: function (mzItem) {
@@ -361,7 +365,7 @@ export default {
       let that = this;
       if (key === 13) {
         mzItem.forEach(function (item) {
-          that.addMzItem(parseFloat(item));
+          that.addMzItem(parseFloat(item), that.mzObject[item]);
         });
       } else if (key === 46) {
         console.log('removeMzList');
@@ -374,7 +378,7 @@ export default {
         this.removeMzFromAggregationList();
       }
     },
-    clickChecker: function (event, val, key) {
+    clickChecker: function (event, val, annotation) {
       this.clicks++;
       if (this.clicks === 1) {
         var self = this;
@@ -385,11 +389,11 @@ export default {
         }, this.delay);
       } else {
         clearTimeout(this.timer);
-        this.annotateMzItem(val, key);
+        this.annotateMzItem(val, annotation);
         this.clicks = 0;
       }
     },
-    clickCheckerAggregation: function (event, val, key) {
+    clickCheckerAggregation: function (event, val, annotation) {
       this.aggregationClicks++;
       if (this.aggregationClicks === 1) {
         let self = this;
@@ -399,7 +403,7 @@ export default {
         }, this.delay);
       } else {
         clearTimeout(this.timer);
-        this.annotateMzItem(val, key);
+        this.annotateMzItem(val, annotation);
         this.aggregationClicks = 0;
       }
     },
@@ -407,15 +411,54 @@ export default {
       d3.select('#listForMzImage')
         .style('height', 0)
         .selectAll('*').remove();
-      this.newAggregationListGrey = {};
-      this.newAggregationList = {};
+      this.aggregationListGrey = {};
+      this.aggregationList = {};
     },
     showMzImageAggregationList: function () {
-      store.commit('SET_NEW_MZ_VALUE', Object.keys(this.newAggregationList));
+      store.commit('SET_NEW_MZ_VALUE', Object.keys(this.aggregationList));
       store.dispatch('fetchImageData');
     },
     setMzValueToRemove: function (mzItem) {
       this.currentMzValueToRemove = mzItem;
+    },
+    renderAggregationList: function () {
+      let that = this;
+      let combinedList;
+      d3.select('#listForMzImage')
+        .selectAll('*').remove();
+      combinedList = Object.keys(this.aggregationList).concat(Object.keys(this.aggregationListGrey));
+      combinedList.sort(function (a, b) {
+        return a - b;
+      });
+      if (this.showAnnotation) {
+        combinedList.forEach(function (mzKey) {
+          d3.select('#listForMzImage')
+            .append('option')
+            .text(that.aggregationList[mzKey])
+            .style('color', 'white')
+            .attr('id', mzKey.toString())
+            .on('click', function (event) {
+              that.clickCheckerAggregation(event, mzKey, that.aggregationList[mzKey]);
+            });
+          if (mzKey in that.aggregationListGrey) {
+            d3.select('[id="' + mzKey.toString() + '"]').style('color', 'grey');
+          }
+        });
+      } else {
+        combinedList.forEach(function (mzKey) {
+          d3.select('#listForMzImage')
+            .append('option')
+            .text(mzKey)
+            .style('color', 'white')
+            .attr('id', mzKey.toString())
+            .on('click', function (event) {
+              that.clickCheckerAggregation(event, mzKey, that.aggregationList[mzKey]);
+            });
+          if (mzKey in that.aggregationListGrey) {
+            d3.select('[id="' + mzKey.toString() + '"]').style('color', 'grey');
+          }
+        });
+      }
     }
   },
   created () {
