@@ -149,9 +149,8 @@ export default {
       },
       windowHeight: document.documentElement.clientHeight,
       firstBuild: true,
-      aggregationList: [],
       newAggregationList: {},
-      aggregationListGrey: [],
+      newAggregationListGrey: {},
       delay: 190,
       clicks: 0,
       aggregationClicks: 0,
@@ -259,6 +258,8 @@ export default {
       let mzToAnnotate = [this.nameModalMz.mzValue, this.nameModalMz.name];
       if (this.nameModalMz.mzValue.toString() in this.newAggregationList) {
         this.newAggregationList[this.nameModalMz.mzValue.toString()] = this.nameModalMz.name;
+      } else if (this.nameModalMz.mzValue.toString() in this.newAggregationListGrey) {
+        this.newAggregationListGrey[this.nameModalMz.mzValue.toString()] = this.nameModalMz.name;
       }
       store.commit('SET_MZ_ANNOTATION', mzToAnnotate);
 
@@ -282,45 +283,41 @@ export default {
     },
     addMzItem: function (val) {
       let that = this;
-      if (!this.aggregationList.includes(val)) {
-        this.aggregationList.push(val);
-        this.newAggregationList[val] = parseFloat(val);
-        let combinedList = this.aggregationList.concat(this.aggregationListGrey);
-        combinedList.sort(function (a, b) {
-          return a - b;
-        });
+      let combinedListe;
+      if (!(val in this.newAggregationList)) {
         d3.select('#listForMzImage')
           .selectAll('*').remove();
-        let height = d3.select('#listForMzImage').node().getBoundingClientRect().height + 22;
-        let mzListHeight = d3.select('#mzlistid').node().getBoundingClientRect().height - 22;
-        if (height <= mzListHeight) {
-          combinedList.forEach(function (item) {
+        this.newAggregationList[val] = parseFloat(val);
+        combinedListe = Object.keys(this.newAggregationList).concat(Object.keys(this.newAggregationListGrey));
+        combinedListe.sort(function (a, b) {
+          return a - b;
+        });
+        if (this.showAnnotation) {
+          combinedListe.forEach(function (mzKey) {
             d3.select('#listForMzImage')
               .append('option')
-              .text(item)
+              .text(that.newAggregationList[mzKey])
               .style('color', 'white')
-              .attr('id', item.toString())
-              .on('click', function () {
-                that.greyMzItem(item);
+              .attr('id', mzKey.toString())
+              .on('click', function (event) {
+                that.clickCheckerAggregation(event, that.newAggregationList[mzKey], that.newAggregationList[mzKey]);
               });
-            if (that.aggregationListGrey.includes(item)) {
-              d3.select('[id="' + item.toString() + '"]').style('color', 'grey');
+            if (mzKey in that.newAggregationListGrey) {
+              d3.select('[id="' + mzKey.toString() + '"]').style('color', 'grey');
             }
           });
-
-          d3.select('#mzlistid').style('height', mzListHeight + 'px');
         } else {
-          combinedList.forEach(function (item) {
+          combinedListe.forEach(function (mzKey) {
             d3.select('#listForMzImage')
               .append('option')
-              .text(item)
+              .text(that.newAggregationList[mzKey])
               .style('color', 'white')
-              .attr('id', item.toString())
-              .on('click', function () {
-                that.greyMzItem(item);
+              .attr('id', that.newAggregationList[mzKey].toString())
+              .on('click', function (event) {
+                that.clickCheckerAggregation(event, that.newAggregationList[mzKey], that.newAggregationList[mzKey]);
               });
-            if (that.aggregationListGrey.includes(item)) {
-              d3.select('[id="' + item.toString() + '"]').style('color', 'grey');
+            if (mzKey in that.newAggregationListGrey) {
+              d3.select('[id="' + mzKey.toString() + '"]').style('color', 'grey');
             }
           });
         }
@@ -333,22 +330,14 @@ export default {
       });
     },
     greyMzItem: function (mzItem) {
-      if (this.aggregationList.includes(mzItem)) {
+      if (mzItem in this.newAggregationList) {
         d3.select('[id="' + mzItem.toString() + '"]').style('color', 'grey');
-        for (let i = 0; i < this.aggregationList.length; i++) {
-          if (this.aggregationList[i] === mzItem) {
-            this.aggregationList.splice(i, 1);
-          }
-        }
-        this.aggregationListGrey.push(mzItem);
+        this.newAggregationListGrey[mzItem] = this.newAggregationList[mzItem];
+        delete this.newAggregationList[mzItem];
       } else {
         d3.select('[id="' + mzItem.toString() + '"]').style('color', 'white');
-        for (let i = 0; i < this.aggregationListGrey.length; i++) {
-          if (this.aggregationListGrey[i] === mzItem) {
-            this.aggregationListGrey.splice(i, 1);
-          }
-        }
-        this.aggregationList.push(mzItem);
+        this.newAggregationList[mzItem] = this.newAggregationListGrey[mzItem];
+        delete this.newAggregationListGrey[mzItem];
       }
       this.currentMzValueToRemove = mzItem;
     },
@@ -356,20 +345,10 @@ export default {
     removeMzFromAggregationList: function () {
       const item = parseFloat(this.currentMzValueToRemove);
       d3.select('[id="' + item.toString() + '"]').remove();
-      const height = d3.select('#listForMzImage').node().getBoundingClientRect().height - 22;
-      d3.select('#listForMzImage').style('height', height + 'px');
-      if (this.aggregationList.includes(item)) {
-        for (let i = 0; i < this.aggregationList.length; i++) {
-          if (this.aggregationList[i] === item) {
-            this.aggregationList.splice(i, 1);
-          }
-        }
+      if (item in this.newAggregationList) {
+        delete this.newAggregationList[item];
       } else {
-        for (let i = 0; i < this.aggregationListGrey.length; i++) {
-          if (this.aggregationListGrey[i] === item) {
-            this.aggregationListGrey.splice(i, 1);
-          }
-        }
+        delete this.newAggregationListGrey[item];
       }
     },
     showSingleImage: function (mzItem) {
@@ -413,9 +392,9 @@ export default {
     clickCheckerAggregation: function (event, val, key) {
       this.aggregationClicks++;
       if (this.aggregationClicks === 1) {
-        var self = this;
+        let self = this;
         this.timer = setTimeout(function () {
-          this.greyMzItem(val);
+          self.greyMzItem(val);
           self.aggregationClicks = 0;
         }, this.delay);
       } else {
@@ -428,11 +407,11 @@ export default {
       d3.select('#listForMzImage')
         .style('height', 0)
         .selectAll('*').remove();
-      this.aggregationList = [];
-      this.aggregationListGrey = [];
+      this.newAggregationListGrey = {};
+      this.newAggregationList = {};
     },
     showMzImageAggregationList: function () {
-      store.commit('SET_NEW_MZ_VALUE', this.aggregationList);
+      store.commit('SET_NEW_MZ_VALUE', Object.keys(this.newAggregationList));
       store.dispatch('fetchImageData');
     },
     setMzValueToRemove: function (mzItem) {
