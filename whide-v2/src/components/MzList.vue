@@ -165,19 +165,9 @@ export default {
     // TODO fix bottombar height adjustmentg
     store.subscribe(mutation => {
       if (mutation.type === 'SET_BOTTOMBAR_HEIGHT') {
-        const oldHeight = d3.select('#selectionContainer').node().getBoundingClientRect().height;
         const newHeight = this.windowHeight - parseInt(this.height) - 50;
         d3.select('#selectionContainer')
           .style('height', newHeight + 'px');
-        const aggregationHeight = d3.select('#mzValueAggregationList').node().getBoundingClientRect().height;
-        const mzListHeight = d3.select('#mzValueList').node().getBoundingClientRect().height;
-        const difference = newHeight - oldHeight;
-        const partOfNewHeightAggre = aggregationHeight / newHeight;
-        const partOfNewHeightMz = mzListHeight / newHeight;
-        const newAggreHeight = partOfNewHeightAggre * difference;
-        const newMzHeight = partOfNewHeightMz * difference;
-        d3.select('#mzValueAggregationList').style('height', newAggreHeight + 'px');
-        d3.select('#mzValueList').style('height',  newMzHeight + 'px');
       }
       if (mutation.type === 'SET_FOCUS_MZ_LIST') {
         if (!this.focusMzList) {
@@ -301,14 +291,7 @@ export default {
     addMzItem: function (val, annotation) {
       let that = this;
       if (!(val in this.aggregationList)) {
-        let maxHeight = d3.select('#selectionContainer').node().getBoundingClientRect().height;
-        let aggregationHeight = d3.select('#mzValueAggregationList').node().getBoundingClientRect().height;
-        let mzListHeight = d3.select('#mzValueList').node().getBoundingClientRect().height;
-        let percent = maxHeight / 100;
-        const newAggreHeight = aggregationHeight + 2 * percent;
-        const newMzListHeight = mzListHeight - 2 * percent;
-        d3.select('#mzValueAggregationList').style('height', newAggreHeight + 'px');
-        d3.select('#mzValueList').style('height', newMzListHeight + 'px');
+        this.adjustHeight(true);
         this.aggregationList[val] = annotation;
         that.renderAggregationList();
       }
@@ -335,6 +318,7 @@ export default {
     removeMzFromAggregationList: function () {
       const item = parseFloat(this.selectedAggregationValues);
       d3.select('[id="' + 'aggregation_' + item.toString() + '"]').remove();
+      this.adjustHeight(false);
       if (item in this.aggregationList) {
         delete this.aggregationList[item];
       } else {
@@ -485,6 +469,24 @@ export default {
             .style('color', color);
         }
       });
+    },
+    adjustHeight: function (addOrRemove) {
+      let maxHeight = d3.select('#selectionContainer').node().getBoundingClientRect().height;
+      let aggregationHeight = d3.select('#mzValueAggregationList').node().getBoundingClientRect().height;
+      let mzListHeight = d3.select('#mzValueList').node().getBoundingClientRect().height;
+      let percent = maxHeight / 100;
+      let newAggreHeight;
+      let newMzListHeight;
+      if (addOrRemove) {
+        newAggreHeight = (aggregationHeight / percent) + 2;
+        newMzListHeight = (mzListHeight / percent) - 2;
+      } else {
+        newAggreHeight = (aggregationHeight / percent) - 2;
+        newMzListHeight = (mzListHeight / percent) + 2;
+      }
+
+      d3.select('#mzValueAggregationList').style('height', newAggreHeight + '%');
+      d3.select('#mzValueList').style('height', newMzListHeight + '%');
     }
   },
   created () {
@@ -507,7 +509,7 @@ export default {
     width: 100%;
     text-align: center;
     margin-top: 8px;
-    height: 93%;
+    height: 91%;
     max-height: 93%;
     background-color: #4f5051;
   }
@@ -515,8 +517,8 @@ export default {
     padding: 0;
     font-size: 0.95em;
     width: 100%;
-    height: 5%;
-    min-height: 5%;
+    height: 4%;
+    min-height: 4%;
     text-align: center;
     background-color: #4f5051;
   }
