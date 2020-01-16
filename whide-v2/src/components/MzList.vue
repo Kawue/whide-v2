@@ -183,6 +183,8 @@ export default {
       }
       if (mutation.type === 'MZLIST_SHOW_ANNOTATIONS') {
         this.renderAggregationList();
+        this.renderMzList(this.currentMzObject, 'white');
+        this.renderMzList(this.ignoreList, 'grey');
       }
       if (this.firstBuild) {
         let height = this.windowHeight - 40;
@@ -191,7 +193,7 @@ export default {
         this.firstBuild = false;
       }
     });
-    this.currentMzObject = this.mzObject;
+    this.currentMzObject = Object.assign({}, this.mzObject);
     this.renderMzList(this.currentMzObject, 'white');
   },
   methods: {
@@ -207,17 +209,17 @@ export default {
         let elements = document.getElementById(this.id).childNodes;
         for (let i = 0; i < elements.length; i++) {
           if (elements[i].selected) {
-            arrayOfSelecedIDs.push(elements[i].value);
+            arrayOfSelecedIDs.push(elements[i].id);
           }
         }
-        that.currentMzValueToAdd = Array.from(arrayOfSelecedIDs);
+        that.selectedMzValues = Array.from(arrayOfSelecedIDs);
         if (arrayOfSelecedIDs.length === 1) {
-          that.showSingleImage(this.value);
+          that.showSingleImage(arrayOfSelecedIDs[0]);
         }
       });
       mzList.addEventListener('keydown', function (event) {
         let key = event.keyCode;
-        that.chooseKey(that.currentMzValueToAdd, key);
+        that.chooseKey(that.selectedMzValues, key);
       });
     },
     setAggregationFocus: function () {
@@ -259,7 +261,15 @@ export default {
       } else if (this.nameModalMz.mzValue.toString() in this.aggregationListGrey) {
         this.aggregationListGrey[this.nameModalMz.mzValue.toString()] = this.nameModalMz.name;
       }
+      if (this.nameModalMz.mzValue.toString() in this.currentMzObject) {
+        this.currentMzObject[this.nameModalMz.mzValue.toString()] = this.nameModalMz.name;
+      } else if (this.nameModalMz.mzValue.toString() in this.ignoreList) {
+        this.ignoreList[this.nameModalMz.mzValue.toString()] = this.nameModalMz.name;
+      }
       this.renderAggregationList();
+      this.renderMzList(this.currentMzObject, 'white');
+      this.renderMzList(this.ignoreList, 'grey');
+
       store.commit('SET_MZ_ANNOTATION', mzToAnnotate);
 
       this.$nextTick(() => {
@@ -331,11 +341,11 @@ export default {
       } else if (key === 46) {
         mzItem.forEach(function (item) {
           if (item in that.ignoreList) {
-            delete that.ignoreList[item];
             that.currentMzObject[item] = that.mzObject[item];
+            delete that.ignoreList[item];
           } else {
-            delete that.currentMzObject[item];
             that.ignoreList[item] = that.mzObject[item];
+            delete that.currentMzObject[item];
           }
         });
         that.renderMzList(this.currentMzObject, 'white');
@@ -436,16 +446,28 @@ export default {
       sortingList.sort(function (a, b) {
         return a - b;
       });
+
       sortingList.forEach(function (item) {
         d3.select('[id="' + item.toString() + '"]').remove();
-        d3.select('#mzlistid')
-          .append('option')
-          .attr('id', item.toString())
-          .text(item.toString())
-          .on('click', function (event) {
-            that.clickChecker(event, item, dict[item]);
-          })
-          .style('color', color);
+        if (that.showAnnotation) {
+          d3.select('#mzlistid')
+            .append('option')
+            .attr('id', item)
+            .text(dict[item].toString())
+            .on('click', function (event) {
+              that.clickChecker(event, item, dict[item]);
+            })
+            .style('color', color);
+        } else {
+          d3.select('#mzlistid')
+            .append('option')
+            .attr('id', item.toString())
+            .text(item.toString())
+            .on('click', function (event) {
+              that.clickChecker(event, item, dict[item]);
+            })
+            .style('color', color);
+        }
       });
     }
   },
@@ -466,7 +488,7 @@ export default {
     width: 100%;
     text-align: center;
     margin-top: 8px;
-    height: 96%;
+    height: 85%;
     background-color: #4f5051;
   }
   .listMz {
