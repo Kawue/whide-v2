@@ -13,7 +13,7 @@ import base64
 
 path_to_assets = '../whide-v2/src/assets/'
 path_to_datasets = '../datasets/'
-current_dataset = 'barley101GrineV2.h5'
+current_dataset = 'barley_101.h5'
 
 
 colorscales = {

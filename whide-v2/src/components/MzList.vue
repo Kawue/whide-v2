@@ -50,21 +50,12 @@
         </span>
     </div>
     <div id="selectionContainer">
+      <label for="listForMzImage"/>
       <select class="listMz" id="listForMzImage" multiple v-on:focus="setAggregationFocus" v-on:focusout="changeFocus">
 
       </select>
     <label id="mzListLabel" for="mzlistid"/>
     <select class="list" id="mzlistid" multiple v-on:focus="setListFocus" v-on:focusout="changeFocus" >
-      <option
-        style="color: white"
-        v-for="(annotation, mzVal) in mzObject"
-        v-bind:key="mzVal"
-        v-bind:value="mzVal"
-        v-bind:id="mzVal.toString()"
-        v-on:click="clickChecker($event, mzVal, annotation)"
-      >
-        {{showAnnotation ? annotation : mzVal}} <!--first mzItem is the name-->
-      </option>
     </select>
     </div>
     <b-modal
@@ -156,7 +147,9 @@ export default {
       aggregationClicks: 0,
       timer: null,
       selectedMzValues: [],
-      selectedAggregationValues: null
+      selectedAggregationValues: null,
+      ignoreList: {},
+      currentMzObject: {}
     };
   },
   computed: {
@@ -198,6 +191,8 @@ export default {
         this.firstBuild = false;
       }
     });
+    this.currentMzObject = this.mzObject;
+    this.renderMzList(this.currentMzObject, 'white');
   },
   methods: {
     changeFocus: function () {
@@ -300,11 +295,11 @@ export default {
     },
     greyMzItem: function (mzItem) {
       if (mzItem in this.aggregationList) {
-        d3.select('[id="' + mzItem.toString() + '"]').style('color', 'grey');
+        d3.select('[id="' + 'aggregation_' + mzItem.toString() + '"]').style('color', 'grey');
         this.aggregationListGrey[mzItem] = this.aggregationList[mzItem];
         delete this.aggregationList[mzItem];
       } else {
-        d3.select('[id="' + mzItem.toString() + '"]').style('color', 'white');
+        d3.select('[id="' + 'aggregation_' + mzItem.toString() + '"]').style('color', 'white');
         this.aggregationList[mzItem] = this.aggregationListGrey[mzItem];
         delete this.aggregationListGrey[mzItem];
       }
@@ -313,7 +308,7 @@ export default {
 
     removeMzFromAggregationList: function () {
       const item = parseFloat(this.selectedAggregationValues);
-      d3.select('[id="' + item.toString() + '"]').remove();
+      d3.select('[id="' + 'aggregation_' + item.toString() + '"]').remove();
       if (item in this.aggregationList) {
         delete this.aggregationList[item];
       } else {
@@ -326,6 +321,7 @@ export default {
       store.commit('SET_NEW_MZ_VALUE', mzList);
       store.dispatch('fetchImageData');
     },
+    // TODO: afte deignore rewrite mzList
     chooseKey: function (mzItem, key) {
       let that = this;
       if (key === 13) {
@@ -333,7 +329,17 @@ export default {
           that.addMzItem(parseFloat(item), that.mzObject[item]);
         });
       } else if (key === 46) {
-        that.ignoreMzValues();
+        mzItem.forEach(function (item) {
+          if (item in that.ignoreList) {
+            delete that.ignoreList[item];
+            that.currentMzObject[item] = that.mzObject[item];
+          } else {
+            delete that.currentMzObject[item];
+            that.ignoreList[item] = that.mzObject[item];
+          }
+        });
+        that.renderMzList(this.currentMzObject, 'white');
+        that.renderMzList(this.ignoreList, 'grey');
       }
     },
     chooseKeyAggregation: function (mzItem, key) {
@@ -400,12 +406,12 @@ export default {
             .append('option')
             .text(that.aggregationList[mzKey])
             .style('color', 'white')
-            .attr('id', mzKey.toString())
+            .attr('id', 'aggregation_' + mzKey.toString())
             .on('click', function (event) {
               that.clickCheckerAggregation(event, mzKey, that.aggregationList[mzKey]);
             });
           if (mzKey in that.aggregationListGrey) {
-            d3.select('[id="' + mzKey.toString() + '"]').style('color', 'grey');
+            d3.select('[id="' + 'aggregation_' + mzKey.toString() + '"]').style('color', 'grey');
           }
         });
       } else {
@@ -414,18 +420,33 @@ export default {
             .append('option')
             .text(mzKey)
             .style('color', 'white')
-            .attr('id', mzKey.toString())
+            .attr('id', 'aggregation_' + mzKey.toString())
             .on('click', function (event) {
               that.clickCheckerAggregation(event, mzKey, that.aggregationList[mzKey]);
             });
           if (mzKey in that.aggregationListGrey) {
-            d3.select('[id="' + mzKey.toString() + '"]').style('color', 'grey');
+            d3.select('[id="' + 'aggregation_' + mzKey.toString() + '"]').style('color', 'grey');
           }
         });
       }
     },
-    ignoreMzValues: function () {
-      console.log(this.selectedMzValues);
+    renderMzList: function (dict, color) {
+      let that = this;
+      let sortingList = Object.keys(dict);
+      sortingList.sort(function (a, b) {
+        return a - b;
+      });
+      sortingList.forEach(function (item) {
+        d3.select('[id="' + item.toString() + '"]').remove();
+        d3.select('#mzlistid')
+          .append('option')
+          .attr('id', item.toString())
+          .text(item.toString())
+          .on('click', function (event) {
+            that.clickChecker(event, item, dict[item]);
+          })
+          .style('color', color);
+      });
     }
   },
   created () {
