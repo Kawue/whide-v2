@@ -50,12 +50,12 @@
         </span>
     </div>
     <div id="selectionContainer">
-      <label for="listForMzImage"/>
-      <select class="listMz" id="listForMzImage" multiple v-on:focus="setAggregationFocus" v-on:focusout="changeFocus">
+      <label for="mzValueAggregationList"/>
+      <select class="listMz" id="mzValueAggregationList" multiple v-on:focus="setAggregationFocus" v-on:focusout="changeFocus">
 
       </select>
-    <label id="mzListLabel" for="mzlistid"/>
-    <select class="list" id="mzlistid" multiple v-on:focus="setListFocus" v-on:focusout="changeFocus" >
+    <label id="mzListLabel" for="mzValueList"/>
+    <select class="list" id="mzValueList" multiple v-on:focus="setListFocus" v-on:focusout="changeFocus" >
     </select>
     </div>
     <b-modal
@@ -165,18 +165,26 @@ export default {
     // TODO fix bottombar height adjustmentg
     store.subscribe(mutation => {
       if (mutation.type === 'SET_BOTTOMBAR_HEIGHT') {
-        let newHeight = this.windowHeight - parseInt(this.height) - 50;
+        const oldHeight = d3.select('#selectionContainer').node().getBoundingClientRect().height;
+        const newHeight = this.windowHeight - parseInt(this.height) - 50;
         d3.select('#selectionContainer')
           .style('height', newHeight + 'px');
-        d3.select('#mzlistid').style('height', newHeight / 2 + 'px');
-        d3.select('#listFormzImage').style('height', newHeight / 2 + 'px');
+        const aggregationHeight = d3.select('#mzValueAggregationList').node().getBoundingClientRect().height;
+        const mzListHeight = d3.select('#mzValueList').node().getBoundingClientRect().height;
+        const difference = newHeight - oldHeight;
+        const partOfNewHeightAggre = aggregationHeight / newHeight;
+        const partOfNewHeightMz = mzListHeight / newHeight;
+        const newAggreHeight = partOfNewHeightAggre * difference;
+        const newMzHeight = partOfNewHeightMz * difference;
+        d3.select('#mzValueAggregationList').style('height', newAggreHeight + 'px');
+        d3.select('#mzValueList').style('height',  newMzHeight + 'px');
       }
       if (mutation.type === 'SET_FOCUS_MZ_LIST') {
         if (!this.focusMzList) {
-          let mzListId = document.querySelector('#mzlistid');
+          let mzListId = document.querySelector('#mzValueList');
           mzListId.removeEventListener('change', this.showSingleImage);
           mzListId.removeEventListener('keydown', this.chooseKey);
-          let aggregationList = document.querySelector('#listForMzImage');
+          let aggregationList = document.querySelector('#mzValueAggregationList');
           aggregationList.removeEventListener('keydown', this.chooseKeyAggregation);
           aggregationList.removeEventListener('change', this.setMzValueToRemove);
         }
@@ -203,7 +211,7 @@ export default {
     setListFocus: function () {
       store.commit('SET_FOCUS_MZ_LIST', true);
       let that = this;
-      let mzList = document.querySelector('#mzlistid');
+      let mzList = document.querySelector('#mzValueList');
       mzList.addEventListener('change', function (e) {
         let arrayOfSelecedIDs = [];
         let elements = document.getElementById(this.id).childNodes;
@@ -225,12 +233,12 @@ export default {
     setAggregationFocus: function () {
       store.commit('SET_FOCUS_MZ_LIST', true);
       let that = this;
-      let listForMzImage = document.querySelector('#listForMzImage');
-      listForMzImage.addEventListener('keydown', function (event) {
+      let aggreList = document.querySelector('#mzValueAggregationList');
+      aggreList.addEventListener('keydown', function (event) {
         let key = event.keyCode;
         that.chooseKeyAggregation(this.value, key);
       });
-      listForMzImage.addEventListener('change', function () {
+      aggreList.addEventListener('change', function () {
         that.setMzValueToRemove(this.value);
       });
     },
@@ -293,6 +301,14 @@ export default {
     addMzItem: function (val, annotation) {
       let that = this;
       if (!(val in this.aggregationList)) {
+        let maxHeight = d3.select('#selectionContainer').node().getBoundingClientRect().height;
+        let aggregationHeight = d3.select('#mzValueAggregationList').node().getBoundingClientRect().height;
+        let mzListHeight = d3.select('#mzValueList').node().getBoundingClientRect().height;
+        let percent = maxHeight / 100;
+        const newAggreHeight = aggregationHeight + 2 * percent;
+        const newMzListHeight = mzListHeight - 2 * percent;
+        d3.select('#mzValueAggregationList').style('height', newAggreHeight + 'px');
+        d3.select('#mzValueList').style('height', newMzListHeight + 'px');
         this.aggregationList[val] = annotation;
         that.renderAggregationList();
       }
@@ -331,7 +347,6 @@ export default {
       store.commit('SET_NEW_MZ_VALUE', mzList);
       store.dispatch('fetchImageData');
     },
-    // TODO: afte deignore rewrite mzList
     chooseKey: function (mzItem, key) {
       let that = this;
       if (key === 13) {
@@ -389,7 +404,7 @@ export default {
       }
     },
     clearAggregationList: function () {
-      d3.select('#listForMzImage')
+      d3.select('#mzValueAggregationList')
         .selectAll('*').remove();
       this.aggregationListGrey = {};
       this.aggregationList = {};
@@ -404,7 +419,7 @@ export default {
     renderAggregationList: function () {
       let that = this;
       let combinedList;
-      d3.select('#listForMzImage')
+      d3.select('#mzValueAggregationList')
         .selectAll('*').remove();
       combinedList = Object.keys(this.aggregationList).concat(Object.keys(this.aggregationListGrey));
       combinedList.sort(function (a, b) {
@@ -412,7 +427,7 @@ export default {
       });
       if (this.showAnnotation) {
         combinedList.forEach(function (mzKey) {
-          d3.select('#listForMzImage')
+          d3.select('#mzValueAggregationList')
             .append('option')
             .text(that.aggregationList[mzKey])
             .style('color', 'white')
@@ -426,7 +441,7 @@ export default {
         });
       } else {
         combinedList.forEach(function (mzKey) {
-          d3.select('#listForMzImage')
+          d3.select('#mzValueAggregationList')
             .append('option')
             .text(mzKey)
             .style('color', 'white')
@@ -441,6 +456,7 @@ export default {
       }
     },
     renderMzList: function (dict, color) {
+      // console.log(dict);
       let that = this;
       let sortingList = Object.keys(dict);
       sortingList.sort(function (a, b) {
@@ -450,7 +466,7 @@ export default {
       sortingList.forEach(function (item) {
         d3.select('[id="' + item.toString() + '"]').remove();
         if (that.showAnnotation) {
-          d3.select('#mzlistid')
+          d3.select('#mzValueList')
             .append('option')
             .attr('id', item)
             .text(dict[item].toString())
@@ -459,7 +475,7 @@ export default {
             })
             .style('color', color);
         } else {
-          d3.select('#mzlistid')
+          d3.select('#mzValueList')
             .append('option')
             .attr('id', item.toString())
             .text(item.toString())
@@ -482,20 +498,25 @@ export default {
   .mzComp {
     top: 0;
   }
+  #selectionContainer {
+    height: 80vh;
+  }
   .list {
     padding: 0;
-    font-size: 0.9em;
+    font-size: 0.95em;
     width: 100%;
     text-align: center;
     margin-top: 8px;
-    height: 85%;
+    height: 93%;
+    max-height: 93%;
     background-color: #4f5051;
   }
   .listMz {
     padding: 0;
-    font-size: 0.9em;
+    font-size: 0.95em;
     width: 100%;
-    height: auto;
+    height: 5%;
+    min-height: 5%;
     text-align: center;
     background-color: #4f5051;
   }

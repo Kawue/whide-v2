@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="whide">
     <router-view/>
   </div>
 </template>
