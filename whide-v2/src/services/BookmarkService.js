@@ -37,6 +37,17 @@ class BookmarkService {
     return choosedBookmarks;
   }
   createBchart (bookmark, givenHeight = 300, showMzBoolean = false, mzAnnotations = false) {
+    let bookM = document.querySelector('#' + bookmark['id']);
+    bookM.addEventListener('mousemove', addMouseMove, false);
+    bookM.addEventListener('mouseenter', function () {
+      store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', bookmark['id']);
+      store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
+    });
+    bookM.addEventListener('mouseout', function () {
+      store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
+      store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
+    });
+    let qdtree = d3.quadtree();
     const gHeight = givenHeight - 80;
     let backgroundColor = bookmark['color'].toString();
     let mzItemList;
@@ -123,6 +134,16 @@ class BookmarkService {
       ctx.lineWidth = 0.5;
       ctx.strokeRect(0, yScaleAxis(offsetsAr[i]), xScaleAxis(d.coefficient), yScaleAxis(heights[i]));
     });
+    // TODO: schriftgroese gut aendern
+    if (showMzBoolean) {
+      data.forEach(function (d, i) {
+        ctx.fillStyle = 'black';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'left';
+        ctx.font = yScaleAxis(heights[i]);
+        ctx.fillText(d.mz, xScaleAxis(d.coefficient), yScaleAxis(offsetsAr[i]));
+      });
+    }
 
     /*
     canvas
@@ -136,15 +157,6 @@ class BookmarkService {
           .style('pointer-events', 'none');
       })
       .on('mouseleave', function () { d3.select(this).select('.annotation-group').remove(); });
-
-    canvas.on('mouseover', function () {
-      store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', bookmark['id']);
-      store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
-    })
-      .on('mouseout', function () {
-        store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
-        store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
-      });
 
     canvas
       .append('g')
@@ -198,42 +210,7 @@ class BookmarkService {
           .select('.annotations')
           .remove();
       });
-
-    if (showMzBoolean) {
-      d3.selectAll('.barGroup' + bookmark['id'])
-        .insert('text', 'barRect')
-        .data(data)
-
-        .attr('class', 'barLabel')
-
-        .attr('y', function (d, i) {
-          return (yScaleAxis(offsetsAr[i]) + yScaleAxis(heights[i])) - (yScaleAxis(heights[i]) / 6);
-        })
-        .attr('font-size', function (d, i) {
-          return yScaleAxis(heights[i]);
-        })
-        .attr('x', function (d) {
-          return (xScaleAxis(d.coefficient)) / 4;
-        })
-        .style('fill', '#000000')
-        .text(function (d) {
-          return d.mz;
-        });
     }
-
-    // add the x Axis
-    canvas.append('g')
-      .attr('class', 'x_axis')
-      .attr('transform', 'translate(' + margin.left + ',' + height + ')')
-      .call(d3.axisBottom(xScaleAxis)
-        .tickValues([dataMin, dataMax / 2, dataMax]));
-
-    // add the y Axis
-    canvas.append('g')
-      .attr('class', 'y_axis')
-      .attr('transform', 'translate(' + margin.left + ',' + 40 + ')')
-      .call(d3.axisLeft(yScaleAxis))
-      .selectAll('text').remove();
 
      */
     function drawLine (value) {
@@ -247,6 +224,12 @@ class BookmarkService {
       ctx.lineTo(xScaleAxis(value), height - 35);
       ctx.strokeStyle = 'black';
       ctx.stroke();
+    }
+    function addMouseMove (event) {
+      let x = event.offsetX;
+      let y = event.offsetY;
+      // console.log(x + ' ' + y);
+      // console.log('in');
     }
   }
 
