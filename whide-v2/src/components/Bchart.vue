@@ -1,5 +1,8 @@
 <template>
-  <svg class="chart" v-bind:id="this.prototypeid"></svg>
+  <div class="chartContainer">
+    <b-button class="delButton">X</b-button>
+    <canvas class="chart" v-bind:id="this.prototypeid"/>
+  </div>
 </template>
 
 <script>
@@ -191,6 +194,18 @@ export default {
    margin-bottom: 10px;
    border-style: solid;
    border-width: 1px;
-
  }
+  .chartContainer {
+    height: 350px;
+    width: 300px;
+    background-color: blue;
+    .delButton{
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 30px;
+      height: 30px;
+    }
+  }
+
   </style>

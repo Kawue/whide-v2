@@ -50,7 +50,7 @@ class BookmarkService {
     });
 
     let margin = {
-      top: 25,
+      top: 0,
       right: 35,
       bottom: 5,
       left: 20
@@ -63,6 +63,16 @@ class BookmarkService {
     let dataMax = d3.max(data, function (d) { return d.coefficient; });
     let barWidthMax = width;
 
+    let canvas = document.querySelector('#' + bookmark['id']);
+    canvas.width = width + 50;
+    canvas.height = height;
+    let ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+    ctx.webkitImageSmoothingEnabled = false;
+    ctx.fillStyle = backgroundColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.translate(margin.left, margin.top);
+
     let yScaleAxis = d3.scaleLinear()
       .range([0, height - 40]);
 
@@ -70,26 +80,25 @@ class BookmarkService {
       .domain([dataMin, dataMax])
       .range([0, barWidthMax + (barWidthMax * 0.05)], padding, outerPadding);
 
-    let svg = d3.select('#' + bookmark['id'])
-      .attr('width', barWidthMax + margin.left + margin.right) //  margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
-      .style('background-color', backgroundColor)
-      .on('mouseenter', function () {
-        d3.select(this)
-          .append('g')
-          .attr('class', 'annotation-group')
-          .style('pointer-events', 'none');
-      })
-      .on('mouseleave', function () { d3.select(this).select('.annotation-group').remove(); });
+    // draw x axis
+    ctx.strokeStyle = 'black';
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(xScaleAxis(dataMin), height - 35);
+    ctx.lineTo(xScaleAxis(dataMax), height - 35);
+    ctx.strokeStyle = 'black';
+    ctx.stroke();
 
-    svg.on('mouseover', function () {
-      store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', bookmark['id']);
-      store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
-    })
-      .on('mouseout', function () {
-        store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
-        store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
-      });
+    // dataMin, dataMax / 2, dataMax]
+    drawLine(dataMin);
+    drawLine(dataMax / 2);
+    drawLine(dataMax);
+
+    // format the data
+    data.forEach(function (d) {
+      d.coefficient = +d.coefficient;
+    });
+
     let coefficientArray = [];
     data.forEach(function (e) {
       coefficientArray.push(e['coefficient']);
@@ -105,10 +114,39 @@ class BookmarkService {
       offsetsAr.push(offset);
       offset += height;
     }
-
     yScaleAxis.domain([offsetsAr[0], offsetsAr[offsetsAr.length - 1]]);
 
-    svg
+    ctx.fillStyle = 'white';
+    data.forEach(function (d, i) {
+      ctx.fillRect(0, yScaleAxis(offsetsAr[i]), xScaleAxis(d.coefficient), yScaleAxis(heights[i]));
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = 0.5;
+      ctx.strokeRect(0, yScaleAxis(offsetsAr[i]), xScaleAxis(d.coefficient), yScaleAxis(heights[i]));
+    });
+
+    /*
+    canvas
+      .attr('width', barWidthMax + margin.left + margin.right) //  margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
+      .style('background-color', backgroundColor)
+      .on('mouseenter', function () {
+        d3.select(this)
+          .append('g')
+          .attr('class', 'annotation-group')
+          .style('pointer-events', 'none');
+      })
+      .on('mouseleave', function () { d3.select(this).select('.annotation-group').remove(); });
+
+    canvas.on('mouseover', function () {
+      store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', bookmark['id']);
+      store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
+    })
+      .on('mouseout', function () {
+        store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
+        store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
+      });
+
+    canvas
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + 40 + ')')
       .attr('class', 'hist-rects')
@@ -150,13 +188,13 @@ class BookmarkService {
           color: 'black',
           type: d3annotate.annotationCalloutElbow
         }];
-        svg
+        canvas
           .select('.annotation-group')
           .call(d3annotate.annotation()
             .annotations(property));
       })
       .on('mouseout', () => {
-        svg
+        canvas
           .select('.annotations')
           .remove();
       });
@@ -183,26 +221,21 @@ class BookmarkService {
         });
     }
 
-    // format the data
-    data.forEach(function (d) {
-      d.coefficient = +d.coefficient;
-    });
-
     // add the x Axis
-    svg.append('g')
+    canvas.append('g')
       .attr('class', 'x_axis')
       .attr('transform', 'translate(' + margin.left + ',' + height + ')')
       .call(d3.axisBottom(xScaleAxis)
         .tickValues([dataMin, dataMax / 2, dataMax]));
 
     // add the y Axis
-    svg.append('g')
+    canvas.append('g')
       .attr('class', 'y_axis')
       .attr('transform', 'translate(' + margin.left + ',' + 40 + ')')
       .call(d3.axisLeft(yScaleAxis))
       .selectAll('text').remove();
 
-    svg.append('foreignObject')
+    canvas.append('foreignObject')
       .attr('width', 30)
       .attr('height', 35)
       .append('xhtml:div')
@@ -212,6 +245,19 @@ class BookmarkService {
       .on('click', function () {
         store.commit('DELETE_BOOKMARK', bookmark['id']);
       });
+
+     */
+    function drawLine (value) {
+      ctx.beginPath();
+      ctx.moveTo(xScaleAxis(value), height - 35);
+      ctx.lineTo(xScaleAxis(value), height - 30);
+      ctx.strokeStyle = 'black';
+      ctx.stroke();
+
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(value, xScaleAxis(value), height - 20);
+    }
   }
 
   // function to creat a bar chart of the spektrum from one prototype
