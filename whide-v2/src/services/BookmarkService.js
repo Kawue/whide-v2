@@ -84,8 +84,8 @@ class BookmarkService {
     ctx.strokeStyle = 'black';
     ctx.stroke();
     ctx.beginPath();
-    ctx.moveTo(xScaleAxis(dataMin), height - 35);
-    ctx.lineTo(xScaleAxis(dataMax), height - 35);
+    ctx.moveTo(xScaleAxis(dataMin), height - 39);
+    ctx.lineTo(xScaleAxis(dataMax), height - 39);
     ctx.strokeStyle = 'black';
     ctx.stroke();
 
@@ -235,24 +235,16 @@ class BookmarkService {
       .call(d3.axisLeft(yScaleAxis))
       .selectAll('text').remove();
 
-    canvas.append('foreignObject')
-      .attr('width', 30)
-      .attr('height', 35)
-      .append('xhtml:div')
-      .append('xhtml:button')
-      .attr('class', 'btn btn-outline-dark btn-sm')
-      .html('x')
-      .on('click', function () {
-        store.commit('DELETE_BOOKMARK', bookmark['id']);
-      });
-
      */
     function drawLine (value) {
-      ctx.font = '20px Georgia';
-      ctx.fillText('HODEN', xScaleAxis(dataMax), 50);
+      ctx.fillStyle = 'black';
+      ctx.font = '0.9em';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'left';
+      ctx.fillText(Math.round(value * 100) / 100, xScaleAxis(value) - 5, height - 25);
       ctx.beginPath();
-      ctx.moveTo(xScaleAxis(value), height - 35);
-      ctx.lineTo(xScaleAxis(value), height - 30);
+      ctx.moveTo(xScaleAxis(value), height - 39);
+      ctx.lineTo(xScaleAxis(value), height - 35);
       ctx.strokeStyle = 'black';
       ctx.stroke();
     }
