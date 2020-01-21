@@ -50,9 +50,9 @@ class BookmarkService {
     });
 
     let margin = {
-      top: 0,
+      top: 20,
       right: 35,
-      bottom: 5,
+      bottom: 20,
       left: 20
     };
     let width = 300 - margin.left - margin.right;
@@ -248,15 +248,13 @@ class BookmarkService {
 
      */
     function drawLine (value) {
+      ctx.font = '20px Georgia';
+      ctx.fillText('HODEN', xScaleAxis(dataMax), 50);
       ctx.beginPath();
       ctx.moveTo(xScaleAxis(value), height - 35);
       ctx.lineTo(xScaleAxis(value), height - 30);
       ctx.strokeStyle = 'black';
       ctx.stroke();
-
-      ctx.textAlign = 'right';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(value, xScaleAxis(value), height - 20);
     }
   }
 

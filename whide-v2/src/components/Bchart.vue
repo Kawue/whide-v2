@@ -1,6 +1,8 @@
 <template>
   <div class="chartContainer">
-    <b-button class="delButton">X</b-button>
+    <span class="delButton" v-on:click="deleteBookmark" v-b-tooltip.hover.top="'Delete Bookmark'">
+      <v-icon class="deleteSymbol" name="window-close"/>
+    </span>
     <canvas class="chart" v-bind:id="this.prototypeid"/>
   </div>
 </template>
@@ -183,6 +185,11 @@ export default {
   },
   beforeDestroy () {
     this.unsubscribe();
+  },
+  methods: {
+    deleteBookmark: function () {
+      store.commit('DELETE_BOOKMARK', this.bookmarkData['id']);
+    }
   }
 
 };
@@ -190,22 +197,24 @@ export default {
 
 <style scoped lang="scss">
  .chart{
+   position: absolute;
    margin-right: 2px;
    margin-bottom: 10px;
    border-style: solid;
    border-width: 1px;
  }
   .chartContainer {
-    height: 350px;
+    position: relative;
+    height: 50px;
     width: 300px;
-    background-color: blue;
-    .delButton{
-      position: absolute;
-      top: 3px;
-      left: 3px;
-      width: 30px;
-      height: 30px;
-    }
   }
+ .delButton{
+   position: absolute;
+   top: 0;
+   left: 3px;
+   width: 30px;
+   height: 30px;
+   z-index: 102;
+ }
 
   </style>
