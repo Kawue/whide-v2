@@ -1,5 +1,5 @@
 <template>
-  <div class="chartContainer">
+  <div  v-bind:id="this.prototypeid + '-container'" class="chartContainer">
     <span class="delButton" v-on:click="deleteBookmark" v-b-tooltip.hover.top="'Delete Bookmark'">
       <v-icon class="deleteSymbol" name="window-close"/>
     </span>
@@ -105,6 +105,7 @@ export default {
       }
       if (mutation.type === 'SET_BOTTOMBAR_HEIGHT') {
         d3.select('#' + this.prototypeid).selectAll('*').remove();
+        d3.select('.chartContainer').style('height', this.height).style('background-color', 'green');
         if (this.bookmarkOrientation) {
           if (this.lineChart) {
             bookmarkService.lineChart(this.bookmarkData);
@@ -112,6 +113,7 @@ export default {
             bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
           }
         } else {
+          this.clearBchart();
           bookmarkService.createBchart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
         }
       }
@@ -125,6 +127,7 @@ export default {
               bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
             }
           } else {
+            this.clearBchart();
             bookmarkService.createBchart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
           }
         } else {
@@ -135,6 +138,7 @@ export default {
               bookmarkService.createHorizontalChart(this.bookmarkData, 300, this.showMzBoolean, this.showAnnotations);
             }
           } else {
+            this.clearBchart();
             bookmarkService.createBchart(this.bookmarkData, 300, this.showMzBoolean, this.showAnnotations);
           }
         }
@@ -189,6 +193,11 @@ export default {
   methods: {
     deleteBookmark: function () {
       store.commit('DELETE_BOOKMARK', this.bookmarkData['id']);
+    },
+    clearBchart: function () {
+      let canvas = document.querySelector('#' + this.bookmarkData['id']);
+      let ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
   }
 
@@ -207,6 +216,7 @@ export default {
     position: relative;
     height: 50px;
     width: 300px;
+    background-color: blue;
   }
  .delButton{
    position: absolute;

@@ -128,29 +128,13 @@ class BookmarkService {
       offset += height;
     }
     yScaleAxis.domain([offsetsAr[0], offsetsAr[offsetsAr.length - 1]]);
-    ctx.fillStyle = 'white';
-    data.forEach(function (d, i) {
-      ctx.fillRect(0, yScaleAxis(offsetsAr[i]), xScaleAxis(d.coefficient), yScaleAxis(heights[i]));
-      ctx.strokeStyle = 'black';
-      ctx.lineWidth = 0.5;
-      ctx.strokeRect(0, yScaleAxis(offsetsAr[i]), xScaleAxis(d.coefficient), yScaleAxis(heights[i]));
-    });
-    // TODO: schriftgroese gut aendern
-    if (showMzBoolean) {
-      data.forEach(function (d, i) {
-        ctx.fillStyle = 'black';
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'left';
-        ctx.font = yScaleAxis(heights[i]);
-        ctx.fillText(d.mz, xScaleAxis(d.coefficient), yScaleAxis(offsetsAr[i]));
-      });
-    }
+    drawChart();
     qdtree
       .x(function (d) {
         return 0;
       })
       .y(function (d) {
-        return yScaleAxis(offsetsAr[data.indexOf(d)]);
+        return (yScaleAxis(offsetsAr[data.indexOf(d)]) + yScaleAxis(heights[data.indexOf(d)]) / 2);
       })
       .extent([
         [0, 0],
@@ -163,7 +147,7 @@ class BookmarkService {
       ctx.textAlign = 'left';
       ctx.textBaseline = 'left';
       ctx.fillText(Math.round(value * 100) / 100, xScaleAxis(value) - 5, height - 25);
-      ctx.beginPath(); ;
+      ctx.beginPath();
       ctx.moveTo(xScaleAxis(value), height - 39);
       ctx.lineTo(xScaleAxis(value), height - 35);
       ctx.strokeStyle = 'black';
@@ -175,6 +159,25 @@ class BookmarkService {
       let nearest = qdtree.find(x - margin.left, y - margin.top);
       createAnnotation(nearest);
     }
+    function drawChart () {
+      ctx.fillStyle = 'white';
+      data.forEach(function (d, i) {
+        ctx.fillRect(0, yScaleAxis(offsetsAr[i]), xScaleAxis(d.coefficient), yScaleAxis(heights[i]));
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 0.5;
+        ctx.strokeRect(0, yScaleAxis(offsetsAr[i]), xScaleAxis(d.coefficient), yScaleAxis(heights[i]));
+      });
+      // TODO: schriftgroese gut aendern
+      if (showMzBoolean) {
+        data.forEach(function (d, i) {
+          ctx.fillStyle = 'black';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'left';
+          ctx.font = yScaleAxis(heights[i]);
+          ctx.fillText(d.mz, xScaleAxis(d.coefficient), yScaleAxis(offsetsAr[i]));
+        });
+      }
+    }
     function createAnnotation (nearest) {
       const index = data.indexOf(nearest);
       if (currentHighlightedMz === undefined) {
@@ -185,11 +188,12 @@ class BookmarkService {
         ctx.lineWidth = 0.5;
         ctx.strokeRect(0, yScaleAxis(offsetsAr[index]), xScaleAxis(nearest.coefficient), yScaleAxis(heights[index]));
       } else if (currentHighlightedMz !== nearest) {
+        let currentIndex = data.indexOf(currentHighlightedMz);
         ctx.fillStyle = 'white';
-        ctx.fillRect(0, yScaleAxis(offsetsAr[data.indexOf(currentHighlightedMz)]), xScaleAxis(currentHighlightedMz.coefficient), yScaleAxis(heights[data.indexOf(currentHighlightedMz)]));
+        ctx.fillRect(0, yScaleAxis(offsetsAr[currentIndex]), xScaleAxis(currentHighlightedMz.coefficient), yScaleAxis(heights[currentIndex]));
         ctx.strokeStyle = 'black';
         ctx.lineWidth = 0.5;
-        ctx.strokeRect(0, yScaleAxis(offsetsAr[data.indexOf(currentHighlightedMz)]), xScaleAxis(currentHighlightedMz.coefficient), yScaleAxis(heights[data.indexOf(currentHighlightedMz)]));
+        ctx.strokeRect(0, yScaleAxis(offsetsAr[currentIndex]), xScaleAxis(currentHighlightedMz.coefficient), yScaleAxis(heights[currentIndex]));
         ctx.fillStyle = 'orange';
         ctx.fillRect(0, yScaleAxis(offsetsAr[index]), xScaleAxis(nearest.coefficient), yScaleAxis(heights[index]));
         ctx.strokeStyle = 'black';
@@ -197,6 +201,7 @@ class BookmarkService {
         ctx.strokeRect(0, yScaleAxis(offsetsAr[index]), xScaleAxis(nearest.coefficient), yScaleAxis(heights[index]));
         currentHighlightedMz = nearest;
       }
+
       d3.select('.annotation-group').remove();
 
       const property = [{
@@ -210,10 +215,12 @@ class BookmarkService {
         color: 'black',
         type: d3annotate.annotationCalloutElbow
       }];
-      let anno = d3.select('#' + bookmark['id']);
+      let anno = d3.select('#' + bookmark['id'] + '-container');
       anno
-        .append('g')
+        .append('svg')
         .attr('class', 'annotation-group')
+        .style('position', 'absolute')
+        .style('z-index', '102')
         .call(d3annotate.annotation()
           .annotations(property));
     }

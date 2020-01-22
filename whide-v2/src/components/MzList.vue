@@ -355,7 +355,9 @@ export default {
       if (key === 13) {
         this.greyMzItem(parseFloat(mzItem));
       } else if (key === 46) {
-        this.removeMzFromAggregationList();
+        if (mzItem.length > 0) {
+          this.removeMzFromAggregationList();
+        }
       }
     },
     clickChecker: function (event, val, annotation) {
