@@ -126,7 +126,7 @@ class BookmarkService {
       offset += height;
     }
     yScaleAxis.domain([offsetsAr[0], offsetsAr[offsetsAr.length - 1]]);
-
+    console.log(data);
     ctx.fillStyle = 'white';
     data.forEach(function (d, i) {
       ctx.fillRect(0, yScaleAxis(offsetsAr[i]), xScaleAxis(d.coefficient), yScaleAxis(heights[i]));
@@ -213,13 +213,25 @@ class BookmarkService {
     }
 
      */
+    qdtree
+      .x(function (d) {
+        return 0;
+      })
+      .y(function (d) {
+        return yScaleAxis(offsetsAr[data.indexOf(d)]);
+      })
+      .extent([
+        [0, 0],
+        [canvas.width, canvas.height]
+      ])
+      .addAll(data);
     function drawLine (value) {
       ctx.fillStyle = 'black';
       ctx.font = '0.9em';
       ctx.textAlign = 'left';
       ctx.textBaseline = 'left';
       ctx.fillText(Math.round(value * 100) / 100, xScaleAxis(value) - 5, height - 25);
-      ctx.beginPath();
+      ctx.beginPath(); ;
       ctx.moveTo(xScaleAxis(value), height - 39);
       ctx.lineTo(xScaleAxis(value), height - 35);
       ctx.strokeStyle = 'black';
@@ -228,6 +240,8 @@ class BookmarkService {
     function addMouseMove (event) {
       let x = event.offsetX;
       let y = event.offsetY;
+      let nearest = qdtree.find(x, y);
+      console.log(nearest);
       // console.log(x + ' ' + y);
       // console.log('in');
     }
