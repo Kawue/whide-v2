@@ -122,9 +122,9 @@ class BookmarkService {
     ctx.stroke();
 
     // dataMin, dataMax / 2, dataMax]
-    drawLine(dataMin);
-    drawLine(dataMax / 2);
-    drawLine(dataMax);
+    this.drawLine(dataMin, ctx, height, xScaleAxis);
+    this.drawLine(dataMax / 2, ctx, height, xScaleAxis);
+    this.drawLine(dataMax, ctx, height, xScaleAxis);
 
     // format the data
     data.forEach(function (d) {
@@ -160,18 +160,7 @@ class BookmarkService {
         [canvas.width, canvas.height]
       ])
       .addAll(data);
-    function drawLine (value) {
-      ctx.fillStyle = 'black';
-      ctx.font = '0.9em';
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'left';
-      ctx.fillText(Math.round(value * 100) / 100, xScaleAxis(value) - 5, height - 25);
-      ctx.beginPath();
-      ctx.moveTo(xScaleAxis(value), height - 39);
-      ctx.lineTo(xScaleAxis(value), height - 35);
-      ctx.strokeStyle = 'black';
-      ctx.stroke();
-    }
+
     function addMouseMove (event) {
       let x = event.offsetX;
       let y = event.offsetY;
@@ -228,7 +217,7 @@ class BookmarkService {
           label: currentHighlightedMz.mz
         },
         x: margin.left + xScaleAxis(currentHighlightedMz.coefficient),
-        y: yScaleAxis(offsetsAr[index]) + 30,
+        y: yScaleAxis(offsetsAr[index]) + 26,
         dy: -yScaleAxis(offsetsAr[index]),
         dx: 210 - xScaleAxis(currentHighlightedMz.coefficient) - margin.top,
         color: 'black',
@@ -248,26 +237,29 @@ class BookmarkService {
   }
 
   // function to creat a bar chart of the spektrum from one prototype
-  createHorizontalChart (bookmark, givenHeight = 300, showMzBoolean = false, mzAnnotations = false) {
-    let backgroundColor = bookmark['color'].toString();
-    let mzItemList;
-    if (mzAnnotations) {
-      mzItemList = Object.values(bookmark['mzObject']);
-    } else {
-      mzItemList = Object.keys(bookmark['mzObject']);
-    }
-    let data = mzItemList.map(function (x, i) {
-      return { 'mz': x, 'coefficient': bookmark['data'][i] };
+  createHorizontalChart (qdtree, data, givenHeight = 300, showMzBoolean = false, mzAnnotations = false, id, color) {
+    let currentHighlightedMz;
+    let bookM = document.querySelector('#' + id);
+    // bookM.removeEventListener('mousemove', addMouseMove);
+    // bookM.addEventListener('mousemove', addMouseMove, false);
+    bookM.addEventListener('mouseenter', function () {
+      store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', id);
+      store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
     });
+    bookM.addEventListener('mouseout', function () {
+      store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
+      store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
+    });
+    let backgroundColor = color.toString();
 
     let margin = {
       top: 25,
       right: 25,
-      bottom: 40,
+      bottom: 20,
       left: 40
     };
 
-    let width = document.documentElement.clientWidth - 50 - margin.left - margin.right;
+    let width = document.documentElement.clientWidth - 100 - margin.left - margin.right;
     let height = 300 - margin.top - margin.bottom;
     let padding = 0.1;
     let outerPadding = 0.3;
@@ -279,6 +271,16 @@ class BookmarkService {
     let dataMin = d3.min(data, function (d) { return d.coefficient; });
     let dataMax = d3.max(data, function (d) { return d.coefficient; });
 
+    let canvas = document.querySelector('#' + id);
+    canvas.width = width + 50;
+    canvas.height = height + 50;
+    let ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+    ctx.webkitImageSmoothingEnabled = false;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = backgroundColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.translate(margin.left, margin.top);
     let yScaleAxis = d3.scaleLinear()
       .domain([dataMin, dataMax])
       .range([ height, 0 ]);
@@ -286,33 +288,25 @@ class BookmarkService {
     let xScaleAxis = d3.scaleLinear()
       .range([ 0, width ]);
 
-    let svg = d3.select('#' + bookmark['id'])
-      .attr('width', width + margin.right + margin.left)
-      .attr('height', height + margin.top + margin.bottom)
-      .style('background-color', backgroundColor)
-      .on('mouseenter', function () {
-        d3.select(this)
-          .append('g')
-          .attr('class', 'annotation-group')
-          .style('pointer-events', 'none');
-      })
-      .on('mouseleave', function () { d3.select(this).select('.annotation-group').remove(); });
+    // draw x axis
+    ctx.strokeStyle = 'black';
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0, yScaleAxis(dataMin));
+    ctx.lineTo(0, yScaleAxis(dataMax));
+    ctx.strokeStyle = 'black';
+    ctx.stroke();
 
-    svg.on('mouseover', function () {
-      store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', bookmark['id']);
-      store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
-    })
-      .on('mouseout', function () {
-        store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
-        store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
-      });
+    // format the data
+    data.forEach(function (d) {
+      d.coefficient = +d.coefficient;
+    });
 
     let coefficientArray = [];
     data.forEach(function (e) {
       coefficientArray.push(e['coefficient']);
     });
 
-    // create a widths array with the with of the bar  and an offset array inclusive the size of the bars before
     let a = this.alpha(coefficientArray, width, padding, outerPadding);
     let offset = 0;
     let offsetsAr = [];
@@ -323,8 +317,14 @@ class BookmarkService {
       offsetsAr.push(offset);
       offset += w;
     }
-
     xScaleAxis.domain([offsetsAr[0], offsetsAr[offsetsAr.length - 1]]);
+    // dataMin, dataMax / 2, dataMax]
+    this.drawHorizontalLine(dataMin, ctx, height, yScaleAxis);
+    this.drawHorizontalLine(dataMax / 2, ctx, height, yScaleAxis);
+    this.drawHorizontalLine(dataMax, ctx, height, yScaleAxis);
+    drawChart();
+    /*
+
     svg
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + 40 + ')')
@@ -422,6 +422,97 @@ class BookmarkService {
       .on('click', function () {
         store.commit('DELETE_BOOKMARK', bookmark['id']);
       });
+
+     */
+
+    qdtree
+      .x(function (d) {
+        return xScaleAxis(offsetsAr[data.indexOf(d)]) + xScaleAxis(widths[data.indexOf(d)] / 2);
+      })
+      .y(function () {
+        return 0;
+      })
+      .extent([
+        [0, 0],
+        [canvas.width, canvas.height]
+      ])
+      .addAll(data);
+
+    function addMouseMove (event) {
+      let x = event.offsetX;
+      let y = event.offsetY;
+      let nearest = qdtree.find(x - margin.left, y - margin.top);
+      createAnnotation(nearest);
+    }
+
+    function createAnnotation (nearest) {
+      const index = data.indexOf(nearest);
+      if (currentHighlightedMz === undefined) {
+        currentHighlightedMz = nearest;
+        ctx.fillStyle = 'orange';
+        ctx.fillRect(xScaleAxis(offsetsAr[index]), 0, xScaleAxis(widths[index]), yScaleAxis(nearest.coefficient));
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 0.5;
+        ctx.strokeRect(xScaleAxis(offsetsAr[index]), 0, xScaleAxis(widths[index]), yScaleAxis(nearest.coefficient));
+      } else if (currentHighlightedMz !== nearest) {
+        let currentIndex = data.indexOf(currentHighlightedMz);
+        ctx.fillStyle = 'white';
+        ctx.fillRect(xScaleAxis(offsetsAr[currentIndex]), 0, xScaleAxis(widths[currentIndex]), yScaleAxis(nearest.coefficient));
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 0.5;
+        ctx.strokeRect(xScaleAxis(offsetsAr[currentIndex]), 0, xScaleAxis(widths[currentIndex]), yScaleAxis(nearest.coefficient));
+        ctx.fillStyle = 'orange';
+        ctx.fillRect(xScaleAxis(offsetsAr[index]), 0, xScaleAxis(widths[index]), yScaleAxis(nearest.coefficient));
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 0.5;
+        ctx.strokeRect(xScaleAxis(offsetsAr[index]), 0, xScaleAxis(widths[index]), yScaleAxis(nearest.coefficient));
+        currentHighlightedMz = nearest;
+      }
+
+      d3.select('.annotation-group').remove();
+
+      const property = [{
+        note: {
+          label: currentHighlightedMz.mz
+        },
+        x: margin.left + xScaleAxis(offsetsAr[index]),
+        y: yScaleAxis(nearest.coefficient) + 40,
+        dy: -10,
+        dx: 10,
+        color: 'black',
+        type: d3annotate.annotationCalloutElbow
+      }];
+      let anno = d3.select('#' + id + '-container');
+      anno
+        .append('svg')
+        .attr('class', 'annotation-group')
+        .style('position', 'absolute')
+        .style('z-index', '102')
+        .style('height', height + 'px')
+        .style('pointer-events', 'none')
+        .call(d3annotate.annotation()
+          .annotations(property));
+    }
+
+    function drawChart () {
+      ctx.fillStyle = 'white';
+      data.forEach(function (d, i) {
+        ctx.fillRect(xScaleAxis(offsetsAr[i]), yScaleAxis(d.coefficient), xScaleAxis(widths[i]), height - yScaleAxis(d.coefficient));
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 0.5;
+        ctx.strokeRect(xScaleAxis(offsetsAr[i]), yScaleAxis(d.coefficient), xScaleAxis(widths[i]), height - yScaleAxis(d.coefficient));
+      });
+      // TODO: schriftgroese gut aendern
+      if (showMzBoolean) {
+        data.forEach(function (d, i) {
+          ctx.fillStyle = 'black';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'left';
+          ctx.font = xScaleAxis(widths[i]);
+          ctx.fillText(d.mz, xScaleAxis(offsetsAr[i]), yScaleAxis(d.coefficient));
+        });
+      }
+    }
   }
 
   lineChart (bookmark, showMzBoolean = false, mzAnnotations = false) {
@@ -573,6 +664,30 @@ class BookmarkService {
     let n = values.length;
     let total = d3.sum(values);
     return (width - (n - 1) * padding * width / n - 2 * outerPadding * width / n) / total;
+  }
+  drawLine (value, context, h, xScale) {
+    context.fillStyle = 'black';
+    context.font = '0.9em';
+    context.textAlign = 'left';
+    context.textBaseline = 'left';
+    context.fillText(Math.round(value * 100) / 100, xScale(value) - 5, h - 25);
+    context.beginPath();
+    context.moveTo(xScale(value), h - 39);
+    context.lineTo(xScale(value), h - 35);
+    context.strokeStyle = 'black';
+    context.stroke();
+  }
+  drawHorizontalLine (value, context, h, yScale) {
+    context.fillStyle = 'black';
+    context.font = '0.9em';
+    context.textAlign = 'right';
+    context.textBaseline = 'right';
+    context.fillText(Math.round(value * 100) / 100, -5, yScale(value) + 5);
+    context.beginPath();
+    context.moveTo(0, yScale(value));
+    context.lineTo(-4, yScale(value));
+    context.strokeStyle = 'black';
+    context.stroke();
   }
 }
 export default BookmarkService;
