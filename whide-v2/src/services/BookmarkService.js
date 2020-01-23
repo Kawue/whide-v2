@@ -7,6 +7,21 @@ class BookmarkService {
     let max = Number.MIN_SAFE_INTEGER;
     let min = Number.MAX_SAFE_INTEGER;
     let newCoeff = {};
+    /*
+    coefficients.forEach(function (pro) {
+      let i;
+      for (i = 0; i < coefficients[pro].length; i++) {
+        if (coefficients[pro][i] < min) {
+          min = coefficients[pro][i];
+        }
+        if (coefficients[pro][i] > max) {
+          max = coefficients[pro][i];
+        }
+      }
+    });
+
+     */
+
     for (let pro in coefficients) {
       let i;
       for (i = 0; i < coefficients[pro].length; i++) {
@@ -18,7 +33,20 @@ class BookmarkService {
         }
       }
     }
-    for (var norPro in coefficients) {
+    /*
+    coefficients.forEach(function (norPro) {
+      let k;
+      let newValues = [];
+      for (k = 0; k < coefficients[norPro].length; k++) {
+        let val = ((coefficients[norPro][k] - min) / (max - min));
+        newValues.push(val);
+      }
+      newCoeff[norPro] = newValues;
+    });
+
+     */
+
+    for (let norPro in coefficients) {
       let k;
       let newValues = [];
       for (k = 0; k < coefficients[norPro].length; k++) {
@@ -36,32 +64,22 @@ class BookmarkService {
     });
     return choosedBookmarks;
   }
-  createBchart (bookmark, givenHeight = 300, showMzBoolean = false, mzAnnotations = false) {
+  createBchart (qdtree, data, givenHeight = 300, showMzBoolean = false, mzAnnotations = false, id, color) {
     let currentHighlightedMz;
-    let bookM = document.querySelector('#' + bookmark['id']);
+    let bookM = document.querySelector('#' + id);
     bookM.removeEventListener('mousemove', addMouseMove);
     bookM.addEventListener('mousemove', addMouseMove, false);
     bookM.addEventListener('mouseenter', function () {
-      store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', bookmark['id']);
+      store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', id);
       store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
     });
     bookM.addEventListener('mouseout', function () {
       store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
       store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
     });
-    let qdtree = d3.quadtree();
-    const gHeight = givenHeight - 80;
-    let backgroundColor = bookmark['color'].toString();
-    let mzItemList;
-    if (mzAnnotations) {
-      mzItemList = Object.values(bookmark['mzObject']);
-    } else {
-      mzItemList = Object.keys(bookmark['mzObject']);
-    }
-    let data = mzItemList.map(function (x, i) {
-      return { 'mz': x, 'coefficient': bookmark['data'][i] };
-    });
 
+    const gHeight = givenHeight - 80;
+    let backgroundColor = color.toString();
     let margin = {
       top: 20,
       right: 35,
@@ -76,12 +94,13 @@ class BookmarkService {
     let dataMax = d3.max(data, function (d) { return d.coefficient; });
     let barWidthMax = width;
 
-    let canvas = document.querySelector('#' + bookmark['id']);
+    let canvas = document.querySelector('#' + id);
     canvas.width = width + 50;
     canvas.height = height;
     let ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
     ctx.webkitImageSmoothingEnabled = false;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = backgroundColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.translate(margin.left, margin.top);
@@ -209,18 +228,20 @@ class BookmarkService {
           label: currentHighlightedMz.mz
         },
         x: margin.left + xScaleAxis(currentHighlightedMz.coefficient),
-        y: yScaleAxis(offsetsAr[index]) + 40,
-        dy: -5 - yScaleAxis(offsetsAr[index]),
-        dx: 210 - xScaleAxis(currentHighlightedMz.coefficient),
+        y: yScaleAxis(offsetsAr[index]) + 30,
+        dy: -yScaleAxis(offsetsAr[index]),
+        dx: 210 - xScaleAxis(currentHighlightedMz.coefficient) - margin.top,
         color: 'black',
         type: d3annotate.annotationCalloutElbow
       }];
-      let anno = d3.select('#' + bookmark['id'] + '-container');
+      let anno = d3.select('#' + id + '-container');
       anno
         .append('svg')
         .attr('class', 'annotation-group')
         .style('position', 'absolute')
         .style('z-index', '102')
+        .style('height', height + 'px')
+        .style('pointer-events', 'none')
         .call(d3annotate.annotation()
           .annotations(property));
     }

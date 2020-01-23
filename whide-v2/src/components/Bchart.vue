@@ -20,7 +20,9 @@ export default {
       currentMarkedPrototype: null,
       bookmarkData: {},
       bookmarkColor: String,
-      mzText: false
+      mzText: false,
+      qdtree: {},
+      chartData: {}
     };
   },
   props: {
@@ -39,6 +41,7 @@ export default {
     })
   },
   mounted () {
+    this.qdtree = d3.quadtree();
     let bookmarkService = new BookmarkService();
     if (this.bookmarkOrientation) {
       d3.select('.bottombarWidget')
@@ -52,7 +55,6 @@ export default {
       store.commit('SET_BOTTOMBAR_HEIGHT', 350);
     }
     this.bookmarkData = store.getters.getBookmarksData(this.prototypeid);
-
     if (this.height !== 0) {
       if (this.bookmarkOrientation) {
         if (this.lineChart) {
@@ -61,7 +63,8 @@ export default {
           bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
         }
       } else {
-        bookmarkService.createBchart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+        this.createChartData(this.showAnnotations);
+        bookmarkService.createBchart(this.qdtree, this.chartData, parseInt(this.height), this.showMzBoolean, this.showAnnotations, this.bookmarkData['id'], this.bookmarkData['color']);
       }
     } else {
       if (this.bookmarkOrientation) {
@@ -71,7 +74,8 @@ export default {
           bookmarkService.createHorizontalChart(this.bookmarkData, 300, this.showMzBoolean, this.showAnnotations);
         }
       } else {
-        bookmarkService.createBchart(this.bookmarkData, 300, this.showMzBoolean, this.showAnnotations);
+        this.createChartData(this.showAnnotations);
+        bookmarkService.createBchart(this.qdtree, this.chartData, 300, this.showMzBoolean, this.showAnnotations, this.bookmarkData['id'], this.bookmarkData['color']);
       }
     }
     this.unsubscribe = store.subscribe(mutation => {
@@ -114,7 +118,9 @@ export default {
           }
         } else {
           this.clearBchart();
-          bookmarkService.createBchart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+          this.qdtree.removeAll(this.chartData);
+          this.createChartData(this.showAnnotations);
+          bookmarkService.createBchart(this.qdtree, this.chartData, parseInt(this.height), this.showMzBoolean, this.showAnnotations, this.bookmarkData['id'], this.bookmarkData['color']);
         }
       }
       if (mutation.type === 'SET_SHOW_MZ_IN_BCHART') {
@@ -128,7 +134,9 @@ export default {
             }
           } else {
             this.clearBchart();
-            bookmarkService.createBchart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+            this.qdtree.removeAll(this.chartData);
+            this.createChartData(this.showAnnotations);
+            bookmarkService.createBchart(this.qdtree, this.chartData, parseInt(this.height), this.showMzBoolean, this.showAnnotations, this.bookmarkData['id'], this.bookmarkData['color']);
           }
         } else {
           if (this.bookmarkOrientation) {
@@ -139,7 +147,9 @@ export default {
             }
           } else {
             this.clearBchart();
-            bookmarkService.createBchart(this.bookmarkData, 300, this.showMzBoolean, this.showAnnotations);
+            this.qdtree.removeAll(this.chartData);
+            this.createChartData(this.showAnnotations);
+            bookmarkService.createBchart(this.qdtree, this.chartData, 300, this.showMzBoolean, this.showAnnotations, this.bookmarkData['id'], this.bookmarkData['color']);
           }
         }
       }
@@ -153,7 +163,10 @@ export default {
               bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
             }
           } else {
-            bookmarkService.createBchart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+            this.clearBchart();
+            this.qdtree.removeAll(this.chartData);
+            this.createChartData(this.showAnnotations);
+            bookmarkService.createBchart(this.qdtree, this.chartData, parseInt(this.height), this.showMzBoolean, this.showAnnotations, this.bookmarkData['id'], this.bookmarkData['color']);
           }
         } else {
           if (this.bookmarkOrientation) {
@@ -163,7 +176,10 @@ export default {
               bookmarkService.createHorizontalChart(this.bookmarkData, 300, this.showMzBoolean, this.showAnnotations);
             }
           } else {
-            bookmarkService.createBchart(this.bookmarkData, 300, this.showMzBoolean, this.showAnnotations);
+            this.clearBchart();
+            this.qdtree.removeAll(this.chartData);
+            this.createChartData(this.showAnnotations);
+            bookmarkService.createBchart(this.qdtree, this.chartData, 300, this.showMzBoolean, this.showAnnotations, this.bookmarkData['id'], this.bookmarkData['color']);
           }
         }
       }
@@ -175,7 +191,10 @@ export default {
             bookmarkService.createHorizontalChart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
           }
         } else {
-          bookmarkService.createBchart(this.bookmarkData, parseInt(this.height), this.showMzBoolean, this.showAnnotations);
+          this.clearBchart();
+          this.qdtree.removeAll(this.chartData);
+          this.createChartData(this.showAnnotations);
+          bookmarkService.createBchart(this.qdtree, this.chartData, parseInt(this.height), this.showMzBoolean, this.showAnnotations, this.bookmarkData['id'], this.bookmarkData['color']);
         }
       }
       if (mutation.type === 'SET_BOOKMARKS_LINECHART') {
@@ -198,6 +217,18 @@ export default {
       let canvas = document.querySelector('#' + this.bookmarkData['id']);
       let ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+    },
+    createChartData: function (annotation) {
+      let that = this;
+      let mzItemList;
+      if (annotation) {
+        mzItemList = Object.values(this.bookmarkData['mzObject']);
+      } else {
+        mzItemList = Object.keys(this.bookmarkData['mzObject']);
+      }
+      this.chartData = mzItemList.map(function (x, i) {
+        return { 'mz': x, 'coefficient': that.bookmarkData['data'][i] };
+      });
     }
   }
 
