@@ -241,6 +241,10 @@ export default {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     },
     createChartData: function (annotation) {
+      this.qdtree.removeAll(this.chartData);
+      this.qdtree = {};
+      console.log(this.qdtree);
+      this.qdtree = d3.quadtree();
       let that = this;
       let mzItemList;
       if (annotation) {

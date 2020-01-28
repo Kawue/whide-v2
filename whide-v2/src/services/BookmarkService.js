@@ -66,19 +66,7 @@ class BookmarkService {
   }
   createBchart (qdtree, data, givenHeight = 300, showMzBoolean = false, mzAnnotations = false, id, color) {
     let currentHighlightedMz;
-    let bookM = document.querySelector('#' + id);
-    bookM.removeEventListener('mousemove', addMouseMove);
-    bookM.addEventListener('mousemove', addMouseMove, false);
-    bookM.addEventListener('mouseenter', function () {
-      store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', id);
-      store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
-    });
-    bookM.addEventListener('mouseout', function () {
-      store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
-      store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
-    });
-
-    const gHeight = givenHeight - 80;
+    const gHeight = givenHeight - 30;
     let backgroundColor = color.toString();
     let margin = {
       top: 20,
@@ -95,6 +83,34 @@ class BookmarkService {
     let barWidthMax = width;
 
     let canvas = document.querySelector('#' + id);
+    canvas.addEventListener('mousemove', addMouseMove, false);
+    canvas.addEventListener('mouseenter', mEnter, false);
+    canvas.addEventListener('mouseout', mOut, false);
+    function mEnter () {
+      if (!store.state.horizonatlCharts) {
+        store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', id);
+        store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
+      } else {
+        d3.select('.annotation-group').remove();
+        canvas.removeEventListener('mousemove', addMouseMove);
+        canvas.removeEventListener('mouseenter', mEnter);
+        canvas.removeEventListener('mouseout', mOut);
+      }
+    }
+    function mOut () {
+      if (!store.state.horizonatlCharts) {
+        store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
+        store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
+        drawChart();
+        d3.select('.annotation-group').remove();
+      } else {
+        d3.select('.annotation-group').remove();
+        canvas.removeEventListener('mousemove', addMouseMove);
+        canvas.removeEventListener('mouseenter', mEnter);
+        canvas.removeEventListener('mouseout', mOut);
+      }
+    }
+
     canvas.width = width + 50;
     canvas.height = height;
     let ctx = canvas.getContext('2d');
@@ -148,18 +164,6 @@ class BookmarkService {
     }
     yScaleAxis.domain([offsetsAr[0], offsetsAr[offsetsAr.length - 1]]);
     drawChart();
-    qdtree
-      .x(function (d) {
-        return 0;
-      })
-      .y(function (d) {
-        return (yScaleAxis(offsetsAr[data.indexOf(d)]) + yScaleAxis(heights[data.indexOf(d)]) / 2);
-      })
-      .extent([
-        [0, 0],
-        [canvas.width, canvas.height]
-      ])
-      .addAll(data);
 
     function addMouseMove (event) {
       let x = event.offsetX;
@@ -168,6 +172,20 @@ class BookmarkService {
       createAnnotation(nearest);
     }
     function drawChart () {
+      // ctx.clearRect(0, 0, canvas.width, canvas.height);
+      qdtree.removeAll(data);
+      qdtree
+        .x(function (d) {
+          return 0;
+        })
+        .y(function (d) {
+          return (yScaleAxis(offsetsAr[data.indexOf(d)]) + yScaleAxis(heights[data.indexOf(d)]) / 2);
+        })
+        .extent([
+          [0, 0],
+          [canvas.width, canvas.height]
+        ])
+        .addAll(data);
       ctx.fillStyle = 'white';
       data.forEach(function (d, i) {
         ctx.fillRect(0, yScaleAxis(offsetsAr[i]), xScaleAxis(d.coefficient), yScaleAxis(heights[i]));
@@ -239,17 +257,6 @@ class BookmarkService {
   // function to creat a bar chart of the spektrum from one prototype
   createHorizontalChart (qdtree, data, givenHeight = 300, showMzBoolean = false, mzAnnotations = false, id, color) {
     let currentHighlightedMz;
-    let bookM = document.querySelector('#' + id);
-    // bookM.removeEventListener('mousemove', addMouseMove);
-    // bookM.addEventListener('mousemove', addMouseMove, false);
-    bookM.addEventListener('mouseenter', function () {
-      store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', id);
-      store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
-    });
-    bookM.addEventListener('mouseout', function () {
-      store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
-      store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
-    });
     let backgroundColor = color.toString();
 
     let margin = {
@@ -272,6 +279,33 @@ class BookmarkService {
     let dataMax = d3.max(data, function (d) { return d.coefficient; });
 
     let canvas = document.querySelector('#' + id);
+    canvas.addEventListener('mousemove', addMouseMove, false);
+    canvas.addEventListener('mouseenter', mEnter, false);
+    canvas.addEventListener('mouseout', mOut, false);
+    function mEnter () {
+      if (store.state.horizonatlCharts) {
+        store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', id);
+        store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
+      } else {
+        d3.select('.annotation-group').remove();
+        canvas.removeEventListener('mousemove', addMouseMove);
+        canvas.removeEventListener('mouseenter', mEnter);
+        canvas.removeEventListener('mouseout', mOut);
+      }
+    }
+    function mOut () {
+      if (store.state.horizonatlCharts) {
+        store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
+        store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
+        drawChart();
+        d3.select('.annotation-group').remove();
+      } else {
+        d3.select('.annotation-group').remove();
+        canvas.removeEventListener('mousemove', addMouseMove);
+        canvas.removeEventListener('mouseenter', mEnter);
+        canvas.removeEventListener('mouseout', mOut);
+      }
+    }
     canvas.width = width + 50;
     canvas.height = height + 50;
     let ctx = canvas.getContext('2d');
