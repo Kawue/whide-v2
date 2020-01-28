@@ -172,10 +172,9 @@ class BookmarkService {
       createAnnotation(nearest);
     }
     function drawChart () {
-      // ctx.clearRect(0, 0, canvas.width, canvas.height);
       qdtree.removeAll(data);
       qdtree
-        .x(function (d) {
+        .x(function () {
           return 0;
         })
         .y(function (d) {
@@ -351,11 +350,12 @@ class BookmarkService {
       offsetsAr.push(offset);
       offset += w;
     }
-    xScaleAxis.domain([offsetsAr[0], offsetsAr[offsetsAr.length - 1]]);
+
     // dataMin, dataMax / 2, dataMax]
     this.drawHorizontalLine(dataMin, ctx, height, yScaleAxis);
     this.drawHorizontalLine(dataMax / 2, ctx, height, yScaleAxis);
     this.drawHorizontalLine(dataMax, ctx, height, yScaleAxis);
+    xScaleAxis.domain([offsetsAr[0], offsetsAr[offsetsAr.length - 1]]);
     drawChart();
     /*
 
@@ -458,19 +458,38 @@ class BookmarkService {
       });
 
      */
-
-    qdtree
-      .x(function (d) {
-        return xScaleAxis(offsetsAr[data.indexOf(d)]) + xScaleAxis(widths[data.indexOf(d)] / 2);
-      })
-      .y(function () {
-        return 0;
-      })
-      .extent([
-        [0, 0],
-        [canvas.width, canvas.height]
-      ])
-      .addAll(data);
+    function drawChart () {
+      qdtree.removeAll(data);
+      qdtree
+        .x(function (d) {
+          return xScaleAxis(offsetsAr[data.indexOf(d)]); // + xScaleAxis(widths[data.indexOf(d)]) / 2;
+        })
+        .y(function () {
+          return 0;
+        })
+        .extent([
+          [0, 0],
+          [canvas.width, canvas.height]
+        ])
+        .addAll(data);
+      ctx.fillStyle = 'white';
+      data.forEach(function (d, i) {
+        ctx.fillRect(xScaleAxis(offsetsAr[i]), yScaleAxis(d.coefficient), xScaleAxis(widths[i]), height - yScaleAxis(d.coefficient));
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 0.5;
+        ctx.strokeRect(xScaleAxis(offsetsAr[i]), yScaleAxis(d.coefficient), xScaleAxis(widths[i]), height - yScaleAxis(d.coefficient));
+      });
+      // TODO: schriftgroese gut aendern
+      if (showMzBoolean) {
+        data.forEach(function (d, i) {
+          ctx.fillStyle = 'black';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'left';
+          ctx.font = xScaleAxis(widths[i]);
+          ctx.fillText(d.mz, xScaleAxis(offsetsAr[i]), yScaleAxis(d.coefficient));
+        });
+      }
+    }
 
     function addMouseMove (event) {
       let x = event.offsetX;
@@ -481,25 +500,27 @@ class BookmarkService {
 
     function createAnnotation (nearest) {
       const index = data.indexOf(nearest);
+      console.log(nearest.mz);
+      console.log(currentHighlightedMz);
       if (currentHighlightedMz === undefined) {
         currentHighlightedMz = nearest;
         ctx.fillStyle = 'orange';
-        ctx.fillRect(xScaleAxis(offsetsAr[index]), 0, xScaleAxis(widths[index]), yScaleAxis(nearest.coefficient));
+        ctx.fillRect(xScaleAxis(offsetsAr[index]), yScaleAxis(nearest.coefficient), xScaleAxis(widths[index]), height - yScaleAxis(nearest.coefficient));
         ctx.strokeStyle = 'black';
         ctx.lineWidth = 0.5;
-        ctx.strokeRect(xScaleAxis(offsetsAr[index]), 0, xScaleAxis(widths[index]), yScaleAxis(nearest.coefficient));
+        ctx.strokeRect(xScaleAxis(offsetsAr[index]), yScaleAxis(nearest.coefficient), xScaleAxis(widths[index]), height - yScaleAxis(nearest.coefficient));
       } else if (currentHighlightedMz !== nearest) {
         let currentIndex = data.indexOf(currentHighlightedMz);
         ctx.fillStyle = 'white';
-        ctx.fillRect(xScaleAxis(offsetsAr[currentIndex]), 0, xScaleAxis(widths[currentIndex]), yScaleAxis(nearest.coefficient));
+        ctx.fillRect(xScaleAxis(offsetsAr[currentIndex]), yScaleAxis(nearest.coefficient), xScaleAxis(widths[currentIndex]), height - yScaleAxis(nearest.coefficient));
         ctx.strokeStyle = 'black';
         ctx.lineWidth = 0.5;
-        ctx.strokeRect(xScaleAxis(offsetsAr[currentIndex]), 0, xScaleAxis(widths[currentIndex]), yScaleAxis(nearest.coefficient));
+        ctx.strokeRect(xScaleAxis(offsetsAr[currentIndex]), yScaleAxis(nearest.coefficient), xScaleAxis(widths[currentIndex]), height - yScaleAxis(nearest.coefficient));
         ctx.fillStyle = 'orange';
-        ctx.fillRect(xScaleAxis(offsetsAr[index]), 0, xScaleAxis(widths[index]), yScaleAxis(nearest.coefficient));
+        ctx.fillRect(xScaleAxis(offsetsAr[index]), yScaleAxis(nearest.coefficient), xScaleAxis(widths[index]), height - yScaleAxis(nearest.coefficient));
         ctx.strokeStyle = 'black';
         ctx.lineWidth = 0.5;
-        ctx.strokeRect(xScaleAxis(offsetsAr[index]), 0, xScaleAxis(widths[index]), yScaleAxis(nearest.coefficient));
+        ctx.strokeRect(xScaleAxis(offsetsAr[index]), yScaleAxis(nearest.coefficient), xScaleAxis(widths[index]), height - yScaleAxis(nearest.coefficient));
         currentHighlightedMz = nearest;
       }
 
@@ -523,29 +544,10 @@ class BookmarkService {
         .style('position', 'absolute')
         .style('z-index', '102')
         .style('height', height + 'px')
+        .style('width', width + 'px')
         .style('pointer-events', 'none')
         .call(d3annotate.annotation()
           .annotations(property));
-    }
-
-    function drawChart () {
-      ctx.fillStyle = 'white';
-      data.forEach(function (d, i) {
-        ctx.fillRect(xScaleAxis(offsetsAr[i]), yScaleAxis(d.coefficient), xScaleAxis(widths[i]), height - yScaleAxis(d.coefficient));
-        ctx.strokeStyle = 'black';
-        ctx.lineWidth = 0.5;
-        ctx.strokeRect(xScaleAxis(offsetsAr[i]), yScaleAxis(d.coefficient), xScaleAxis(widths[i]), height - yScaleAxis(d.coefficient));
-      });
-      // TODO: schriftgroese gut aendern
-      if (showMzBoolean) {
-        data.forEach(function (d, i) {
-          ctx.fillStyle = 'black';
-          ctx.textAlign = 'left';
-          ctx.textBaseline = 'left';
-          ctx.font = xScaleAxis(widths[i]);
-          ctx.fillText(d.mz, xScaleAxis(offsetsAr[i]), yScaleAxis(d.coefficient));
-        });
-      }
     }
   }
 
