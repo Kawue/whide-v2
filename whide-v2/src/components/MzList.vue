@@ -498,7 +498,7 @@ export default {
 };
 
 </script>
-<style scoped lang="scss">
+<style  lang="scss">
   .mzComp {
     top: 0;
   }
@@ -512,6 +512,7 @@ export default {
     text-align: center;
     margin-top: 8px;
     height: 91%;
+    min-height: 50%;
     max-height: 93%;
     background-color: #4f5051;
   }
@@ -521,6 +522,7 @@ export default {
     width: 100%;
     height: 4%;
     min-height: 4%;
+    max-height: 45%;
     text-align: center;
     background-color: #4f5051;
   }

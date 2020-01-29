@@ -14,24 +14,11 @@
 
     </div>
     <div class="mzImageButtonContainer">
-      <b-button-group>
         <b-button v-if="!this.showMzImage" class="onOffButton" id="mzImageOn" v-on:click="toggleMzImage">MZ-Image On</b-button>
         <b-button v-if="this.showMzImage" class="onOffButton" id="mzImageOff" v-on:click="toggleMzImage">MZ-Image Off</b-button>
+      <b-form-select v-model="selectedMethod" :options="methods" class="mb-0" id="methodChooser" text-field="text" value-field="value" v-on:change="chooseMethod()"></b-form-select>
+      <b-form-select v-model="selectedColorscale" :options="colorScales" class="mb-0" id="scaleChooser" text-field="text" value-field="value" v-on:change="chooseColorscale()"></b-form-select>
 
-        <b-dropdown right text="Method" class="methodDropdown">
-          <b-dropdown-item id="methodMean" style="background-color: orange" v-on:click="chooseMethod('methodMean')">Mean</b-dropdown-item>
-          <b-dropdown-item id="methodMedian" v-on:click="chooseMethod('methodMedian')">Median</b-dropdown-item>
-          <b-dropdown-item id="methodMin" v-on:click="chooseMethod('methodMin')">Min</b-dropdown-item>
-          <b-dropdown-item id="methodMax" v-on:click="chooseMethod('methodMax')">Max</b-dropdown-item>
-        </b-dropdown>
-        <b-dropdown right text="Colorscale" class="colorscaleDropdown">
-          <b-dropdown-item id="interpolateViridis" style="background-color: orange" v-on:click="chooseColorscale('interpolateViridis')">Viridris</b-dropdown-item>
-          <b-dropdown-item id="interpolateMagma" v-on:click="chooseColorscale('interpolateMagma')">Magma</b-dropdown-item>
-          <b-dropdown-item id="interpolatePiYG" v-on:click="chooseColorscale('interpolatePiYG')">PiYG</b-dropdown-item>
-          <b-dropdown-item id="interpolatePlasma" v-on:click="chooseColorscale('interpolatePlasma')">Plasma</b-dropdown-item>
-          <b-dropdown-item id="interpolateInferno" v-on:click="chooseColorscale('interpolateInferno')">Inferno</b-dropdown-item>
-        </b-dropdown>
-      </b-button-group>
     </div>
   </div>
 </template>
@@ -48,9 +35,22 @@ export default {
     return {
       alphaValue: 1,
       currentTransformation: { k: 1, x: 0, y: 0 },
-      currentMethod: 'mean',
-      currentColorscale: 'interpolateViridis',
-      showMzImage: false
+      showMzImage: false,
+      selectedMethod: 'methodMean',
+      methods: [
+        { value: 'methodMean', text: 'Mean' },
+        { value: 'methodMedian', text: 'Median' },
+        { value: 'methodMin', text: 'Min' },
+        { value: 'methodMax', text: 'Max' }
+      ],
+      selectedColorscale: 'interpolateViridis',
+      colorScales: [
+        { value: 'interpolateViridis', text: 'Viridris' },
+        { value: 'interpolateMagma', text: 'Magma' },
+        { value: 'interpolatePiYG', text: 'PiYG' },
+        { value: 'interpolatePlasma', text: 'Plasma' },
+        { value: 'interpolateInferno', text: 'Inferno' }
+      ]
     };
   },
   computed: {
@@ -110,11 +110,6 @@ export default {
       }
     },
     drawMzImage: function () {
-      /* const mzCanvas = document.getElementById('mzChannelImage');
-      const mzCtx = mzCanvas.getContext('2d');
-      mzCtx.clearRect(0, 0, mzCanvas.width, mzCanvas.height);
-
-       */
       sm.drawMzImage(this.base64Image, this.dim, this.transformation);
     },
     drawBrightfieldImage: function () {
@@ -137,18 +132,12 @@ export default {
       this.clearSegmentation();
       this.drawSegmentation(this.outsideHighlight['id'], this.currentTransformation, this.alphaValue);
     },
-    chooseMethod: function (id) {
-      d3.select('#' + this.currentMethod).style('background-color', '');
-      d3.select('#' + id).style('background-color', 'orange');
-      this.currentMethod = id;
-      store.commit('SET_MERGE_METHOD', id);
+    chooseMethod: function () {
+      store.commit('SET_MERGE_METHOD', this.selectedMethod);
       store.dispatch('fetchImageData');
     },
-    chooseColorscale: function (id) {
-      d3.select('#' + this.currentColorscale).style('background-color', '');
-      d3.select('#' + id).style('background-color', 'orange');
-      this.currentColorscale = id;
-      store.commit('SET_COLORSCALE', id);
+    chooseColorscale: function () {
+      store.commit('SET_COLORSCALE', this.selectedColorscale);
       store.dispatch('fetchImageData');
     },
     toggleMzImage: function () {
@@ -263,19 +252,18 @@ export default {
     position: absolute;
     left: 11vw;
     top: 10px;
-    width: auto;
+    width: 400px;
+    z-index: 115;
+    display: flex;
+    flex-direction: row;
   }
   .onOffButton {
     padding: 0;
-    z-index: 110;
+    width: 70%;
   }
-  .methodDropdown {
-    padding: 0;
-    z-index: 110;
+  .methodChooser {
   }
-  .colorscaleDropdown {
-    padding: 0;
-    z-index: 110;
-  }
+  .scaleChooser {
+    }
 
 </style>
