@@ -236,7 +236,7 @@ class BookmarkService {
         x: margin.left + xScaleAxis(currentHighlightedMz.coefficient),
         y: yScaleAxis(offsetsAr[index]) + 26,
         dy: -yScaleAxis(offsetsAr[index]),
-        dx: 210 - xScaleAxis(currentHighlightedMz.coefficient) - margin.top,
+        dx: 200 - xScaleAxis(currentHighlightedMz.coefficient) - margin.top,
         color: 'black',
         type: d3annotate.annotationCalloutElbow
       }];
@@ -259,14 +259,14 @@ class BookmarkService {
     let backgroundColor = color.toString();
 
     let margin = {
-      top: 25,
+      top: 40,
       right: 25,
       bottom: 20,
       left: 40
     };
 
     let width = document.documentElement.clientWidth - 100 - margin.left - margin.right;
-    let height = 300 - margin.top - margin.bottom;
+    let height = 265 - margin.top - margin.bottom;
     let padding = 0.1;
     let outerPadding = 0.3;
 
@@ -325,8 +325,8 @@ class BookmarkService {
     ctx.strokeStyle = 'black';
     ctx.stroke();
     ctx.beginPath();
-    ctx.moveTo(0, yScaleAxis(dataMin));
-    ctx.lineTo(0, yScaleAxis(dataMax));
+    ctx.moveTo(-1, yScaleAxis(dataMin));
+    ctx.lineTo(-1, yScaleAxis(dataMax));
     ctx.strokeStyle = 'black';
     ctx.stroke();
 
@@ -357,115 +357,15 @@ class BookmarkService {
     this.drawHorizontalLine(dataMax, ctx, height, yScaleAxis);
     xScaleAxis.domain([offsetsAr[0], offsetsAr[offsetsAr.length - 1]]);
     drawChart();
-    /*
 
-    svg
-      .append('g')
-      .attr('transform', 'translate(' + margin.left + ',' + 40 + ')')
-      .attr('class', 'hist-rects')
-      .selectAll('.bar')
-      .data(data)
-      .enter()
-      .append('g')
-      .attr('class', 'barGroup' + bookmark['id'])
-      .append('rect')
-      .attr('class', 'barRect')
-      .attr('x', function (d, i) {
-        return xScaleAxis(offsetsAr[i]);
-      })
-      .attr('y', function (d) {
-        return yScaleAxis(d.coefficient);
-      })
-      .style('fill', 'white')
-      .style('stroke', 'black')
-      .style('stroke-width', '0.5')
-      .on('mouseenter', function () {
-        d3.select(this)
-          .style('fill', 'orange'); // orange is the new black
-      })
-      .on('mouseleave', function () {
-        d3.select(this)
-          .style('fill', 'white');
-      })
-      .attr('height', function (d) { return height - yScaleAxis(d.coefficient); })
-      .attr('width', function (d, i) {
-        return xScaleAxis(widths[i]); // scale bar size
-      })
-      .on('mouseover', function (d, i) {
-        const property = [{
-          note: {
-            label: d.mz
-          },
-          x: margin.left + xScaleAxis(offsetsAr[i]),
-          y: yScaleAxis(d.coefficient) + 40,
-          dy: -10,
-          dx: 10,
-          color: 'black',
-          type: d3annotate.annotationCalloutElbow
-        }];
-        svg
-          .select('.annotation-group')
-          .call(d3annotate.annotation()
-            .annotations(property));
-      })
-      .on('mouseout', () => {
-        svg
-          .select('.annotations')
-          .remove();
-      });
-
-    // add the y Axis
-    svg.append('g')
-      .attr('class', 'y_axis')
-      .attr('transform', 'translate(' + margin.left + ',' + 40 + ')')
-      .call(d3.axisLeft(yScaleAxis)
-        .tickValues([dataMin, dataMax / 2, dataMax]));
-
-    // add the x Axis
-    svg.append('g')
-      .attr('class', 'x_axis')
-      .attr('transform', 'translate(' + margin.left + ',' + (height + 40) + ')')
-      .call(d3.axisBottom(xScaleAxis));
-
-    if (showMzBoolean) {
-      d3.selectAll('.barGroup' + bookmark['id'])
-        .insert('text', 'barRect')
-        .data(data)
-        .attr('class', 'barLabel')
-        .attr('y', function (d) {
-          return (yScaleAxis(d.coefficient));
-        })
-        .attr('font-size', function (d, i) {
-          return xScaleAxis(widths[i]) / 4;
-        })
-        .attr('x', function (d, i) {
-          return (xScaleAxis(offsetsAr[i]));
-        })
-        .style('fill', '#000000')
-        .text(function (d) {
-          return d.mz;
-        });
-    }
-    svg.append('foreignObject')
-      .attr('width', 30)
-      .attr('height', 35)
-      .append('xhtml:div')
-      .append('xhtml:button')
-      .attr('class', 'btn btn-outline-dark btn-sm')
-      .html('x')
-      .on('click', function () {
-        store.commit('DELETE_BOOKMARK', bookmark['id']);
-      });
-
-     */
     function drawChart () {
       qdtree.removeAll(data);
       qdtree
         .x(function (d) {
-          return xScaleAxis(offsetsAr[data.indexOf(d)]); // + xScaleAxis(widths[data.indexOf(d)]) / 2;
+          return xScaleAxis(offsetsAr[data.indexOf(d)]) + xScaleAxis(widths[data.indexOf(d)]) / 2;
         })
         .y(function () {
-          return 0;
+          return height;
         })
         .extent([
           [0, 0],
@@ -500,8 +400,6 @@ class BookmarkService {
 
     function createAnnotation (nearest) {
       const index = data.indexOf(nearest);
-      console.log(nearest.mz);
-      console.log(currentHighlightedMz);
       if (currentHighlightedMz === undefined) {
         currentHighlightedMz = nearest;
         ctx.fillStyle = 'orange';
@@ -512,10 +410,10 @@ class BookmarkService {
       } else if (currentHighlightedMz !== nearest) {
         let currentIndex = data.indexOf(currentHighlightedMz);
         ctx.fillStyle = 'white';
-        ctx.fillRect(xScaleAxis(offsetsAr[currentIndex]), yScaleAxis(nearest.coefficient), xScaleAxis(widths[currentIndex]), height - yScaleAxis(nearest.coefficient));
+        ctx.fillRect(xScaleAxis(offsetsAr[currentIndex]), yScaleAxis(currentHighlightedMz.coefficient), xScaleAxis(widths[currentIndex]), height - yScaleAxis(currentHighlightedMz.coefficient));
         ctx.strokeStyle = 'black';
         ctx.lineWidth = 0.5;
-        ctx.strokeRect(xScaleAxis(offsetsAr[currentIndex]), yScaleAxis(nearest.coefficient), xScaleAxis(widths[currentIndex]), height - yScaleAxis(nearest.coefficient));
+        ctx.strokeRect(xScaleAxis(offsetsAr[currentIndex]), yScaleAxis(currentHighlightedMz.coefficient), xScaleAxis(widths[currentIndex]), height - yScaleAxis(currentHighlightedMz.coefficient));
         ctx.fillStyle = 'orange';
         ctx.fillRect(xScaleAxis(offsetsAr[index]), yScaleAxis(nearest.coefficient), xScaleAxis(widths[index]), height - yScaleAxis(nearest.coefficient));
         ctx.strokeStyle = 'black';
@@ -530,9 +428,9 @@ class BookmarkService {
         note: {
           label: currentHighlightedMz.mz
         },
-        x: margin.left + xScaleAxis(offsetsAr[index]),
-        y: yScaleAxis(nearest.coefficient) + 40,
-        dy: -10,
+        x: margin.left + xScaleAxis(offsetsAr[index]) + 3,
+        y: yScaleAxis(nearest.coefficient) + margin.top + 2,
+        dy: -15,
         dx: 10,
         color: 'black',
         type: d3annotate.annotationCalloutElbow
@@ -542,8 +440,8 @@ class BookmarkService {
         .append('svg')
         .attr('class', 'annotation-group')
         .style('position', 'absolute')
-        .style('z-index', '102')
-        .style('height', height + 'px')
+        .style('z-index', '103')
+        .style('height', height + margin.top + 'px')
         .style('width', width + 'px')
         .style('pointer-events', 'none')
         .call(d3annotate.annotation()
@@ -720,7 +618,7 @@ class BookmarkService {
     context.textBaseline = 'right';
     context.fillText(Math.round(value * 100) / 100, -5, yScale(value) + 5);
     context.beginPath();
-    context.moveTo(0, yScale(value));
+    context.moveTo(-1, yScale(value));
     context.lineTo(-4, yScale(value));
     context.strokeStyle = 'black';
     context.stroke();

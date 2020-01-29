@@ -260,8 +260,9 @@ export default {
  }
   .chartContainer {
     position: relative;
-    height: 50px;
+    height: 280px;
     width: 300px;
+
   }
  .delButton{
    position: absolute;
