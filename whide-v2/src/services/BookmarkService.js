@@ -254,7 +254,7 @@ class BookmarkService {
   }
 
   // function to creat a bar chart of the spektrum from one prototype
-  createHorizontalChart (qdtree, data, givenHeight = 300, showMzBoolean = false, mzAnnotations = false, id, color) {
+  createHorizontalChart (qdtree, data, showMzBoolean = false, mzAnnotations = false, id, color) {
     let currentHighlightedMz;
     let backgroundColor = color.toString();
 
@@ -449,43 +449,69 @@ class BookmarkService {
     }
   }
 
-  lineChart (bookmark, showMzBoolean = false, mzAnnotations = false) {
-    let backgroundColor = bookmark['color'].toString();
-    let mzItemList = Object.keys(bookmark['mzObject']);
-    let data = mzItemList.map(function (x, i) {
-      return { 'mz': x, 'coefficient': bookmark['data'][i] };
-    });
-    let mzList = [];
-    data.forEach(function (d) {
-      mzList.push(d.mz);
-    });
-    const mzlistLength = mzList.length;
-
+  lineChart (qdtree, data, showMzBoolean = false, mzAnnotations = false, id, color) {
+    let currentHighlightedMz;
     let margin = {
-      top: 25,
+      top: 40,
       right: 25,
-      bottom: 40,
+      bottom: 20,
       left: 40
     };
 
-    let width = document.documentElement.clientWidth - 50 - margin.left - margin.right;
-    let height = 300 - margin.top - margin.bottom;
+    let width = document.documentElement.clientWidth - 100 - margin.left - margin.right;
+    let height = 265 - margin.top - margin.bottom;
     data.forEach(function (d) {
       d.coefficient = +d.coefficient;
     });
 
-    let dataMin = d3.min(data, function (d) {
-      return d.coefficient;
-    });
-    let dataMax = d3.max(data, function (d) {
-      return d.coefficient;
-    });
+    let dataMin = d3.min(data, function (d) { return d.coefficient; });
+    let dataMax = d3.max(data, function (d) { return d.coefficient; });
+
     let mzMin = d3.min(data, function (d) {
       return parseFloat(d.mz);
     });
     let mzMax = d3.max(data, function (d) {
       return parseFloat(d.mz);
     });
+    let canvas = document.querySelector('#' + id);
+
+    canvas.addEventListener('mousemove', addMouseMove, false);
+    canvas.addEventListener('mouseenter', mEnter, false);
+    canvas.addEventListener('mouseout', mOut, false);
+    function mEnter () {
+      if (store.state.horizonatlCharts) {
+        store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', id);
+        store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
+      } else {
+        d3.select('.annotation-group').remove();
+        canvas.removeEventListener('mousemove', addMouseMove);
+        canvas.removeEventListener('mouseenter', mEnter);
+        canvas.removeEventListener('mouseout', mOut);
+      }
+    }
+    function mOut () {
+      if (store.state.horizonatlCharts) {
+        store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
+        store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
+        drawLines();
+        d3.select('.annotation-group').remove();
+      } else {
+        d3.select('.annotation-group').remove();
+        canvas.removeEventListener('mousemove', addMouseMove);
+        canvas.removeEventListener('mouseenter', mEnter);
+        canvas.removeEventListener('mouseout', mOut);
+      }
+    }
+
+    canvas.width = width + 50;
+    canvas.height = height + 50;
+    let ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+    ctx.webkitImageSmoothingEnabled = false;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = color.toString();
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.translate(margin.left, margin.top);
 
     let yScaleAxis = d3.scaleLinear()
       .domain([dataMin, dataMax])
@@ -494,6 +520,25 @@ class BookmarkService {
     let xScaleAxis = d3.scaleLinear()
       .domain([mzMin, mzMax])
       .range([0, width]);
+    // draw x axis
+    ctx.strokeStyle = 'black';
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(-1, yScaleAxis(dataMin));
+    ctx.lineTo(-1, yScaleAxis(dataMax));
+    ctx.strokeStyle = 'black';
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(xScaleAxis(mzMin) - 1, height + 1);
+    ctx.lineTo(xScaleAxis(mzMax), height + 1);
+    ctx.strokeStyle = 'black';
+    ctx.stroke();
+
+    // dataMin, dataMax / 2, dataMax]
+    this.drawHorizontalLine(dataMin, ctx, height, yScaleAxis);
+    this.drawHorizontalLine(dataMax / 2, ctx, height, yScaleAxis);
+    this.drawHorizontalLine(dataMax, ctx, height, yScaleAxis);
 
     let line = d3.line()
       .x(function (d, i) {
@@ -501,98 +546,98 @@ class BookmarkService {
       })
       .y(function (d) {
         return yScaleAxis(d.coefficient);
+      })
+      .context(ctx);
+
+    drawLines();
+    function drawLines () {
+      qdtree.removeAll(data);
+      qdtree
+        .x(function (d) {
+          return xScaleAxis(d.mz);
+        })
+        .y(function () {
+          return height;
+        })
+        .extent([
+          [0, 0],
+          [canvas.width, canvas.height]
+        ])
+        .addAll(data);
+
+      ctx.beginPath();
+      line(data);
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'black';
+      ctx.stroke();
+
+      ctx.fillStyle = 'black';
+      data.forEach(function (point) {
+        ctx.beginPath();
+        ctx.arc(xScaleAxis(point.mz), yScaleAxis(point.coefficient), 2, 0, 2 * Math.PI);
+        ctx.fill();
       });
+      // TODO: schriftgroese gut aendern
+      if (showMzBoolean) {
+        data.forEach(function (d) {
+          ctx.fillStyle = 'black';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'left';
+          ctx.font = xScaleAxis(d.mz);
+          ctx.fillText(d.mz, xScaleAxis(d.mz), yScaleAxis(d.coefficient));
+        });
+      }
+    }
+    function addMouseMove (event) {
+      let x = event.offsetX;
+      let y = event.offsetY;
+      let nearest = qdtree.find(x - margin.left, y - margin.top);
+      createAnnotation(nearest);
+    }
+    function createAnnotation (nearest) {
+      if (currentHighlightedMz === undefined) {
+        currentHighlightedMz = nearest;
+        ctx.beginPath();
+        ctx.fillStyle = 'white';
+        ctx.arc(xScaleAxis(nearest.mz), yScaleAxis(nearest.coefficient), 2, 0, 2 * Math.PI);
+        ctx.fill();
+      } else if (currentHighlightedMz !== nearest) {
+        ctx.beginPath();
+        ctx.fillStyle = 'black';
+        ctx.arc(xScaleAxis(currentHighlightedMz.mz), yScaleAxis(currentHighlightedMz.coefficient), 2, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.fillStyle = 'white';
+        ctx.arc(xScaleAxis(nearest.mz), yScaleAxis(nearest.coefficient), 2, 0, 2 * Math.PI);
+        ctx.fill();
+        currentHighlightedMz = nearest;
+      }
 
-    let svg = d3.select('#' + bookmark['id'])
-      .attr('width', width + margin.right + margin.left)
-      .attr('height', height + margin.top + margin.bottom)
-      .style('background-color', backgroundColor)
-      .on('mouseenter', function () {
-        d3.select(this)
-          .append('g')
-          .attr('class', 'annotation-group')
-          .style('pointer-events', 'none');
-      })
-      .on('mouseleave', function () {
-        d3.select(this).select('.annotation-group').remove();
-      });
+      d3.select('.annotation-group').remove();
 
-    svg.on('mouseover', function () {
-      store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', bookmark['id']);
-      store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
-    })
-      .on('mouseout', function () {
-        store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', null);
-        store.commit('HIGHLIGHT_PROTOTYPE_OUTSIDE');
-      });
-
-    svg.append('g')
-      .attr('class', 'x axis')
-      .attr('transform', 'translate(' + margin.left + ',' + (height + 40) + ')')
-      .call(d3.axisBottom(xScaleAxis)
-        .tickValues([mzList[0], mzList[parseInt(mzlistLength * 0.25)], mzList[parseInt(mzlistLength * 0.5)], mzList[parseInt(mzlistLength * 0.75)], mzList[mzlistLength - 1]])
-        .tickFormat(d3.format('r')));
-
-    svg.append('g')
-      .attr('class', 'y_axis')
-      .attr('transform', 'translate(' + margin.left + ',' + 40 + ')')
-      .call(d3.axisLeft(yScaleAxis)
-        .tickValues([dataMin, dataMax / 2, dataMax]));
-
-    svg.append('path')
-      .data([data])
-      .attr('transform', 'translate(' + margin.left + ',' + 40 + ')')
-      .attr('height', height + margin.top + margin.bottom)
-      .attr('class', 'line')
-      .attr('d', line)
-      .style('fill', 'none')
-      .style('stroke', 'black')
-      .style('stroke-width', '0.2em');
-
-    svg.selectAll('.dot')
-      .data(data)
-      .enter().append('circle')
-      .attr('transform', 'translate(' + margin.left + ',' + 40 + ')')
-      .attr('height', height + margin.top + margin.bottom)
-      .attr('class', 'dot')
-      .attr('cx', function (d) {
-        return xScaleAxis(parseFloat(d.mz));
-      })
-      .attr('cy', function (d) {
-        return yScaleAxis(d.coefficient);
-      })
-      .attr('r', 3.5)
-      .style('fill', 'whitesmoke')
-      .on('mouseenter', function () {
-        d3.select(this)
-          .attr('r', 6);
-      })
-      .on('mouseleave', function () {
-        d3.select(this)
-          .attr('r', 3.5);
-      })
-      .on('mouseover', function (d, i) {
-        const property = [{
-          note: {
-            label: d.mz
-          },
-          x: margin.left + xScaleAxis(parseFloat(d.mz)),
-          y: yScaleAxis(d.coefficient) + 40,
-          dy: -10,
-          dx: 10,
-          color: 'whitesmoke',
-          type: d3annotate.annotationCalloutElbow
-        }];
-        svg
-          .select('.annotation-group')
-          .call(d3annotate.annotation()
-            .annotations(property));
-      })
-      .on('mouseout', () => {
-        svg
-          .select('.annotations')
-          .remove();
-      });
+      const property = [{
+        note: {
+          label: currentHighlightedMz.mz
+        },
+        x: margin.left + xScaleAxis(nearest.mz) + 3,
+        y: yScaleAxis(nearest.coefficient) + margin.top + 2,
+        dy: -15,
+        dx: 10,
+        color: 'black',
+        type: d3annotate.annotationCalloutElbow
+      }];
+      let anno = d3.select('#' + id + '-container');
+      anno
+        .append('svg')
+        .attr('class', 'annotation-group')
+        .style('position', 'absolute')
+        .style('z-index', '103')
+        .style('height', height + margin.top + 'px')
+        .style('width', width + 'px')
+        .style('pointer-events', 'none')
+        .call(d3annotate.annotation()
+          .annotations(property));
+    }
   }
   alpha (values, width, padding, outerPadding) {
     let n = values.length;
