@@ -533,7 +533,7 @@ class BookmarkService {
       .range([height, 0]);
 
     let xScaleAxis = d3.scaleLinear()
-      .domain([mzMin - 25, mzMax + 25])
+      .domain([mzMin - 2, mzMax + 2])
       .range([0, width]);
     // draw x axis
     ctx.strokeStyle = 'black';
@@ -544,11 +544,14 @@ class BookmarkService {
     ctx.strokeStyle = 'black';
     ctx.stroke();
 
+    /*
     ctx.beginPath();
-    ctx.moveTo(xScaleAxis(mzMin - 25) - 1, height);
-    ctx.lineTo(xScaleAxis(mzMax + 25), height);
+    ctx.moveTo(xScaleAxis(mzMin - 2), height);
+    ctx.lineTo(xScaleAxis(mzMax + 2), height);
     ctx.strokeStyle = 'black';
     ctx.stroke();
+
+     */
 
     // dataMin, dataMax / 2, dataMax]
     this.drawHorizontalLine(dataMin, ctx, height, yScaleAxis);
