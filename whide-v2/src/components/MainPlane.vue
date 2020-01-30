@@ -260,6 +260,8 @@ export default {
   .onOffButton {
     padding: 0;
     width: 70%;
+    color: orange;
+    background-color: #4f5051;
   }
   .methodChooser {
   }

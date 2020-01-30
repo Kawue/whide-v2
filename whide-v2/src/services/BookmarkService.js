@@ -518,7 +518,7 @@ class BookmarkService {
       .range([height, 0]);
 
     let xScaleAxis = d3.scaleLinear()
-      .domain([mzMin, mzMax])
+      .domain([mzMin - 25, mzMax + 25])
       .range([0, width]);
     // draw x axis
     ctx.strokeStyle = 'black';
@@ -530,8 +530,8 @@ class BookmarkService {
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.moveTo(xScaleAxis(mzMin) - 1, height + 1);
-    ctx.lineTo(xScaleAxis(mzMax), height + 1);
+    ctx.moveTo(xScaleAxis(mzMin - 25) - 1, height);
+    ctx.lineTo(xScaleAxis(mzMax + 25), height);
     ctx.strokeStyle = 'black';
     ctx.stroke();
 
@@ -541,7 +541,7 @@ class BookmarkService {
     this.drawHorizontalLine(dataMax, ctx, height, yScaleAxis);
 
     let line = d3.line()
-      .x(function (d, i) {
+      .x(function (d) {
         return xScaleAxis(parseFloat(d.mz));
       })
       .y(function (d) {
@@ -564,9 +564,18 @@ class BookmarkService {
           [canvas.width, canvas.height]
         ])
         .addAll(data);
+      let spektrumData = [];
+      data.forEach(function (p) {
+        spektrumData.push({ 'mz': p.mz, 'coefficient': 0 });
+        spektrumData.push(p);
+        spektrumData.push({ 'mz': p.mz, 'coefficient': 0 });
+
+      });
+      const lastItem = spektrumData[spektrumData.length - 1];
+      spektrumData.push({ 'mz': lastItem.mz, 'coefficient': 0 });
 
       ctx.beginPath();
-      line(data);
+      line(spektrumData);
       ctx.lineWidth = 1;
       ctx.strokeStyle = 'black';
       ctx.stroke();
