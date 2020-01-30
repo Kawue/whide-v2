@@ -14,8 +14,8 @@
 
     </div>
     <div class="mzImageButtonContainer">
-        <b-button v-if="!this.showMzImage" class="onOffButton" id="mzImageOn" v-on:click="toggleMzImage">MZ-Image On</b-button>
-        <b-button v-if="this.showMzImage" class="onOffButton" id="mzImageOff" v-on:click="toggleMzImage">MZ-Image Off</b-button>
+        <b-button v-if="!this.showMzImage" class="onOffButton" id="mzImageOn" v-on:click="toggleMzImage">mz-Image On</b-button>
+        <b-button v-if="this.showMzImage" class="onOffButton" id="mzImageOff" v-on:click="toggleMzImage">mz-Image Off</b-button>
       <b-form-select v-model="selectedMethod" :options="methods" class="mb-0" id="methodChooser" text-field="text" value-field="value" v-on:change="chooseMethod()"></b-form-select>
       <b-form-select v-model="selectedColorscale" :options="colorScales" class="mb-0" id="scaleChooser" text-field="text" value-field="value" v-on:change="chooseColorscale()"></b-form-select>
 
@@ -259,9 +259,11 @@ export default {
   }
   .onOffButton {
     padding: 0;
-    width: 70%;
+    width: 300px;
     color: orange;
     background-color: #4f5051;
+    font-size: 0.95em;
+
   }
   .methodChooser {
   }

@@ -86,6 +86,7 @@ class BookmarkService {
     canvas.addEventListener('mousemove', addMouseMove, false);
     canvas.addEventListener('mouseenter', mEnter, false);
     canvas.addEventListener('mouseout', mOut, false);
+    canvas.addEventListener('click', addMzToAggregation, false);
     function mEnter () {
       if (!store.state.horizonatlCharts) {
         store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', id);
@@ -95,6 +96,7 @@ class BookmarkService {
         canvas.removeEventListener('mousemove', addMouseMove);
         canvas.removeEventListener('mouseenter', mEnter);
         canvas.removeEventListener('mouseout', mOut);
+        canvas.removeEventListener('click', addMzToAggregation);
       }
     }
     function mOut () {
@@ -108,6 +110,7 @@ class BookmarkService {
         canvas.removeEventListener('mousemove', addMouseMove);
         canvas.removeEventListener('mouseenter', mEnter);
         canvas.removeEventListener('mouseout', mOut);
+        canvas.removeEventListener('click', addMzToAggregation);
       }
     }
 
@@ -251,6 +254,9 @@ class BookmarkService {
         .call(d3annotate.annotation()
           .annotations(property));
     }
+    function addMzToAggregation () {
+      store.commit('SET_MZ_TO_AGGREGATIONLIST', currentHighlightedMz.mz.toString());
+    }
   }
 
   // function to creat a bar chart of the spektrum from one prototype
@@ -281,6 +287,7 @@ class BookmarkService {
     canvas.addEventListener('mousemove', addMouseMove, false);
     canvas.addEventListener('mouseenter', mEnter, false);
     canvas.addEventListener('mouseout', mOut, false);
+    canvas.addEventListener('click', addMzToAggregation, false);
     function mEnter () {
       if (store.state.horizonatlCharts) {
         store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', id);
@@ -290,6 +297,7 @@ class BookmarkService {
         canvas.removeEventListener('mousemove', addMouseMove);
         canvas.removeEventListener('mouseenter', mEnter);
         canvas.removeEventListener('mouseout', mOut);
+        canvas.removeEventListener('click', addMzToAggregation);
       }
     }
     function mOut () {
@@ -303,6 +311,7 @@ class BookmarkService {
         canvas.removeEventListener('mousemove', addMouseMove);
         canvas.removeEventListener('mouseenter', mEnter);
         canvas.removeEventListener('mouseout', mOut);
+        canvas.removeEventListener('click', addMzToAggregation);
       }
     }
     canvas.width = width + 50;
@@ -447,6 +456,9 @@ class BookmarkService {
         .call(d3annotate.annotation()
           .annotations(property));
     }
+    function addMzToAggregation () {
+      store.commit('SET_MZ_TO_AGGREGATIONLIST', currentHighlightedMz.mz.toString());
+    }
   }
 
   lineChart (qdtree, data, showMzBoolean = false, mzAnnotations = false, id, color) {
@@ -478,6 +490,7 @@ class BookmarkService {
     canvas.addEventListener('mousemove', addMouseMove, false);
     canvas.addEventListener('mouseenter', mEnter, false);
     canvas.addEventListener('mouseout', mOut, false);
+    canvas.addEventListener('click', addMzToAggregation, false);
     function mEnter () {
       if (store.state.horizonatlCharts) {
         store.commit('SET_CURRENT_HIGHLIGHTED_PROTOTYPE', id);
@@ -487,6 +500,7 @@ class BookmarkService {
         canvas.removeEventListener('mousemove', addMouseMove);
         canvas.removeEventListener('mouseenter', mEnter);
         canvas.removeEventListener('mouseout', mOut);
+        canvas.removeEventListener('click', addMzToAggregation);
       }
     }
     function mOut () {
@@ -500,6 +514,7 @@ class BookmarkService {
         canvas.removeEventListener('mousemove', addMouseMove);
         canvas.removeEventListener('mouseenter', mEnter);
         canvas.removeEventListener('mouseout', mOut);
+        canvas.removeEventListener('click', addMzToAggregation);
       }
     }
 
@@ -569,7 +584,6 @@ class BookmarkService {
         spektrumData.push({ 'mz': p.mz, 'coefficient': 0 });
         spektrumData.push(p);
         spektrumData.push({ 'mz': p.mz, 'coefficient': 0 });
-
       });
       const lastItem = spektrumData[spektrumData.length - 1];
       spektrumData.push({ 'mz': lastItem.mz, 'coefficient': 0 });
@@ -646,6 +660,9 @@ class BookmarkService {
         .style('pointer-events', 'none')
         .call(d3annotate.annotation()
           .annotations(property));
+    }
+    function addMzToAggregation () {
+      store.commit('SET_MZ_TO_AGGREGATIONLIST', currentHighlightedMz.mz.toString());
     }
   }
   alpha (values, width, padding, outerPadding) {

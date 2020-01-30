@@ -23,7 +23,8 @@ export default {
       mzText: false,
       qdtree: {},
       chartData: {},
-      bookmarkService: new BookmarkService()
+      bookmarkService: new BookmarkService(),
+      mode: 'vertical'
     };
   },
   props: {
@@ -79,17 +80,32 @@ export default {
     this.unsubscribe = store.subscribe(mutation => {
       if (mutation.type === 'SET_MOEBIUS') {
         this.bookmarkColor = store.getters.getBookmarkColor(this.prototypeid);
-        d3.select('#' + this.bookmarkData['id'])
-          .style('background-color', this.bookmarkColor);
+        if (this.mode === 'vertical') {
+          this.buildBchart(parseInt(this.height), this.bookmarkColor);
+        } else if (this.mode === 'horizontal') {
+          this.buildHchart(this.bookmarkColor);
+        } else if (this.mode === 'line') {
+          this.buildLchart(this.bookmarkColor);
+        }
       } else if (mutation.type === 'SET_DEFAULT_POSITION') {
         this.bookmarkColor = store.getters.getBookmarkColor(this.prototypeid);
-        d3.select('#' + this.bookmarkData['id'])
-          .style('background-color', this.bookmarkColor);
+        if (this.mode === 'vertical') {
+          this.buildBchart(parseInt(this.height), this.bookmarkColor);
+        } else if (this.mode === 'horizontal') {
+          this.buildHchart(this.bookmarkColor);
+        } else if (this.mode === 'line') {
+          this.buildLchart(this.bookmarkColor);
+        }
       }
       if (mutation.type === 'UPDATE_COLOR') {
         this.bookmarkColor = store.getters.getBookmarkColor(this.prototypeid);
-        d3.select('#' + this.bookmarkData['id'])
-          .style('background-color', this.bookmarkColor);
+        if (this.mode === 'vertical') {
+          this.buildBchart(parseInt(this.height), this.bookmarkColor);
+        } else if (this.mode === 'horizontal') {
+          this.buildHchart(this.bookmarkColor);
+        } else if (this.mode === 'line') {
+          this.buildLchart(this.bookmarkColor);
+        }
       }
       if (mutation.type === 'SET_CURRENT_HIGHLIGHTED_PROTOTYPE') {
         if (this.highlightedPrototype === this.prototypeid) {
@@ -212,7 +228,8 @@ export default {
         return { 'mz': x, 'coefficient': that.bookmarkData['data'][i] };
       });
     },
-    buildBchart: function (h) {
+    buildBchart: function (h, color = null) {
+      this.mode = 'vertical';
       d3.select('#' + this.prototypeid).remove();
       d3.select('#' + this.prototypeid + '-container')
         .append('canvas')
@@ -226,9 +243,14 @@ export default {
       this.clearChart();
       this.qdtree.removeAll(this.chartData);
       this.createChartData(this.showAnnotations);
-      this.bookmarkService.createBchart(this.qdtree, this.chartData, h, this.showMzBoolean, this.showAnnotations, this.bookmarkData['id'], this.bookmarkData['color']);
+      if (color === null) {
+        this.bookmarkService.createBchart(this.qdtree, this.chartData, h, this.showMzBoolean, this.showAnnotations, this.bookmarkData['id'], this.bookmarkData['color']);
+      } else {
+        this.bookmarkService.createBchart(this.qdtree, this.chartData, h, this.showMzBoolean, this.showAnnotations, this.bookmarkData['id'], color);
+      }
     },
-    buildHchart: function () {
+    buildHchart: function (color = null) {
+      this.mode = 'horizontal';
       d3.select('#' + this.prototypeid).remove();
       d3.select('#' + this.prototypeid + '-container')
         .append('canvas')
@@ -242,9 +264,14 @@ export default {
       this.clearChart();
       this.qdtree.removeAll(this.chartData);
       this.createChartData(this.showAnnotations);
-      this.bookmarkService.createHorizontalChart(this.qdtree, this.chartData, this.showMzBoolean, this.showAnnotations, this.bookmarkData['id'], this.bookmarkData['color']);
+      if (color === null) {
+        this.bookmarkService.createHorizontalChart(this.qdtree, this.chartData, this.showMzBoolean, this.showAnnotations, this.bookmarkData['id'], this.bookmarkData['color']);
+      } else {
+        this.bookmarkService.createHorizontalChart(this.qdtree, this.chartData, this.showMzBoolean, this.showAnnotations, this.bookmarkData['id'], color);
+      }
     },
-    buildLchart: function () {
+    buildLchart: function (color = null) {
+      this.mode = 'line';
       d3.select('#' + this.prototypeid).remove();
       d3.select('#' + this.prototypeid + '-container')
         .append('canvas')
@@ -258,7 +285,11 @@ export default {
       this.clearChart();
       this.qdtree.removeAll(this.chartData);
       this.createChartData(this.showAnnotations);
-      this.bookmarkService.lineChart(this.qdtree, this.chartData, this.showMzBoolean, this.showAnnotations, this.bookmarkData['id'], this.bookmarkData['color']);
+      if (color === null) {
+        this.bookmarkService.lineChart(this.qdtree, this.chartData, this.showMzBoolean, this.showAnnotations, this.bookmarkData['id'], this.bookmarkData['color']);
+      } else {
+        this.bookmarkService.lineChart(this.qdtree, this.chartData, this.showMzBoolean, this.showAnnotations, this.bookmarkData['id'], color);
+      }
     }
   }
 

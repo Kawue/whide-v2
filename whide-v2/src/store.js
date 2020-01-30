@@ -68,7 +68,8 @@ export default new Vuex.Store({
       base64Image: null
     },
     brightFieldImage: null,
-    focusMzList: false
+    focusMzList: false,
+    addMzToAggregationList: ''
 
   },
   getters: {
@@ -166,6 +167,9 @@ export default new Vuex.Store({
     },
     getFocusMzList: state => {
       return state.focusMzList;
+    },
+    getMzForAggregationList: state => {
+      return state.addMzToAggregationList;
     }
   },
   mutations: {
@@ -340,17 +344,6 @@ export default new Vuex.Store({
       state.mzImage.colorScale = colorscale;
     },
     SET_NEW_MZ_VALUE: (state, mzList) => {
-      /* if (mzPackage['add']) {
-        state.mzImage.selectedMzValues.push(mzPackage['mzValue']);
-      } else {
-        for (var i = 0; i < state.mzImage.selectedMzValues.length; i++) {
-          if (state.mzImage.selectedMzValues[i] === mzPackage['mzValue']) {
-            state.mzImage.selectedMzValues.splice(i, 1);
-          }
-        }
-
-      }
-      */
       state.mzImage.selectedMzValues = mzList;
     },
     SET_BRIGHTFIELD_IMAGE: (state, image) => {
@@ -358,6 +351,9 @@ export default new Vuex.Store({
     },
     SET_FOCUS_MZ_LIST: (state, bool) => {
       state.focusMzList = bool;
+    },
+    SET_MZ_TO_AGGREGATIONLIST: (state, mz) => {
+      state.addMzToAggregationList = mz;
     }
   },
   actions: {

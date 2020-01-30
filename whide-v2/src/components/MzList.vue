@@ -184,6 +184,10 @@ export default {
         this.renderMzList(this.currentMzObject, 'white');
         this.renderMzList(this.ignoreList, 'grey');
       }
+      if (mutation.type === 'SET_MZ_TO_AGGREGATIONLIST') {
+        let mzToAdd = store.getters.getMzForAggregationList;
+        this.addMzItem(parseFloat(mzToAdd), this.mzObject[mzToAdd]);
+      }
       if (this.firstBuild) {
         let height = this.windowHeight - 40;
         d3.select('#selectionContainer')
