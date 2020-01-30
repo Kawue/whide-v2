@@ -176,9 +176,9 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0, ringInd
 
 var moebiustransformation = function (ringPos, direction) {
   const FOCUS_MOVE_SPEED = 0.06;
-  const RECTIFICATION_FACTOR = 0.4;
-  const RECTIFICATION_FACTOR_X_2 = RECTIFICATION_FACTOR * 2;
-  const RECTIFICATION_FACTOR_X_4 = RECTIFICATION_FACTOR * RECTIFICATION_FACTOR * 4;
+  // const RECTIFICATION_FACTOR = 0.4;
+  // const RECTIFICATION_FACTOR_X_2 = RECTIFICATION_FACTOR * 2;
+  // const RECTIFICATION_FACTOR_X_4 = RECTIFICATION_FACTOR * RECTIFICATION_FACTOR * 4;
   // let canvas = document.getElementById('colorwheelCanvas');
   // let context = canvas.getContext('2d');
 
@@ -224,8 +224,8 @@ var moebiustransformation = function (ringPos, direction) {
   let ar = focus['x'];
   let ai = focus['y'];
 
-  let fR = Number;
-  let fS = Number;
+  // let fR = Number;
+  // let fS = Number;
 
   let fA = Number; let fB = Number; let fC = Number; let fD = Number; let fQ = Number;
   let z0r = Number; let z0i = Number; let z1r = Number; let z1i = Number;
@@ -248,11 +248,11 @@ var moebiustransformation = function (ringPos, direction) {
     z1r = (fA * fB + fC * fD) / fQ;
     z1i = (fC * fB - fA * fD) / fQ;
 
-    fR = z1r * z1r + z1i * z1i;
+    // fR = z1r * z1r + z1i * z1i;
 
-    if (fR === 0) { fS = 1.0; } else {
-      fS = 1 / (RECTIFICATION_FACTOR_X_2 * fR) * (fR - 1 + Math.sqrt(fR * fR - 2 * fR + 1 + RECTIFICATION_FACTOR_X_4 * fR));
-    }
+    // if (fR === 0) { fS = 1.0; } else {
+    //   fS = 1 / (RECTIFICATION_FACTOR_X_2 * fR) * (fR - 1 + Math.sqrt(fR * fR - 2 * fR + 1 + RECTIFICATION_FACTOR_X_4 * fR));
+    // }
     protoDict[prototype] = {
       'currentPos': [ z1r, z1i ],
       'startPos': ringPos[prototype]['startPos']

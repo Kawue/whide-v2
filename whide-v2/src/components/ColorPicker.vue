@@ -168,7 +168,7 @@ export default {
       let currentRing = 'ring' + this.ringGranularity.toString();
       store.commit('SET_RING_IDX', currentRing);
       store.commit('SET_PROTOTYPES_POSITION');
-      store.dispatch('getRingCoefficients');
+      store.dispatch('getCoeff');
       store.commit('SET_COLORS_READY', false);
     },
     chooseMove: function (event) {

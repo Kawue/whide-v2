@@ -30,9 +30,11 @@ export default {
     };
   },
   mounted: function () {
-    Store.dispatch('getDimensions');
+    Store.dispatch('getDimAndIndizes');
+    // Store.dispatch('getDimensions');
     Store.dispatch('getRingCoefficients');
     Store.dispatch('fetchData');
+
     // Store.dispatch('getBrightfieldImage');
     this.showPanels = true;
   }

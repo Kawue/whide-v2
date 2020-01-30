@@ -292,7 +292,6 @@ var brightfieldImage = function (image, transformation) {
   };
 
   brightfieldImage.src = image;
-
 };
 
 var drawMzImage = function (base64Image, dimensions, transformation) {

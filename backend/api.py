@@ -16,6 +16,7 @@ path_to_datasets = '../datasets/'
 current_dataset = 'barley_101.h5'
 
 
+
 colorscales = {
         'Viridis': 'viridis',
         'Magma': 'magma',
@@ -85,7 +86,8 @@ def getCoefIndeizes():
         if i != 0:
            indexList[i] = indexList[i] + indexList[i-1]
     indexList = indexList[:-1]
-    returnData = {'indizes' : indexList}
+    dim = pickle.load(open('info.h2som', "rb"))
+    returnData = {'indizes' : indexList, 'dim': {'x': int(dim['x']), 'y': int(dim['y'])}}
     return json.dumps(returnData)
 
 @app.route('/dimensions')
@@ -135,6 +137,14 @@ def getBrightfieldImage():
     print(response)
 
     return response
+
+@app.route('/getjson')
+def doJson():
+    with open('data.json') as json_file:
+        data = json.load(json_file)
+        return json.dumps(data)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

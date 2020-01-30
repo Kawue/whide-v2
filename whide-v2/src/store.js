@@ -293,7 +293,7 @@ export default new Vuex.Store({
       state.lastPrototypeIndex = idx;
     },
     SET_COEFF_INDEX: (state, indizes) => {
-      state.startingIndizes = indizes['indizes'];
+      state.startingIndizes = indizes;
     },
     SET_SEGMENTATION_DIM: (state, dim) => {
       state.segmentationMapDim = dim;
@@ -369,19 +369,48 @@ export default new Vuex.Store({
           alert('Error while getting dimensions');
         });
     },
-    fetchData: context => {
-      context.commit('SET_ORIGINAL_DATA', apiService.fetchData());
+    getDimAndIndizes: context => {
       const url = API_URL + '/ringdata';
       axios
         .get(url)
         .then(response => {
-          context.commit('SET_COEFF_INDEX', response.data);
+          context.commit('SET_COEFF_INDEX', response.data.indizes);
+          console.log(response.data.indizes);
+          context.commit('SET_SEGMENTATION_DIM', response.data.dim);
+        })
+        .catch(function (e) {
+          console.error(e);
+          alert('Error while fetching data');
+        });
+    },
+    fetchData: context => {
+      context.commit('SET_ORIGINAL_DATA', apiService.fetchData());
+      setTimeout(function () {
+        context.commit('SET_FULL_DATA');
+      }, 500);
+
+      /*
+      const url = API_URL + '/ringdata';
+      axios
+        .get(url)
+        .then(response => {
+          context.commit('SET_COEFF_INDEX', response.data.indizes);
+          context.commit('SET_SEGMENTATION_DIM', response.data.dim);
           context.commit('SET_FULL_DATA');
         })
         .catch(function (e) {
           console.error(e);
           alert('Error while fetching data');
         });
+
+ */
+    },
+    // TODO find something other for timeout
+    getCoeff: context => {
+      context.dispatch('getRingCoefficients');
+      setTimeout(function () {
+        context.commit('SET_FULL_DATA');
+      }, 500);
     },
     getRingCoefficients: (context) => {
       let ringIdx = context.state.ringIdx;
@@ -395,11 +424,6 @@ export default new Vuex.Store({
         .get(url)
         .then(response => {
           context.commit('SET_RING_COEFFICIENTS', response.data['coefficients']);
-          if (!context.state.first) {
-            context.commit('SET_FULL_DATA');
-          } else {
-            context.commit('SET_FIRST', false);
-          }
         })
         .catch(function (e) {
           console.error(e);
