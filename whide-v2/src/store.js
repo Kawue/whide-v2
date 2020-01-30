@@ -365,6 +365,7 @@ export default new Vuex.Store({
           context.commit('SET_SEGMENTATION_DIM', response.data);
         })
         .catch(function (e) {
+          console.error(e);
           alert('Error while getting dimensions');
         });
     },
@@ -378,7 +379,7 @@ export default new Vuex.Store({
           context.commit('SET_FULL_DATA');
         })
         .catch(function (e) {
-          console.log(e);
+          console.error(e);
           alert('Error while fetching data');
         });
     },
@@ -400,7 +401,8 @@ export default new Vuex.Store({
             context.commit('SET_FIRST', false);
           }
         })
-        .catch(function () {
+        .catch(function (e) {
+          console.error(e);
           alert('Error while getting coefficients or set Focus');
         });
     },
@@ -412,7 +414,7 @@ export default new Vuex.Store({
           context.commit('SET_BRIGHTFIELD_IMAGE', response.data);
         })
         .catch(function (err) {
-          console.log(err);
+          console.error(err);
         });
     },
     fetchImageData: (context) => {
@@ -433,7 +435,7 @@ export default new Vuex.Store({
             context.commit('SET_IMAGE_DATA_VALUES', response.data);
           })
           .catch(function (e) {
-            console.log(e);
+            console.error(e);
           });
       }
     }
