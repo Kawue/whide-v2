@@ -188,6 +188,13 @@ export default {
         let mzToAdd = store.getters.getMzForAggregationList;
         this.addMzItem(parseFloat(mzToAdd), this.mzObject[mzToAdd]);
       }
+      if (mutation.type === 'SET_FULL_DATA') {
+        store.commit('SET_MZ_OBJECT');
+        this.renderAggregationList();
+        this.currentMzObject = Object.assign({}, this.mzObject);
+        this.renderMzList(this.currentMzObject, 'white');
+        this.renderMzList(this.ignoreList, 'grey');
+      }
       if (this.firstBuild) {
         let height = this.windowHeight - 40;
         d3.select('#selectionContainer')
@@ -496,7 +503,7 @@ export default {
     }
   },
   created () {
-    store.commit('SET_MZ_OBJECT');
+    // store.commit('SET_MZ_OBJECT');
   }
 
 };

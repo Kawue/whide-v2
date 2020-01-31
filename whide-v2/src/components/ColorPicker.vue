@@ -107,7 +107,6 @@ export default {
     this.buttonEvent('left', this.moveLeft);
     this.buttonEvent('right', this.moveRight);
     this.buttonEvent('down', this.moveDown);
-    this.setGranulaity();
     store.subscribe(mutation => {
       if (mutation.type === 'SET_MOEBIUS') {
         d3.select('#colorwheelContainer').remove();
@@ -120,6 +119,7 @@ export default {
         this.getPos();
       }
       if (mutation.type === 'SET_FULL_DATA') {
+        this.setGranulaity();
         this.getPos();
       }
       if (mutation.type === 'SET_CURRENT_HIGHLIGHTED_PROTOTYPE') {

@@ -1,7 +1,7 @@
 import data from '../../../backend/data';
 
 class ApiService {
-  fetchData () {
+  async fetchData () {
     return data;
   }
 }

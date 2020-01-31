@@ -29,12 +29,11 @@ export default {
       showPanels: false
     };
   },
-  mounted: function () {
+  mounted () {
     Store.dispatch('getDimAndIndizes');
-    // Store.dispatch('getDimensions');
-    Store.dispatch('getRingCoefficients');
-    Store.dispatch('fetchData');
-
+    // Store.dispatch('getRingCoefficients');
+    // Store.dispatch('fetchData');
+    // Store.dispatch('openJson');
     // Store.dispatch('getBrightfieldImage');
     this.showPanels = true;
   }

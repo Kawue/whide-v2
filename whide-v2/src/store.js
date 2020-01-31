@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import * as d3 from 'd3';
 
-import ApiService from './services/ApiService';
+// import ApiService from './services/ApiService';
 import BookmarkService from './services/BookmarkService';
 import axios from 'axios';
 import { moebiustransformation } from './services/colorWheel';
@@ -10,7 +10,7 @@ import { moebiustransformation } from './services/colorWheel';
 const API_URL = 'http://localhost:5000';
 
 Vue.use(Vuex);
-let apiService = new ApiService();
+// let apiService = new ApiService();
 let bookmarkService = new BookmarkService();
 
 export default new Vuex.Store({
@@ -375,21 +375,42 @@ export default new Vuex.Store({
         .get(url)
         .then(response => {
           context.commit('SET_COEFF_INDEX', response.data.indizes);
-          console.log(response.data.indizes);
           context.commit('SET_SEGMENTATION_DIM', response.data.dim);
+          context.dispatch('getRingCoefficients');
         })
         .catch(function (e) {
           console.error(e);
           alert('Error while fetching data');
         });
     },
+    openJson: context => {
+      const url = API_URL + '/getjson';
+      axios
+        .get(url)
+        .then(response => {
+          context.commit('SET_ORIGINAL_DATA', response.data);
+          context.commit('SET_FULL_DATA');
+          // context.dispatch('fetchData');
+        })
+        .catch(function (e) {
+          console.error(e);
+        });
+    },
     fetchData: context => {
-      context.commit('SET_ORIGINAL_DATA', apiService.fetchData());
+      /*
+      console.log('now');
+      let data = await apiService.fetchData();
+      context.commit('SET_ORIGINAL_DATA', data);
+      await console.log(data);
       setTimeout(function () {
         context.commit('SET_FULL_DATA');
       }, 500);
+      console.log('finish');
 
-      /*
+       */
+    },
+
+    /*
       const url = API_URL + '/ringdata';
       axios
         .get(url)
@@ -403,11 +424,28 @@ export default new Vuex.Store({
           alert('Error while fetching data');
         });
 
- */
     },
+
+       */
+
     // TODO find something other for timeout
     getCoeff: context => {
-      context.dispatch('getRingCoefficients');
+      let ringIdx = context.state.ringIdx;
+      let re = /\d+/;
+      let i = ringIdx.match(re);
+      let startingindizes = context.state.startingIndizes;
+      let lastIdx = startingindizes[parseInt(i.toString())];
+      context.commit('SET_LASTIDX_OF_COEF', lastIdx);
+      const url = API_URL + '/coefficients?index=' + ringIdx + '&lastIndex=' + lastIdx.toString();
+      axios
+        .get(url)
+        .then(response => {
+          context.commit('SET_RING_COEFFICIENTS', response.data['coefficients']);
+        })
+        .catch(function (e) {
+          console.error(e);
+          alert('Error while getting coefficients or set Focus');
+        });
       setTimeout(function () {
         context.commit('SET_FULL_DATA');
       }, 500);
@@ -424,6 +462,7 @@ export default new Vuex.Store({
         .get(url)
         .then(response => {
           context.commit('SET_RING_COEFFICIENTS', response.data['coefficients']);
+          context.dispatch('openJson');
         })
         .catch(function (e) {
           console.error(e);
