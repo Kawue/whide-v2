@@ -300,7 +300,7 @@ var brightfieldImage = function (base64Im, dimensions, transformation) {
     ctx.translate(transformation.x, transformation.y);
     ctx.scale(transformation.k, transformation.k);
     ctx.scale(scalor, scalor);
-    ctx.drawImage(brightfieldImage, 0, 0);
+    ctx.drawImage(brightfieldImage, 0, 0, dimX, dimY);
     ctx.restore();
   };
 

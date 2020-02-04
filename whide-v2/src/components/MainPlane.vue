@@ -77,6 +77,7 @@ export default {
       if (mutation.type === 'SET_SEGMENTATION_TRANSFORMATION') {
         this.currentTransformation = this.transformation;
         this.drawMzImage();
+        this.drawBrightfieldImage();
       }
       if (mutation.type === 'SET_CURRENT_HIGHLIGHTED_PROTOTYPE') {
         this.drawHighlight(this.outsideHighlight['id'], this.currentTransformation);

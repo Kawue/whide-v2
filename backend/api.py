@@ -137,11 +137,11 @@ def getBrightfieldImage():
     img_io = BytesIO()
     img = Image.open('testmask.png')
     img_resized = img.resize((dim['x'] + 1,dim['y'] + 1))
-    img_resized.save(img_io, format='PNG')
+    img.save(img_io, format='PNG')
     img_io.seek(0)
     response = make_response('data:image/png;base64,' + base64.b64encode(img_io.getvalue()).decode('utf-8'), 200)
     response.mimetype = 'text/plain'
-    print(response)
+
     return response
 
 @app.route('/getjson')
