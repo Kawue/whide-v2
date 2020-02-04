@@ -2,7 +2,6 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import * as d3 from 'd3';
 
-// import ApiService from './services/ApiService';
 import BookmarkService from './services/BookmarkService';
 import axios from 'axios';
 import { moebiustransformation } from './services/colorWheel';
@@ -10,7 +9,6 @@ import { moebiustransformation } from './services/colorWheel';
 const API_URL = 'http://localhost:5000';
 
 Vue.use(Vuex);
-// let apiService = new ApiService();
 let bookmarkService = new BookmarkService();
 
 export default new Vuex.Store({
@@ -390,45 +388,11 @@ export default new Vuex.Store({
         .then(response => {
           context.commit('SET_ORIGINAL_DATA', response.data);
           context.commit('SET_FULL_DATA');
-          // context.dispatch('fetchData');
         })
         .catch(function (e) {
           console.error(e);
         });
     },
-    fetchData: context => {
-      /*
-      console.log('now');
-      let data = await apiService.fetchData();
-      context.commit('SET_ORIGINAL_DATA', data);
-      await console.log(data);
-      setTimeout(function () {
-        context.commit('SET_FULL_DATA');
-      }, 500);
-      console.log('finish');
-
-       */
-    },
-
-    /*
-      const url = API_URL + '/ringdata';
-      axios
-        .get(url)
-        .then(response => {
-          context.commit('SET_COEFF_INDEX', response.data.indizes);
-          context.commit('SET_SEGMENTATION_DIM', response.data.dim);
-          context.commit('SET_FULL_DATA');
-        })
-        .catch(function (e) {
-          console.error(e);
-          alert('Error while fetching data');
-        });
-
-    },
-
-       */
-
-    // TODO find something other for timeout
     getCoeff: context => {
       let ringIdx = context.state.ringIdx;
       let re = /\d+/;
@@ -441,14 +405,12 @@ export default new Vuex.Store({
         .get(url)
         .then(response => {
           context.commit('SET_RING_COEFFICIENTS', response.data['coefficients']);
+          context.commit('SET_FULL_DATA');
         })
         .catch(function (e) {
           console.error(e);
           alert('Error while getting coefficients or set Focus');
         });
-      setTimeout(function () {
-        context.commit('SET_FULL_DATA');
-      }, 500);
     },
     getRingCoefficients: (context) => {
       let ringIdx = context.state.ringIdx;

@@ -31,9 +31,6 @@ export default {
   },
   mounted () {
     Store.dispatch('getDimAndIndizes');
-    // Store.dispatch('getRingCoefficients');
-    // Store.dispatch('fetchData');
-    // Store.dispatch('openJson');
     // Store.dispatch('getBrightfieldImage');
     this.showPanels = true;
   }
