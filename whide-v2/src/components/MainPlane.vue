@@ -113,7 +113,7 @@ export default {
       sm.drawMzImage(this.base64Image, this.dim, this.transformation);
     },
     drawBrightfieldImage: function () {
-      sm.brightfieldImage(this.briefcase, this.transformation);
+      sm.brightfieldImage(this.brightfieldImage, this.dim, this.transformation);
     },
     clearSegmentation: function () {
       const virtCanvas = document.getElementById('virtCanvas');

@@ -31,7 +31,7 @@ export default {
   },
   mounted () {
     Store.dispatch('getDimAndIndizes');
-    // Store.dispatch('getBrightfieldImage');
+    Store.dispatch('getBrightfieldImage');
     this.showPanels = true;
   }
 };

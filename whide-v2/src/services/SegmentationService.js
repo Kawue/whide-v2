@@ -272,11 +272,24 @@ function indexAccess (i, j, dim) {
   const NUM_CHANNELS = 4;
   return j * dim * NUM_CHANNELS + i * NUM_CHANNELS;
 }
-// TODO correct the upload from the brightfieldimage, also from backend to frontend via python
-var brightfieldImage = function (image, transformation) {
+var brightfieldImage = function (base64Im, dimensions, transformation) {
+  const dimX = dimensions['x'] + 1;
+  const dimY = dimensions['y'] + 1;
   let scalor = 1;
 
-  const canvas = document.getElementById('brightfield');
+  let canvas = document.getElementById('brightfield');
+  const regex = /[0-9]*\.?[0-9]+(px|%)?/i;
+  const w = canvas.style.width.match(regex);
+  const h = canvas.style.height.match(regex);
+  const computedWidth = (w[0] * document.documentElement.clientWidth) / 100;
+  const computedHeight = (h[0] * document.documentElement.clientHeight) / 100;
+  canvas.width = computedWidth;
+  canvas.height = computedHeight;
+  if (dimX >= dimY) {
+    scalor = Math.floor(canvas.width / (dimX + 10));
+  } else {
+    scalor = Math.floor(canvas.height / (dimY + 10));
+  }
 
   const brightfieldImage = new Image();
   brightfieldImage.onload = () => {
@@ -291,7 +304,7 @@ var brightfieldImage = function (image, transformation) {
     ctx.restore();
   };
 
-  brightfieldImage.src = image;
+  brightfieldImage.src = base64Im;
 };
 
 var drawMzImage = function (base64Image, dimensions, transformation) {
@@ -299,7 +312,7 @@ var drawMzImage = function (base64Image, dimensions, transformation) {
   const dimY = dimensions['y'] + 1;
   let scalor = 1;
 
-  const canvas = document.getElementById('mzChannelImage');
+  let canvas = document.getElementById('mzChannelImage');
   const regex = /[0-9]*\.?[0-9]+(px|%)?/i;
   const w = canvas.style.width.match(regex);
   const h = canvas.style.height.match(regex);

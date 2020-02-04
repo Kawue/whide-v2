@@ -14,6 +14,8 @@ import base64
 path_to_assets = '../whide-v2/src/assets/'
 path_to_datasets = '../datasets/'
 current_dataset = 'barley_101.h5'
+dimX = 1000
+dimY = 1000
 
 
 
@@ -95,6 +97,8 @@ def getDimensions():
     dim = pickle.load(open('info.h2som', "rb"))
     dim['x'] = int(dim['x'])
     dim['y'] = int(dim['y'])
+    dimX = int(dim['x'])
+    dimY = int(dim['y'])
     return json.dumps(dim)
 
 # get mz image data for dataset and mz values
@@ -129,13 +133,15 @@ def imagedata_multiple_mz_action():
 
 @app.route('/brightfieldimage')
 def getBrightfieldImage():
+    dim = pickle.load(open('info.h2som', "rb"))
     img_io = BytesIO()
-    Image.open(path_to_assets+'testmask.png').save(img_io,'PNG')
+    img = Image.open('testmask.png')
+    img_resized = img.resize((dim['x'],dim['y']))
+    img_resized.save(img_io, format='PNG')
     img_io.seek(0)
     response = make_response('data:image/png;base64,' + base64.b64encode(img_io.getvalue()).decode('utf-8'), 200)
     response.mimetype = 'text/plain'
     print(response)
-
     return response
 
 @app.route('/getjson')
