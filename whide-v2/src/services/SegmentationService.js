@@ -209,12 +209,24 @@ var drawSegmentationMap = function (dimensions, prototypeOutside = '', transform
       .toString();
   }
 };
-var highlightprototypeSegmentation = function (dimensions, prototyp, transformation) {
-  const prototypData = store.state.currentRingData[prototyp];
+var highlightprototypeSegmentation = function (dimensions, prototyp, transformation, inverse) {
   const dimX = dimensions['x'] + 1;
   const dimY = dimensions['y'] + 1;
   let scalor = 1;
-  let pixels = prototypData['pixels'];
+  let pixels = [];
+  if (inverse) {
+    let pix = [];
+    const allPrototypeData = store.state.currentRingData;
+    Object.keys(allPrototypeData).forEach(function (pro) {
+      if (pro !== prototyp) {
+        pix.push(...allPrototypeData[pro]['pixels']);
+      }
+    });
+    pixels = pix;
+  } else {
+    const prototypData = store.state.currentRingData[prototyp];
+    pixels = prototypData['pixels'];
+  }
 
   let indizes = [];
   pixels.forEach(function (pixel) {
@@ -272,6 +284,7 @@ function indexAccess (i, j, dim) {
   const NUM_CHANNELS = 4;
   return j * dim * NUM_CHANNELS + i * NUM_CHANNELS;
 }
+// TODO: fix slow drawing with transformation;
 var brightfieldImage = function (base64Im, dimensions, transformation) {
   const dimX = dimensions['x'] + 1;
   const dimY = dimensions['y'] + 1;

@@ -7,18 +7,19 @@
       <canvas id="mzChannelImage" class="mzImageCanvas" style="width: 70vw; height: 90vh"/>
       <canvas id="highlightSeg" class="segmentationCanvas" style="width: 70vw; height: 90vh"/>
     </p>
+    <div class="mzImageButtonContainer">
+      <b-button v-if="!this.showMzImage" class="onOffButton" id="mzImageOn" v-on:click="toggleMzImage">mz-Image On</b-button>
+      <b-button v-if="this.showMzImage" class="onOffButton" id="mzImageOff" v-on:click="toggleMzImage">mz-Image Off</b-button>
+      <b-form-select v-model="selectedMethod" :options="methods" class="mb-0" id="methodChooser" text-field="text" value-field="value" v-on:change="chooseMethod()"></b-form-select>
+      <b-form-select v-model="selectedColorscale" :options="colorScales" class="mb-0" id="scaleChooser" text-field="text" value-field="value" v-on:change="chooseColorscale()"></b-form-select>
+    </div>
     <div class="transparancy-container">
       <p style="color: white">Transparancy</p>
       <b-form-input v-model="alphaValue" v-bind:type="'range'" min="0" max="1" step="0.05" id="alphaChanger"
                     class="slider" @change="changeAlphaValue"/>
-
     </div>
-    <div class="mzImageButtonContainer">
-        <b-button v-if="!this.showMzImage" class="onOffButton" id="mzImageOn" v-on:click="toggleMzImage">mz-Image On</b-button>
-        <b-button v-if="this.showMzImage" class="onOffButton" id="mzImageOff" v-on:click="toggleMzImage">mz-Image Off</b-button>
-      <b-form-select v-model="selectedMethod" :options="methods" class="mb-0" id="methodChooser" text-field="text" value-field="value" v-on:change="chooseMethod()"></b-form-select>
-      <b-form-select v-model="selectedColorscale" :options="colorScales" class="mb-0" id="scaleChooser" text-field="text" value-field="value" v-on:change="chooseColorscale()"></b-form-select>
-
+    <div class="inverse-container">
+      <b-button  v-if="this.showMzImage" class="inverse" id="invBut" v-on:click="toggleInverse">Inverse</b-button>
     </div>
   </div>
 </template>
@@ -50,7 +51,8 @@ export default {
         { value: 'interpolatePiYG', text: 'PiYG' },
         { value: 'interpolatePlasma', text: 'Plasma' },
         { value: 'interpolateInferno', text: 'Inferno' }
-      ]
+      ],
+      inverse: false
     };
   },
   computed: {
@@ -77,7 +79,11 @@ export default {
       if (mutation.type === 'SET_SEGMENTATION_TRANSFORMATION') {
         this.currentTransformation = this.transformation;
         this.drawMzImage();
-        this.drawBrightfieldImage();
+        if (parseFloat(this.alphaValue) !== 1) {
+          this.drawBrightfieldImage();
+        } else {
+          this.clearBrightfield();
+        }
       }
       if (mutation.type === 'SET_CURRENT_HIGHLIGHTED_PROTOTYPE') {
         this.drawHighlight(this.outsideHighlight['id'], this.currentTransformation);
@@ -86,7 +92,7 @@ export default {
         this.drawMzImage();
       }
       if (mutation.type === 'SET_BRIGHTFIELD_IMAGE') {
-        this.drawBrightfieldImage();
+        // this.drawBrightfieldImage();
       }
     });
   },
@@ -94,6 +100,7 @@ export default {
     this.unsubscribe();
   },
   methods: {
+
     drawSegmentation: function (prototype = '', transformation = { k: 1, x: 0, y: 0 }, alpha = 1) {
       if (this.colorsReady) {
         sm.drawSegmentationMap(this.dim, prototype, transformation, alpha);
@@ -102,7 +109,7 @@ export default {
     drawHighlight: function (prototyp, transformation) {
       if (this.colorsReady) {
         if (prototyp !== null) {
-          sm.highlightprototypeSegmentation(this.dim, prototyp, transformation);
+          sm.highlightprototypeSegmentation(this.dim, prototyp, transformation, this.inverse);
         } else {
           const highlightCanvas = document.getElementById('highlightSeg');
           const highCtx = highlightCanvas.getContext('2d');
@@ -115,6 +122,11 @@ export default {
     },
     drawBrightfieldImage: function () {
       sm.brightfieldImage(this.brightfieldImage, this.dim, this.transformation);
+    },
+    clearBrightfield: function () {
+      const canvas = document.getElementById('brightfield');
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
     },
     clearSegmentation: function () {
       const virtCanvas = document.getElementById('virtCanvas');
@@ -143,6 +155,9 @@ export default {
     },
     toggleMzImage: function () {
       this.showMzImage = !this.showMzImage;
+      if (!this.showMzImage) {
+        this.inverse = false;
+      }
       if (this.showMzImage) {
         store.dispatch('fetchImageData');
         d3.select('#mzChannelImage')
@@ -151,6 +166,9 @@ export default {
         d3.select('#mzChannelImage')
           .style('z-index', '100');
       }
+    },
+    toggleInverse: function () {
+      this.inverse = !this.inverse;
     }
   }
 };
@@ -265,6 +283,19 @@ export default {
     background-color: #4f5051;
     font-size: 0.95em;
 
+  }
+  #invBut {
+    padding: 0;
+    width: 100px;
+    color: orange;
+    background-color: #4f5051;
+    font-size: 0.95em;
+  }
+  .inverse-container {
+    position: absolute;
+    right: 30vw;
+    top: 10px;
+    z-index: 115;
   }
   .methodChooser {
   }
