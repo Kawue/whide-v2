@@ -1,9 +1,9 @@
 ###########################################
 # for testing
-from pyclusterbdm.algorithms import H2SOM
-#from pycluster.algorithms import H2SOM
-import pyclusterbdm.core as core
-#import pycluster.core as core
+#from pyclusterbdm.algorithms import H2SOM
+from pycluster.algorithms import H2SOM
+#import pyclusterbdm.core as core
+import pycluster.core as core
 ############################################
 import pandas as pd
 import numpy as np
@@ -15,6 +15,7 @@ import json
 import pickle
 import argparse
 
+path_to_backend_dataset = '../backend/datasets/'
 path_to_dataset = 'data/'
 path_to_json = '../backend/json/'
 path_to_h2som_data = '../backend/h2som/'
@@ -46,7 +47,7 @@ def read_data(path):
     return dframe, data
 
 
-def calc_h2som(data):
+def calc_h2som(data, eps, sig):
     ### Important H2SOM Properties
     # hierachical ring index intervals
     #print(h2som._rings)
@@ -62,7 +63,7 @@ def calc_h2som(data):
     #print(h2som._centroids.shape)
 
     # H2SOM initialization
-    h2som = H2SOM(data)
+    h2som = H2SOM(data, epsilon=[float(eps[0]), float(eps[1])], sigma=[float(sig[0]), float(sig[1])])
 
     # H2SOM training
     h2som.cluster()
@@ -76,11 +77,12 @@ def calc_memb(data, h2som, ring_idx, file):
     # Find best matching unit (prototype) for each data point
     # index in bmu_matches = data point index; value in bmu_matches = prototype index
     bmu_matches = core.bmus(data, h2som._centroids[h2som._rings[ring_idx][0]:h2som._rings[ring_idx][1]+1])
-    pickle.dump(h2som._centroids[h2som._rings[ring_idx][0]:h2som._rings[ring_idx][1]+1], open(file +"_ring"+str(ring_idx)+".h2som", "wb"))
+    ring = h2som._centroids[h2som._rings[ring_idx][0]:h2som._rings[ring_idx][1]+1]
+    #pickle.dump(h2som._centroids[h2som._rings[ring_idx][0]:h2som._rings[ring_idx][1]+1], open(file +"_ring"+str(ring_idx)+".h2som", "wb"))
     #print(np.amin(bmu_matches))
     #print(np.amax(bmu_matches))
     #print(bmu_matches)
-    return bmu_matches
+    return bmu_matches, ring
 
 
 # Calculate cluster of pixels, aka. segmentation map
@@ -187,8 +189,6 @@ def createJson(h2som, data, dframe, file):
     gridX_max = np.amax(grid_x)
     gridY_max = np.amax(grid_y)
     canvas = {'x': gridX_max, 'y': gridY_max}
-    print(canvas)
-    pickle.dump(canvas, open(file +"_info.h2som", "wb"))
     posX = h2som._pos[:,0]
     posY = h2som._pos[:,1]
 
@@ -201,8 +201,10 @@ def createJson(h2som, data, dframe, file):
 
 	# Get each Ring
     pixels_dict = None
+    ring_json_list = []
     for ring in h2som._rings:
-        membs = calc_memb(data, h2som, ring_idx, file)
+        membs, ring_for_json = calc_memb(data, h2som, ring_idx, file)
+        ring_json_list.append((ring_for_json, ring_idx))
         pixelsPerPrototype, pixels_dict = getPixelsForRing(data, membs, dframe,ring)
         ring_idx +=1
 		# get the Prototypes of the ring
@@ -232,29 +234,51 @@ def createJson(h2som, data, dframe, file):
                     json_dict["pixels"][key_px]["membership"][key_ring] = prot
 
 
-    with open( file +'.json', 'w') as outfile:
-        json.dump(json_dict, outfile)
-
 
     jsonData= json.dumps(json_dict)
 
-    return jsonData
+    return jsonData, canvas, ring_json_list
 
 
 ### Spectral workflow
 
-parser = argparse.ArgumentParser(description='Input is the filename of the data, no path, no .h5')
-parser.add_argument('filename')
+parser = argparse.ArgumentParser(description='Arguments for the h2som')
+parser.add_argument('-f', '--filename', dest='file', help='The Filename of the h5 data.', required=True)
+parser.add_argument('-o', '--outputfile', dest='out', help='The path where you want to store the computed data', nargs='?')
+parser.add_argument('-e', '--epsilon', dest='eps', help='Epsilon parameter for the h2SOM.', nargs=2, default=['1.001', '0.001'])
+parser.add_argument('-s', '--sigma', dest='sig', nargs=2, default=['12', '0.01'], help='Sigma parameter for the h2SOM.')
 args = parser.parse_args()
 
-print(path_to_dataset + args.filename + h5)
-path = path_to_dataset + args.filename + h5
+outpath = args.out
+
+path = ''
+filename = ''
+if ('.h5' in args.file):
+    path = path_to_backend_dataset + args.file
+    filename = args.file.split('.')[0]
+else:
+    path = path_to_backend_dataset + args.file + h5
+    filename = args.file
+# line for Docker
+#path = path_to_dataset + args.file
+#Line for testing
+
 dframe, data = read_data(path)
 ### For spatial workflow add:
 #data = data.T.copy(order="C")
-h2som = calc_h2som(data)
-membs = calc_memb(data, h2som, 0, args.filename)
-json = createJson(h2som, data, dframe, args.filename)
-#print(json)
-spectral_cluster(data, membs, dframe)
+h2som = calc_h2som(data, args.eps, args.sig)
+#membs = calc_memb(data, h2som, 0, args.file)
+created_json, dimensions, rings = createJson(h2som, data, dframe, args.file)
+
+if(outpath != None):
+    pickle.dump(created_json, open(outpath + filename + '.json', 'wb'))
+    pickle.dump(dimensions, open(outpath + filename +"_info.h2som", "wb"))
+    for ri in rings:
+        pickle.dump(ri[0], open(outpath + filename+'_ring' + str(ri[1]-1) + '.h2som', 'wb'))
+else:
+    pickle.dump(created_json, open(path_to_json + filename + '.json', 'wb'))
+    pickle.dump(dimensions, open(path_to_h2som_data + filename +"_info.h2som", "wb"))
+    for ri in rings:
+        pickle.dump(ri[0], open(path_to_h2som_data + filename+'_ring' + str(ri[1]-1) + '.h2som', 'wb'))
+# spectral_cluster(data, membs, dframe)
 #plot_poincare_structure(h2som)
