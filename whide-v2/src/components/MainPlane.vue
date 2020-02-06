@@ -15,7 +15,7 @@
     </div>
     <div class="transparancy-container">
       <p style="color: white">Transparancy</p>
-      <b-form-input v-model="alphaValue" v-bind:type="'range'" min="0" max="1" step="0.05" id="alphaChanger"
+      <b-form-input v-model="alphaValue" v-bind:type="'range'" min="0" max="1" :disabled="this.showMzImage" step="0.05" id="alphaChanger"
                     class="slider" @change="changeAlphaValue"/>
     </div>
     <div class="inverse-container">
