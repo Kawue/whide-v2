@@ -140,17 +140,17 @@ class H2SOM:
         doubles = []
         for i in range(1, self.numNodes([arch[0] - 1, arch[1]])):
             if i == marker:
-                self._childs[i] = [marker + 1] + range(cur, cur +
-                                                       (arch[1] - 4))
+                self._childs[i] = [marker + 1] + list(range(cur, cur +
+                                                       (arch[1] - 4)))
                 doubles += [marker + 1]
                 marker = cur + (arch[1] - 5)
                 cur += (arch[1] - 4)
             elif i in doubles:
-                self._childs[i] = range(cur, cur + (arch[1] - 4))
+                self._childs[i] = list(range(cur, cur + (arch[1] - 4)))
                 doubles += [cur + (arch[1] - 5)]
                 cur += (arch[1] - 5)
             else:
-                self._childs[i] = range(cur, cur + (arch[1] - 3))
+                self._childs[i] = list(range(cur, cur + (arch[1] - 3)))
                 cur += (arch[1] - 4)
                 doubles += [cur]
 
@@ -280,7 +280,7 @@ class H2SOMClassifier(BaseEstimator, ClassifierMixin, H2SOM):
         distmat = scipy.spatial.distance.cdist(X, self._centroids)
         probs = numpy.zeros((X.shape[0], self.classes_.shape[0]))
         idx = self._lbl[numpy.argmin(distmat, 1)]
-        probs[range(idx.shape[0]), idx] = numpy.exp(-numpy.min(distmat, 1))
+        probs[list(range(idx.shape[0])), idx] = numpy.exp(-numpy.min(distmat, 1))
         return probs
 
     def get_params(self, deep=True):
@@ -843,23 +843,23 @@ class pyH2SOM:
                                                ]), self.numNodes([ring - 1, arch[1]]) +
                                 self.newNodes([ring, arch[1]]) - 1])
 
-        self._childs[0] = range(1, arch[1] + 1)
+        self._childs[0] = list(range(1, arch[1] + 1))
         cur = arch[1] + 1
         marker = arch[1]
         doubles = []
         for i in range(1, self.numNodes([arch[0] - 1, arch[1]])):
             if i == marker:
-                self._childs[i] = [marker + 1] + range(cur, cur +
-                                                       (arch[1] - 4))
+                self._childs[i] = [marker + 1] + list(range(cur, cur +
+                                                       (arch[1] - 4)))
                 doubles += [marker + 1]
                 marker = cur + (arch[1] - 5)
                 cur += (arch[1] - 4)
             elif i in doubles:
-                self._childs[i] = range(cur, cur + (arch[1] - 4))
+                self._childs[i] = list(range(cur, cur + (arch[1] - 4)))
                 doubles += [cur + (arch[1] - 5)]
                 cur += (arch[1] - 5)
             else:
-                self._childs[i] = range(cur, cur + (arch[1] - 3))
+                self._childs[i] = list(range(cur, cur + (arch[1] - 3)))
                 cur += (arch[1] - 4)
                 doubles += [cur]
 
@@ -1057,7 +1057,7 @@ class allDataAdaptiveH2SOM:
         self._rings.append([1, startNodes])
         for i in range(rings):
             self._rings.append([])
-        self._childs[0] = range(1, startNodes + 1)
+        self._childs[0] = list(range(1, startNodes + 1))
 
     _data = None
     _sigma = [None, None]
@@ -1193,7 +1193,7 @@ class supervisedH2SOM:
 
     def buildNetwork(self, maxNodes):
         self._rings.append([1, 1 + self.newNodes([1, maxNodes]) - 1])
-        self._childs[0] = range(1, maxNodes + 1)
+        self._childs[0] = list(range(1, maxNodes + 1))
 
     _data = None
     _sigma = [None, None]
@@ -1364,7 +1364,7 @@ class NODEH2SOM:
 
     def buildNetwork(self, maxNodes):
         self._rings.append([1, 1 + self.newNodes([1, maxNodes]) - 1])
-        self._childs[0] = range(1, maxNodes + 1)
+        self._childs[0] = list((1, maxNodes + 1))
 
         # init nodes for first ring
         for i in range(self._rings[0][0], self._rings[0][1]):
@@ -1487,23 +1487,23 @@ class errH2SOM:
                                                ]), self.numNodes([ring - 1, arch[1]]) +
                                 self.newNodes([ring, arch[1]]) - 1])
 
-        self._childs[0] = range(1, arch[1] + 1)
+        self._childs[0] = list(range(1, arch[1] + 1))
         cur = arch[1] + 1
         marker = arch[1]
         doubles = []
         for i in range(1, self.numNodes([arch[0] - 1, arch[1]])):
             if i == marker:
-                self._childs[i] = [marker + 1] + range(cur, cur +
-                                                       (arch[1] - 4))
+                self._childs[i] = [marker + 1] + list(range(cur, cur +
+                                                       (arch[1] - 4)))
                 doubles += [marker + 1]
                 marker = cur + (arch[1] - 5)
                 cur += (arch[1] - 4)
             elif i in doubles:
-                self._childs[i] = range(cur, cur + (arch[1] - 4))
+                self._childs[i] = list(range(cur, cur + (arch[1] - 4)))
                 doubles += [cur + (arch[1] - 5)]
                 cur += (arch[1] - 5)
             else:
-                self._childs[i] = range(cur, cur + (arch[1] - 3))
+                self._childs[i] = list(range(cur, cur + (arch[1] - 3)))
                 cur += (arch[1] - 4)
                 doubles += [cur]
 
@@ -1786,23 +1786,23 @@ class awH2SOM:
                                                ]), self.numNodes([ring - 1, arch[1]]) +
                                 self.newNodes([ring, arch[1]]) - 1])
 
-        self._childs[0] = range(1, arch[1] + 1)
+        self._childs[0] = list(range(1, arch[1] + 1))
         cur = arch[1] + 1
         marker = arch[1]
         doubles = []
         for i in range(1, self.numNodes([arch[0] - 1, arch[1]])):
             if i == marker:
-                self._childs[i] = [marker + 1] + range(cur, cur +
-                                                       (arch[1] - 4))
+                self._childs[i] = [marker + 1] + list(range(cur, cur +
+                                                       (arch[1] - 4)))
                 doubles += [marker + 1]
                 marker = cur + (arch[1] - 5)
                 cur += (arch[1] - 4)
             elif i in doubles:
-                self._childs[i] = range(cur, cur + (arch[1] - 4))
+                self._childs[i] = list(range(cur, cur + (arch[1] - 4)))
                 doubles += [cur + (arch[1] - 5)]
                 cur += (arch[1] - 5)
             else:
-                self._childs[i] = range(cur, cur + (arch[1] - 3))
+                self._childs[i] = list(range(cur, cur + (arch[1] - 3)))
                 cur += (arch[1] - 4)
                 doubles += [cur]
 

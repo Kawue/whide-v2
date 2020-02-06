@@ -1,14 +1,9 @@
-#from pyclusterbdm.algorithms import H2SOM
-#from pyclusterbdm.algorithms import H2SOM
-#import pyclusterbdm.core as core
-#import pyclusterbdm.core as core
-
 ###########################################
 # for testing
-#from pyclusterbdm.algorithms import H2SOM
-from pycluster.algorithms import H2SOM
-#import pyclusterbdm.core as core
-import pycluster.core as core
+from pyclusterbdm.algorithms import H2SOM
+#from pycluster.algorithms import H2SOM
+import pyclusterbdm.core as core
+#import pycluster.core as core
 ############################################
 import pandas as pd
 import numpy as np
@@ -20,13 +15,12 @@ import json
 import pickle
 import argparse
 
-path_to_dataset = '../backend/datasets/'
+path_to_dataset = 'data/'
 path_to_json = '../backend/json/'
 path_to_h2som_data = '../backend/h2som/'
 
 
 h5 = '.h5'
-matplotlib.use("TkAgg")
 
 def plot_poincare_structure(h2som):
     plt.plot(h2som._pos[:,0], h2som._pos[:,1], "ro")
@@ -110,8 +104,8 @@ def spectral_cluster(data, bmu_matches, dframe):
         # Set matching pixels to a prototype specific value
         img[seg_y, seg_x] = i
         #print(img)
-        plt.imshow(img, cmap="tab20")
-    plt.show()
+        #plt.imshow(img, cmap="tab20")
+    #plt.show()
 
 def getPixelsForRing(data, bmu_matches, dframe,ring):
     grid_x = np.array(dframe.index.get_level_values("grid_x")).astype(int)
