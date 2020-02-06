@@ -2,8 +2,6 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import * as d3 from 'd3';
 
-import ApiService from './services/ApiService';
-import MzService from './services/MzService';
 import BookmarkService from './services/BookmarkService';
 import axios from 'axios';
 import { moebiustransformation } from './services/colorWheel';
@@ -11,8 +9,6 @@ import { moebiustransformation } from './services/colorWheel';
 const API_URL = 'http://localhost:5000';
 
 Vue.use(Vuex);
-let apiService = new ApiService();
-let mzService = new MzService();
 let bookmarkService = new BookmarkService();
 
 export default new Vuex.Store({
@@ -59,16 +55,19 @@ export default new Vuex.Store({
         interpolatePlasma: 'Plasma',
         interpolateInferno: 'Inferno'
       },
-      currentMergeMethod: 'mean',
+      currentMergeMethod: 'methodMean',
       mergeMethods: {
         methodMean: 'mean',
         methodMedian: 'median',
         methodMin: 'min',
         methodMax: 'max'
       },
-      selectedMzValues: [74.651, 104.107],
+      selectedMzValues: [],
       base64Image: null
-    }
+    },
+    brightFieldImage: null,
+    focusMzList: false,
+    addMzToAggregationList: ''
 
   },
   getters: {
@@ -83,9 +82,6 @@ export default new Vuex.Store({
     },
     mzShowAnnotation: state => {
       return state.mzList.showAnnotation;
-    },
-    mzAsc: state => {
-      return state.mzList.asc;
     },
     getBookmarksData: (state) => (givenId) => {
       let bookmarkData = state.currentRingData[givenId];
@@ -160,6 +156,18 @@ export default new Vuex.Store({
     },
     getBookmarkLinechart: state => {
       return state.lineChart;
+    },
+    getBase64Image: state => {
+      return state.mzImage.base64Image;
+    },
+    getBrightFieldImage: state => {
+      return state.brightFieldImage;
+    },
+    getFocusMzList: state => {
+      return state.focusMzList;
+    },
+    getMzForAggregationList: state => {
+      return state.addMzToAggregationList;
     }
   },
   mutations: {
@@ -202,12 +210,6 @@ export default new Vuex.Store({
       Object.keys(allPrototypeColors).forEach(function (pro) {
         state.currentRingData[pro.toString()]['color'] = allPrototypeColors[pro].toString();
       });
-    },
-    MZLIST_TOOGLE_ASC: state => {
-      state.mzList.asc = !state.mzList.asc;
-    },
-    MZLIST_SORT_MZ: state => {
-      state.mzObjects = mzService.sortMzList(state.mzObjects, state.mzList.asc);
     },
     MZLIST_SHOW_ANNOTATIONS: state => {
       state.mzList.showAnnotation = !state.mzList.showAnnotation;
@@ -289,7 +291,7 @@ export default new Vuex.Store({
       state.lastPrototypeIndex = idx;
     },
     SET_COEFF_INDEX: (state, indizes) => {
-      state.startingIndizes = indizes['indizes'];
+      state.startingIndizes = indizes;
     },
     SET_SEGMENTATION_DIM: (state, dim) => {
       state.segmentationMapDim = dim;
@@ -332,7 +334,24 @@ export default new Vuex.Store({
     },
     SET_IMAGE_DATA_VALUES: (state, image) => {
       state.mzImage.base64Image = image;
-      console.log('jau');
+    },
+    SET_MERGE_METHOD: (state, method) => {
+      state.mzImage.currentMergeMethod = method;
+    },
+    SET_COLORSCALE: (state, colorscale) => {
+      state.mzImage.colorScale = colorscale;
+    },
+    SET_NEW_MZ_VALUE: (state, mzList) => {
+      state.mzImage.selectedMzValues = mzList;
+    },
+    SET_BRIGHTFIELD_IMAGE: (state, image) => {
+      state.brightFieldImage = image;
+    },
+    SET_FOCUS_MZ_LIST: (state, bool) => {
+      state.focusMzList = bool;
+    },
+    SET_MZ_TO_AGGREGATIONLIST: (state, mz) => {
+      state.addMzToAggregationList = mz;
     }
   },
   actions: {
@@ -344,21 +363,53 @@ export default new Vuex.Store({
           context.commit('SET_SEGMENTATION_DIM', response.data);
         })
         .catch(function (e) {
+          console.error(e);
           alert('Error while getting dimensions');
         });
     },
-    fetchData: context => {
-      context.commit('SET_ORIGINAL_DATA', apiService.fetchData());
+    getDimAndIndizes: context => {
       const url = API_URL + '/ringdata';
       axios
         .get(url)
         .then(response => {
-          context.commit('SET_COEFF_INDEX', response.data);
+          context.commit('SET_COEFF_INDEX', response.data.indizes);
+          context.commit('SET_SEGMENTATION_DIM', response.data.dim);
+          context.dispatch('getRingCoefficients');
+        })
+        .catch(function (e) {
+          console.error(e);
+          alert('Error while fetching data');
+        });
+    },
+    openJson: context => {
+      const url = API_URL + '/getjson';
+      axios
+        .get(url)
+        .then(response => {
+          context.commit('SET_ORIGINAL_DATA', response.data);
           context.commit('SET_FULL_DATA');
         })
         .catch(function (e) {
-          console.log(e);
-          alert('Error while fetching data');
+          console.error(e);
+        });
+    },
+    getCoeff: context => {
+      let ringIdx = context.state.ringIdx;
+      let re = /\d+/;
+      let i = ringIdx.match(re);
+      let startingindizes = context.state.startingIndizes;
+      let lastIdx = startingindizes[parseInt(i.toString())];
+      context.commit('SET_LASTIDX_OF_COEF', lastIdx);
+      const url = API_URL + '/coefficients?index=' + ringIdx + '&lastIndex=' + lastIdx.toString();
+      axios
+        .get(url)
+        .then(response => {
+          context.commit('SET_RING_COEFFICIENTS', response.data['coefficients']);
+          context.commit('SET_FULL_DATA');
+        })
+        .catch(function (e) {
+          console.error(e);
+          alert('Error while getting coefficients or set Focus');
         });
     },
     getRingCoefficients: (context) => {
@@ -373,13 +424,10 @@ export default new Vuex.Store({
         .get(url)
         .then(response => {
           context.commit('SET_RING_COEFFICIENTS', response.data['coefficients']);
-          if (!context.state.first) {
-            context.commit('SET_FULL_DATA');
-          } else {
-            context.commit('SET_FIRST', false);
-          }
+          context.dispatch('openJson');
         })
-        .catch(function () {
+        .catch(function (e) {
+          console.error(e);
           alert('Error while getting coefficients or set Focus');
         });
     },
@@ -388,10 +436,10 @@ export default new Vuex.Store({
       axios
         .get(url)
         .then(response => {
-          console.log(response.data);
+          context.commit('SET_BRIGHTFIELD_IMAGE', response.data);
         })
         .catch(function (err) {
-          console.log(err);
+          console.error(err);
         });
     },
     fetchImageData: (context) => {
@@ -404,7 +452,7 @@ export default new Vuex.Store({
         const postData = {
           mzValues: mzValues,
           colorscale: context.state.mzImage.colorScales[colorscale],
-          method: mergeMethod
+          method: context.state.mzImage.mergeMethods[mergeMethod]
         };
         axios
           .post(url, postData)
@@ -412,7 +460,7 @@ export default new Vuex.Store({
             context.commit('SET_IMAGE_DATA_VALUES', response.data);
           })
           .catch(function (e) {
-            console.log(e);
+            console.error(e);
           });
       }
     }

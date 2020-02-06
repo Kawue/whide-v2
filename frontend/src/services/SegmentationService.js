@@ -209,12 +209,24 @@ var drawSegmentationMap = function (dimensions, prototypeOutside = '', transform
       .toString();
   }
 };
-var highlightprototypeSegmentation = function (dimensions, prototyp, transformation) {
-  const prototypData = store.state.currentRingData[prototyp];
+var highlightprototypeSegmentation = function (dimensions, prototyp, transformation, inverse) {
   const dimX = dimensions['x'] + 1;
   const dimY = dimensions['y'] + 1;
   let scalor = 1;
-  let pixels = prototypData['pixels'];
+  let pixels = [];
+  if (inverse) {
+    let pix = [];
+    const allPrototypeData = store.state.currentRingData;
+    Object.keys(allPrototypeData).forEach(function (pro) {
+      if (pro !== prototyp) {
+        pix.push(...allPrototypeData[pro]['pixels']);
+      }
+    });
+    pixels = pix;
+  } else {
+    const prototypData = store.state.currentRingData[prototyp];
+    pixels = prototypData['pixels'];
+  }
 
   let indizes = [];
   pixels.forEach(function (pixel) {
@@ -272,4 +284,75 @@ function indexAccess (i, j, dim) {
   const NUM_CHANNELS = 4;
   return j * dim * NUM_CHANNELS + i * NUM_CHANNELS;
 }
-export { drawSegmentationMap, highlightprototypeSegmentation };
+// TODO: fix slow drawing with transformation;
+var brightfieldImage = function (base64Im, dimensions, transformation) {
+  const dimX = dimensions['x'] + 1;
+  const dimY = dimensions['y'] + 1;
+  let scalor = 1;
+
+  let canvas = document.getElementById('brightfield');
+  const regex = /[0-9]*\.?[0-9]+(px|%)?/i;
+  const w = canvas.style.width.match(regex);
+  const h = canvas.style.height.match(regex);
+  const computedWidth = (w[0] * document.documentElement.clientWidth) / 100;
+  const computedHeight = (h[0] * document.documentElement.clientHeight) / 100;
+  canvas.width = computedWidth;
+  canvas.height = computedHeight;
+  if (dimX >= dimY) {
+    scalor = Math.floor(canvas.width / (dimX + 10));
+  } else {
+    scalor = Math.floor(canvas.height / (dimY + 10));
+  }
+
+  const brightfieldImage = new Image();
+  brightfieldImage.onload = () => {
+    const ctx = canvas.getContext('2d');
+    ctx.save();
+    ctx.webkitImageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = false;
+    ctx.translate(transformation.x, transformation.y);
+    ctx.scale(transformation.k, transformation.k);
+    ctx.scale(scalor, scalor);
+    ctx.drawImage(brightfieldImage, 0, 0, dimX, dimY);
+    ctx.restore();
+  };
+
+  brightfieldImage.src = base64Im;
+};
+
+var drawMzImage = function (base64Image, dimensions, transformation) {
+  const dimX = dimensions['x'] + 1;
+  const dimY = dimensions['y'] + 1;
+  let scalor = 1;
+
+  let canvas = document.getElementById('mzChannelImage');
+  const regex = /[0-9]*\.?[0-9]+(px|%)?/i;
+  const w = canvas.style.width.match(regex);
+  const h = canvas.style.height.match(regex);
+  const computedWidth = (w[0] * document.documentElement.clientWidth) / 100;
+  const computedHeight = (h[0] * document.documentElement.clientHeight) / 100;
+  canvas.width = computedWidth;
+  canvas.height = computedHeight;
+
+  if (dimX >= dimY) {
+    scalor = Math.floor(canvas.width / (dimX + 10));
+  } else {
+    scalor = Math.floor(canvas.height / (dimY + 10));
+  }
+  const image = new Image();
+
+  image.onload = () => {
+    const ctx = canvas.getContext('2d');
+    ctx.save();
+    ctx.webkitImageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = false;
+    ctx.translate(transformation.x, transformation.y);
+    ctx.scale(transformation.k, transformation.k);
+    ctx.scale(scalor, scalor);
+    ctx.drawImage(image, 0, 0);
+    ctx.restore();
+  };
+
+  image.src = base64Image;
+};
+export { drawSegmentationMap, highlightprototypeSegmentation, brightfieldImage, drawMzImage };

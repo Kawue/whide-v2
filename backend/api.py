@@ -12,13 +12,16 @@ import re
 import base64
 from sys import argv
 
-path_to_assets = './modalities/'
+
+path_to_modalities = './modalities/'
 path_to_datasets = './datasets/'
 path_to_json = './json/'
-path_to_h2som_data = './h2som'
+path_to_h2som_data = './h2som/'
 
 datasets = {}
 ringdata = {}
+
+current_dataset = 'barley_101.h5'
 
 colorscales = {
         'Viridis': 'viridis',
@@ -110,7 +113,8 @@ def getCoefIndeizes():
         if i != 0:
            indexList[i] = indexList[i] + indexList[i-1]
     indexList = indexList[:-1]
-    returnData = {'indizes' : indexList}
+    dim = pickle.load(open(path_to_h2som_data + 'barley_info.h2som', "rb"))
+    returnData = {'indizes' : indexList, 'dim': {'x': int(dim['x']), 'y': int(dim['y'])}}
     return json.dumps(returnData)
 
 @app.route('/dimensions')
@@ -119,6 +123,8 @@ def getDimensions():
     dim = ringdata["info"]
     dim['x'] = int(dim['x'])
     dim['y'] = int(dim['y'])
+    dimX = int(dim['x'])
+    dimY = int(dim['y'])
     return json.dumps(dim)
 
 # get mz image data for dataset and mz values
@@ -153,8 +159,24 @@ def imagedata_multiple_mz_action():
 
 @app.route('/brightfieldimage')
 def getBrightfieldImage():
-    picture = os.path.join(path_to_assets, argv[3])
-    return json.dumps(pictures)
+    dim = pickle.load(open(path_to_h2som_data + 'barley_info.h2som', "rb"))
+    img_io = BytesIO()
+    img = Image.open(path_to_modalities + 'testmask.png')
+    img_resized = img.resize((dim['x'] + 1,dim['y'] + 1))
+    img.save(img_io, format='PNG')
+    img_io.seek(0)
+    response = make_response('data:image/png;base64,' + base64.b64encode(img_io.getvalue()).decode('utf-8'), 200)
+    response.mimetype = 'text/plain'
+
+    return response
+
+@app.route('/getjson')
+def doJson():
+    with open(path_to_json + 'barley.json') as json_file:
+        data = json.load(json_file)
+        return json.dumps(data)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

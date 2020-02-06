@@ -1,38 +1,38 @@
 <template>
-  <div>
+  <div id="cw">
     <div>
       <canvas id="colorwheelCanvas" width="310" height="310">
       </canvas>
     </div>
     <div class="colorwheelOptions">
       <div class="sliderOptions">
-        <p style="color: white" v-if="!sliderDisabled">Set Granularity:</p>
+        <p style="color: white; margin-left: 30px" v-if="!sliderDisabled">Set Granularity:</p>
         <p v-else>Clear Bookmarks to set Granularity!</p>
         <b-form-input v-model="ringGranularity" v-bind:type="'range'" :disabled="sliderDisabled" min="0"
-                      v-bind:max="lengthRings" class="slider" id="ringGranularity" @change="changePos"></b-form-input>
+                      v-bind:max="lengthRings" class="slider" id="ringGranularity" @change="changePos"/>
       </div>
       <div class="container">
         <div class="position-g">
           <div class="controlls">
             <div class="topControll">
               <b-button id="up" size="sm">
-                <v-icon name="arrow-up" style="color: orange"></v-icon>
+                <v-icon name="arrow-up" style="color: orange"/>
               </b-button>
             </div>
             <div class="midControll">
               <b-button id="left" size="sm">
-                <v-icon name="arrow-left" style="color: orange"></v-icon>
+                <v-icon name="arrow-left" style="color: orange"/>
               </b-button>
               <b-button id="down" size="sm">
-                <v-icon name="arrow-down" style="color: orange"></v-icon>
+                <v-icon name="arrow-down" style="color: orange"/>
               </b-button>
               <b-button id="right" size="sm">
-                <v-icon name="arrow-right" style="color: orange"></v-icon>
+                <v-icon name="arrow-right" style="color: orange"/>
               </b-button>
             </div>
             <div class="bottomControll">
               <b-button id="default " size="sm" v-on:click="setDefault()">
-                <v-icon name="backward" style="color: orange"></v-icon>
+                <v-icon name="backward" style="color: orange"/>
               </b-button>
             </div>
           </div>
@@ -40,24 +40,24 @@
         <div class="rotate">
           <div class="topControll">
             <b-button id="diskus" size="sm">
-              <v-icon name="redo" style="color: orange"></v-icon>
+              <v-icon name="redo" style="color: orange"/>
             </b-button>
           </div>
           <div class="bottomControll">
             <b-button id="diskusBack" size="sm" v-on:click="spinDiskusBack">
-              <v-icon name="backward" style="color: orange"></v-icon>
+              <v-icon name="backward" style="color: orange"/>
             </b-button>
           </div>
         </div>
         <div class="rotate">
           <div class="topControll">
             <b-button id="posSwitcher" size="sm" v-on:click="switchPos">
-              <v-icon name="spinner" style="color: orange"></v-icon>
+              <v-icon name="spinner" style="color: orange"/>
             </b-button>
           </div>
           <div class="bottomControll">
             <b-button id="'backPosSwitcher" size="sm" v-on:click="switchPosBack">
-              <v-icon name="backward" style="color: orange"></v-icon>
+              <v-icon name="backward" style="color: orange"/>
             </b-button>
           </div>
         </div>
@@ -95,20 +95,18 @@ export default {
       sliderDisabled: 'getColorSlider',
       sagmentationScalor: 'getSegmentationScalor',
       highlightedPrototype: 'getCurrentHighlightedPrototype',
-      coefficientsLoaded: 'getCoefficientLoad'
+      coefficientsLoaded: 'getCoefficientLoad',
+      focusMzList: 'getFocusMzList'
+
     })
   },
-
-  created: function () {
-    window.addEventListener('keydown', this.chooseMove);
-  },
   mounted () {
+    window.addEventListener('keydown', this.chooseMove);
     this.buttonEvent('diskus', this.rotatetDiskus);
     this.buttonEvent('up', this.moveUp);
     this.buttonEvent('left', this.moveLeft);
     this.buttonEvent('right', this.moveRight);
     this.buttonEvent('down', this.moveDown);
-    this.setGranulaity();
     store.subscribe(mutation => {
       if (mutation.type === 'SET_MOEBIUS') {
         d3.select('#colorwheelContainer').remove();
@@ -121,6 +119,7 @@ export default {
         this.getPos();
       }
       if (mutation.type === 'SET_FULL_DATA') {
+        this.setGranulaity();
         this.getPos();
       }
       if (mutation.type === 'SET_CURRENT_HIGHLIGHTED_PROTOTYPE') {
@@ -147,6 +146,13 @@ export default {
           this.currentMarkedPrototypeColor = null;
         }
       }
+      if (mutation.type === 'SET_FOCUS_MZ_LIST') {
+        if (!this.focusMzList) {
+          window.addEventListener('keydown', this.chooseMove);
+        } else {
+          window.removeEventListener('keydown', this.chooseMove);
+        }
+      }
     });
   },
   methods: {
@@ -162,10 +168,10 @@ export default {
       let currentRing = 'ring' + this.ringGranularity.toString();
       store.commit('SET_RING_IDX', currentRing);
       store.commit('SET_PROTOTYPES_POSITION');
-      store.dispatch('getRingCoefficients');
+      store.dispatch('getCoeff');
       store.commit('SET_COLORS_READY', false);
     },
-    chooseMove: function () {
+    chooseMove: function (event) {
       if (event.keyCode === 38) {
         this.moveUp();
       } else if (event.keyCode === 37) {
@@ -299,6 +305,12 @@ export default {
   }
   .slider{
     width: 200px;
+  }
+  .sliderOptions {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    margin-left: 55px;
   }
   .container {
     display: flex;

@@ -5,12 +5,10 @@
         <div class="spacer"></div>
         <h2 class="h2">Bookmarks</h2>
         <div class="buttonContainer">
-          <b-button id="lineBchart" v-if="horizontal" class="lineCharts" size="sm" v-on:click="lineChart">Line Chart </b-button>
+          <b-button id="lineBchart" v-if="horizontal" class="lineCharts" size="sm" v-on:click="lineChart">Spektrum </b-button>
           <b-button v-if="!horizontal" id="horizontalBcharts" class="horizonatlCharts" size="sm"
-                    v-on:click="horizontalCharts">Horizontal Charts
-          </b-button>
+                    v-on:click="horizontalCharts">Horizontal</b-button>
           <b-button v-else id="redoCharts" class="horizonatlCharts" size="sm" v-on:click="horizontalCharts">Vertical
-            Charts
           </b-button>
           <b-button v-if="!showAnnotations" id="showAnnotation" class="annotionMzButton" size="sm"
                     v-on:click="showAnnotation">Show Annotations

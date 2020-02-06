@@ -29,13 +29,9 @@ export default {
       showPanels: false
     };
   },
-  mounted: function () {
-    Store.dispatch('getDimensions');
-    Store.dispatch('getRingCoefficients');
-    Store.dispatch('fetchOriginalData');
-    Store.dispatch('fetchData');
-    // Store.dispatch('getBrightfieldImage');
-    Store.dispatch('fetchImageData');
+  mounted () {
+    Store.dispatch('getDimAndIndizes');
+    Store.dispatch('getBrightfieldImage');
     this.showPanels = true;
   }
 };
