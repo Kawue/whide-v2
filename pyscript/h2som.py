@@ -1,7 +1,15 @@
 #from pyclusterbdm.algorithms import H2SOM
-from pyclusterbdm.algorithms import H2SOM
+#from pyclusterbdm.algorithms import H2SOM
 #import pyclusterbdm.core as core
-import pyclusterbdm.core as core
+#import pyclusterbdm.core as core
+
+###########################################
+# for testing
+#from pyclusterbdm.algorithms import H2SOM
+from pycluster.algorithms import H2SOM
+#import pyclusterbdm.core as core
+import pycluster.core as core
+############################################
 import pandas as pd
 import numpy as np
 import matplotlib
@@ -10,7 +18,14 @@ from os import listdir, makedirs
 from os.path import join, exists
 import json
 import pickle
+import argparse
 
+path_to_dataset = '../backend/datasets/'
+path_to_json = '../backend/json/'
+path_to_h2som_data = '../backend/h2som/'
+
+
+h5 = '.h5'
 matplotlib.use("TkAgg")
 
 def plot_poincare_structure(h2som):
@@ -62,12 +77,12 @@ def calc_h2som(data):
     return h2som
 
 
-def calc_memb(data, h2som, ring_idx):
+def calc_memb(data, h2som, ring_idx, file):
     ring_idx = ring_idx-1
     # Find best matching unit (prototype) for each data point
     # index in bmu_matches = data point index; value in bmu_matches = prototype index
     bmu_matches = core.bmus(data, h2som._centroids[h2som._rings[ring_idx][0]:h2som._rings[ring_idx][1]+1])
-    pickle.dump(h2som._centroids[h2som._rings[ring_idx][0]:h2som._rings[ring_idx][1]+1], open("ring"+str(ring_idx)+".h2som", "wb"))
+    pickle.dump(h2som._centroids[h2som._rings[ring_idx][0]:h2som._rings[ring_idx][1]+1], open(file +"_ring"+str(ring_idx)+".h2som", "wb"))
     #print(np.amin(bmu_matches))
     #print(np.amax(bmu_matches))
     #print(bmu_matches)
@@ -171,7 +186,7 @@ def spatial_cluster(data, h2som, bmu_matches, dframe):
         img = ((img - np.amin(img)) / (np.amax(img) - np.amin(img)))
         plt.imsave(join(cl_path, "proto" + str(i)), img, vmin=0, vmax=1)
 
-def createJson(h2som, data, dframe):
+def createJson(h2som, data, dframe, file):
 #get max x and max y for height of image
     grid_x = np.array(dframe.index.get_level_values("grid_x")).astype(int)
     grid_y = np.array(dframe.index.get_level_values("grid_y")).astype(int)
@@ -179,7 +194,7 @@ def createJson(h2som, data, dframe):
     gridY_max = np.amax(grid_y)
     canvas = {'x': gridX_max, 'y': gridY_max}
     print(canvas)
-    pickle.dump(canvas, open("info.h2som", "wb"))
+    pickle.dump(canvas, open(file +"_info.h2som", "wb"))
     posX = h2som._pos[:,0]
     posY = h2som._pos[:,1]
 
@@ -193,7 +208,7 @@ def createJson(h2som, data, dframe):
 	# Get each Ring
     pixels_dict = None
     for ring in h2som._rings:
-        membs = calc_memb(data, h2som, ring_idx)
+        membs = calc_memb(data, h2som, ring_idx, file)
         pixelsPerPrototype, pixels_dict = getPixelsForRing(data, membs, dframe,ring)
         ring_idx +=1
 		# get the Prototypes of the ring
@@ -223,7 +238,7 @@ def createJson(h2som, data, dframe):
                     json_dict["pixels"][key_px]["membership"][key_ring] = prot
 
 
-    with open('data.json', 'w') as outfile:
+    with open( file +'.json', 'w') as outfile:
         json.dump(json_dict, outfile)
 
 
@@ -234,13 +249,18 @@ def createJson(h2som, data, dframe):
 
 ### Spectral workflow
 
-path = "../datasets/barley101GrineV2.h5"
+parser = argparse.ArgumentParser(description='Input is the filename of the data, no path, no .h5')
+parser.add_argument('filename')
+args = parser.parse_args()
+
+print(path_to_dataset + args.filename + h5)
+path = path_to_dataset + args.filename + h5
 dframe, data = read_data(path)
 ### For spatial workflow add:
 #data = data.T.copy(order="C")
 h2som = calc_h2som(data)
-membs = calc_memb(data, h2som, 0)
-json = createJson(h2som, data, dframe)
+membs = calc_memb(data, h2som, 0, args.filename)
+json = createJson(h2som, data, dframe, args.filename)
 #print(json)
 spectral_cluster(data, membs, dframe)
 #plot_poincare_structure(h2som)
