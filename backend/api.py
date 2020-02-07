@@ -8,9 +8,11 @@ import pandas as pd
 import pickle
 import json
 import os
+from os import listdir
+from os.path import isfile, join
 import re
 import base64
-from sys import argv
+import argparse
 
 
 path_to_modalities = './modalities/'
@@ -18,10 +20,13 @@ path_to_datasets = './datasets/'
 path_to_json = './json/'
 path_to_h2som_data = './h2som/'
 
-datasets = {}
 ringdata = {}
 
-current_dataset = 'barley_101.h5'
+info_file = ''
+json_file = ''
+img_file = ''
+
+
 
 colorscales = {
         'Viridis': 'viridis',
@@ -38,13 +43,28 @@ aggregation_methods = {
     'max': np.max
 }
 
+parser = argparse.ArgumentParser(description='Arguments for Backend.')
+parser.add_argument('-f', '--filename', dest='file', help='The Filename of the h5 data, which is located at the datasets directory.', required=True)
+parser.add_argument('-i', '--image', dest='img', help='The brightfield image of the sample.')
+args = parser.parse_args()
+current_dataset = args.file
+img_file = args.img
+dataset_name = current_dataset.split('.')[0]
 
-if len(argv[3:]) == 0:
-    print('h2Som.py was not executed till now, please execute it!')
-else:
-    for f in argv[4:]:
-        split = f.split('_')[-1].split(".")[0]
-        ringdata[split] = pickle.load(open(os.path.join(path_to_h2som_data, f), "rb"))
+
+h2som_files = [f for f in listdir(path_to_h2som_data) if isfile(join(path_to_h2som_data, f))]
+for file in h2som_files:
+    if(dataset_name + '_info' in file):
+        info_file = file
+    if(dataset_name + '_ring' in file):
+        split = file.split('_')[-1].split(".")[0]
+        ringdata[split] = pickle.load(open(os.path.join(path_to_h2som_data, file), "rb"))
+
+json_files = [f for f in listdir(path_to_json) if isfile(join(path_to_json, f))]
+for file in json_files:
+    if dataset_name in file:
+        json_file = file
+
 
 def read_data(path):
     dframe = pd.read_hdf(path)
@@ -61,20 +81,9 @@ def mz_values():
     return dataset.getMzValues()
 
 
-
-#dframe, data = read_data(path_to_datasets + argv[2])
-#dataset = MzDataSet(dframe)
-
-
 app = Flask(__name__)
 CORS(app)
 
-
-@app.route('/json')
-def getJson():
-    with open(os.path.join(path_to_json, argv[1])) as json_file:
-        json_data = json.load(json_file)
-    return json.dumps(json_data)
 
 @app.route('/coefficients')
 def getCoefficienten():
@@ -113,7 +122,7 @@ def getCoefIndeizes():
         if i != 0:
            indexList[i] = indexList[i] + indexList[i-1]
     indexList = indexList[:-1]
-    dim = pickle.load(open(path_to_h2som_data + 'barley_info.h2som', "rb"))
+    dim = pickle.load(open(path_to_h2som_data + info_file, "rb"))
     returnData = {'indizes' : indexList, 'dim': {'x': int(dim['x']), 'y': int(dim['y'])}}
     return json.dumps(returnData)
 
@@ -159,21 +168,19 @@ def imagedata_multiple_mz_action():
 
 @app.route('/brightfieldimage')
 def getBrightfieldImage():
-    dim = pickle.load(open(path_to_h2som_data + 'barley_info.h2som', "rb"))
     img_io = BytesIO()
-    img = Image.open(path_to_modalities + 'testmask.png')
-    img_resized = img.resize((dim['x'] + 1,dim['y'] + 1))
+    img = Image.open(path_to_modalities + img_file)
     img.save(img_io, format='PNG')
     img_io.seek(0)
     response = make_response('data:image/png;base64,' + base64.b64encode(img_io.getvalue()).decode('utf-8'), 200)
     response.mimetype = 'text/plain'
-
     return response
 
 @app.route('/getjson')
-def doJson():
-    with open(path_to_json + 'barley.json') as json_file:
-        data = json.load(json_file)
+def getJson():
+    with open(path_to_json + str(json_file)) as jsonFile:
+        print(jsonFile)
+        data = json.load(jsonFile)
         return json.dumps(data)
 
 

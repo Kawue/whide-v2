@@ -1,9 +1,9 @@
 ###########################################
 # for testing
-#from pyclusterbdm.algorithms import H2SOM
-from pycluster.algorithms import H2SOM
-#import pyclusterbdm.core as core
-import pycluster.core as core
+from pyclusterbdm.algorithms import H2SOM
+#from pycluster.algorithms import H2SOM
+import pyclusterbdm.core as core
+#import pycluster.core as core
 ############################################
 import pandas as pd
 import numpy as np
@@ -254,10 +254,14 @@ outpath = args.out
 path = ''
 filename = ''
 if ('.h5' in args.file):
-    path = path_to_backend_dataset + args.file
+    # line for Docker
+    path = path_to_dataset + args.file
+    #path = path_to_backend_dataset + args.file
     filename = args.file.split('.')[0]
 else:
-    path = path_to_backend_dataset + args.file + h5
+    # line for Docker
+    path = path_to_dataset + args.file + h5
+    #path = path_to_backend_dataset + args.file + h5
     filename = args.file
 # line for Docker
 #path = path_to_dataset + args.file
@@ -270,6 +274,7 @@ h2som = calc_h2som(data, args.eps, args.sig)
 #membs = calc_memb(data, h2som, 0, args.file)
 created_json, dimensions, rings = createJson(h2som, data, dframe, args.file)
 
+# TODO: path_ doesn't exist in docker...
 if(outpath != None):
     pickle.dump(created_json, open(outpath + filename + '.json', 'wb'))
     pickle.dump(dimensions, open(outpath + filename +"_info.h2som", "wb"))

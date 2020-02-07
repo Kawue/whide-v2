@@ -278,7 +278,7 @@ export default {
   }
   .onOffButton {
     padding: 0;
-    width: 300px;
+    width: 350px;
     color: orange;
     background-color: #4f5051;
     font-size: 0.95em;
