@@ -178,10 +178,10 @@ def getBrightfieldImage():
 
 @app.route('/getjson')
 def getJson():
-    with open(path_to_json + str(json_file)) as jsonFile:
-        print(jsonFile)
-        data = json.load(jsonFile)
-        return json.dumps(data)
+    print(json_file)
+    jsn = pickle.load(open(path_to_json + str(json_file), "rb"))
+    print(jsn)
+    return jsn
 
 
 

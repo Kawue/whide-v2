@@ -1,9 +1,10 @@
 ###########################################
-# for testing
-from pyclusterbdm.algorithms import H2SOM
-#from pycluster.algorithms import H2SOM
-import pyclusterbdm.core as core
-#import pycluster.core as core
+# for Docker
+#from pyclusterbdm.algorithms import H2SOM
+#import pyclusterbdm.core as core
+# For testing
+from pycluster.algorithms import H2SOM
+import pycluster.core as core
 ############################################
 import pandas as pd
 import numpy as np
@@ -255,13 +256,15 @@ path = ''
 filename = ''
 if ('.h5' in args.file):
     # line for Docker
-    path = path_to_dataset + args.file
-    #path = path_to_backend_dataset + args.file
+    #path = path_to_dataset + args.file
+    # Line for testing
+    path = path_to_backend_dataset + args.file
     filename = args.file.split('.')[0]
 else:
     # line for Docker
-    path = path_to_dataset + args.file + h5
-    #path = path_to_backend_dataset + args.file + h5
+    #path = path_to_dataset + args.file + h5
+    # line for testing
+    path = path_to_backend_dataset + args.file + h5
     filename = args.file
 # line for Docker
 #path = path_to_dataset + args.file
