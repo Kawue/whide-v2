@@ -25,11 +25,11 @@ data = h5data.values
 
 # Dimension reduction
 ############################################
-'''
+
 u = UMAP(n_components=2)
 umapEmbedding = u.fit_transform(data)
 umapPolar_embedding = np.array(cart2polar(umapEmbedding[:,0], umapEmbedding[:,1])).T
-'''
+
 
 pca = PCA(n_components=2)
 pcaEmbedding = pca.fit_transform(data)
@@ -91,37 +91,7 @@ def kmeans_clustering(embed, polEmbedding, method):
     pe_labels = pe_kmeans.labels_
     pe_proto = pe_kmeans.cluster_centers_
 
-    plt.figure()
-    plt.title('Cartesian Cluster in Cartesian with KMEANS and ' + method)
-    for i, l in enumerate(e_labels):
-        plt.plot(embed[i,0], embed[i,1], color=colors[l], marker="x")
-
-    for i, tup in enumerate(e_proto):
-        plt.plot(tup[0], tup[1], color=colors[i], marker="s")
-
-    plt.figure()
-    plt.title("Cartesian Cluster in Polar with KMEANS and " + method)
-    for i, l in enumerate(e_labels):
-        plt.plot(polEmbedding[i,0], polEmbedding[i,1], color=colors[l], marker="x")
-
-    for i, tup in enumerate(np.array(cart2polar(e_proto[:,0], e_proto[:,1])).T):
-        plt.plot(tup[0], tup[1], color=colors[i], marker="s")
-
-    plt.figure()
-    plt.title("Polar Cluster in Polar with KMEANS and " + method)
-    for i, l in enumerate(pe_labels):
-        plt.plot(polEmbedding[i,0], polEmbedding[i,1], color=colors[l], marker="x")
-
-    for i, tup in enumerate(pe_proto):
-        plt.plot(tup[0], tup[1], color=colors[i], marker="s")
-
-    plt.figure()
-    plt.title("Polar Cluster in Cartesian with KMEANS and " + method)
-    for i, l in enumerate(pe_labels):
-        plt.plot(embed[i,0], embed[i,1], color=colors[l], marker="x")
-
-    for i, tup in enumerate(np.array(polar2cart(pe_proto[:,0], pe_proto[:,1])).T):
-        plt.plot(tup[0], tup[1], color=colors[i], marker="s")
+    pltFigure(embed, polEmbedding, e_labels, pe_labels, 'KMeans', method)
 
 def agglomerative_clustering(embed, polarEmbed, method):
     e_agglomerative = AgglomerativeClustering(n_clusters=5, affinity='euclidean', linkage='ward').fit(embed)
@@ -130,67 +100,52 @@ def agglomerative_clustering(embed, polarEmbed, method):
     pe_agglomerative = AgglomerativeClustering(n_clusters=5, affinity='euclidean', linkage='ward').fit(polarEmbed)
     pe_labels = pe_agglomerative.labels_
 
-    plt.figure()
-    plt.title('Cartesian Cluster in Cartesian with Agglomerative Clustering and ' + method)
-    for i, l in enumerate(e_labels):
-        plt.plot(embed[i,0], embed[i,1], color=colors[l], marker="x")
+    pltFigure(embed, polarEmbed, e_labels, pe_labels, 'Agglomerative Clustering', method)
 
-    plt.figure()
-    plt.title("Cartesian Cluster in Polar with Agglomerative Clustering and " + method)
-    for i, l in enumerate(e_labels):
-        plt.plot(polarEmbed[i,0], polarEmbed[i,1], color=colors[l], marker="x")
-
-    plt.figure()
-    plt.title("Polar Cluster in Polar with Agglomerative Clustering and " + method)
-    for i, l in enumerate(pe_labels):
-        plt.plot(polarEmbed[i,0], polarEmbed[i,1], color=colors[l], marker="x")
-
-    plt.figure()
-    plt.title("Polar Cluster in Cartesian with Agglomerative Clustering and " + method)
-    for i, l in enumerate(pe_labels):
-        plt.plot(embed[i,0], embed[i,1], color=colors[l], marker="x")
 
 def affinity_propagation(embed, polarEmbed, method):
     e_affinity  = AffinityPropagation().fit(embed)
     e_labels = e_affinity.labels_
     e_proto = e_affinity.cluster_centers_
 
-    ep_affinity  = AffinityPropagation().fit(polarEmbed)
-    ep_labels = ep_affinity.labels_
-    ep_proto = ep_affinity.cluster_centers_
+    pe_affinity  = AffinityPropagation().fit(polarEmbed)
+    pe_labels = pe_affinity.labels_
+    pe_proto = pe_affinity.cluster_centers_
+
+    pltFigure(embed, polarEmbed, e_labels, pe_labels, 'Affinity Propagation', method)
+
+def pltFigure(embe, pEmbe, labels, pLabels, clustering, method):
+    plt.figure()
+    plt.title('Cartesian Cluster in Cartesian with ' + clustering + ' and ' + method)
+    for i, l in enumerate(labels):
+        plt.plot(embe[i,0], embe[i,1], color=colors[l], marker="x")
+
+    #for i, tup in enumerate(e_proto):
+    #    plt.plot(tup[0], tup[1], color=colors[i], marker="s")
 
     plt.figure()
-    plt.title('Cartesian Cluster in Cartesian with Affinity Propagation and ' + method)
-    for i, l in enumerate(e_labels):
-        plt.plot(embed[i,0], embed[i,1], color=colors[l], marker="x")
+    plt.title('Cartesian Cluster in Polar with ' + clustering + ' and ' + method)
+    for i, l in enumerate(labels):
+        plt.plot(pEmbe[i,0], pEmbe[i,1], color=colors[l], marker="x")
 
-    for i, tup in enumerate(e_proto):
-        plt.plot(tup[0], tup[1], color=colors[i], marker="s")
-
-    plt.figure()
-    plt.title("Cartesian Cluster in Polar with Affinity Propagation and " + method)
-    for i, l in enumerate(e_labels):
-        plt.plot(polarEmbed[i,0], polarEmbed[i,1], color=colors[l], marker="x")
-
-    for i, tup in enumerate(np.array(cart2polar(e_proto[:,0], e_proto[:,1])).T):
-        plt.plot(tup[0], tup[1], color=colors[i], marker="s")
+    #for i, tup in enumerate(np.array(cart2polar(e_proto[:,0], e_proto[:,1])).T):
+    #    plt.plot(tup[0], tup[1], color=colors[i], marker="s")
 
     plt.figure()
-    plt.title("Polar Cluster in Polar with Affinity Propagation and " + method)
-    for i, l in enumerate(pe_labels):
-        plt.plot(polarEmbed[i,0], polarEmbed[i,1], color=colors[l], marker="x")
+    plt.title('Polar Cluster in Polar with ' + clustering + ' and ' + method)
+    for i, l in enumerate(pLabels):
+        plt.plot(pEmbe[i,0], pEmbe[i,1], color=colors[l], marker="x")
 
-    for i, tup in enumerate(pe_proto):
-        plt.plot(tup[0], tup[1], color=colors[i], marker="s")
+    #for i, tup in enumerate(pe_proto):
+    #    plt.plot(tup[0], tup[1], color=colors[i], marker="s")
 
     plt.figure()
-    plt.title("Polar Cluster in Cartesian with Affinity Propagation and " + method)
-    for i, l in enumerate(pe_labels):
-        plt.plot(embed[i,0], embed[i,1], color=colors[l], marker="x")
+    plt.title('Polar Cluster in Cartesian with ' + clustering + ' and ' + method)
+    for i, l in enumerate(pLabels):
+        plt.plot(embe[i,0], embe[i,1], color=colors[l], marker="x")
 
-    for i, tup in enumerate(np.array(polar2cart(pe_proto[:,0], pe_proto[:,1])).T):
-        plt.plot(tup[0], tup[1], color=colors[i], marker="s")
-
+    #for i, tup in enumerate(np.array(polar2cart(pe_proto[:,0], pe_proto[:,1])).T):
+    #    plt.plot(tup[0], tup[1], color=colors[i], marker="s")
 '''
 unit_cicle_color_wheel(embedding, polar_embedding)
 
@@ -208,9 +163,14 @@ plt_cluster_img(h5data, e_labels)
 plt_cluster_img(h5data, pe_labels)
 '''
 
-#kmeans_clustering(umapEmbedding, umapPolar_embedding, 'UMAP')
-#kmeans_clustering(pcaEmbedding, pcaPolar_embedding, 'PCA')
-#agglomerative_clustering(pcaEmbedding, pcaPolar_embedding, 'PCA')
-#agglomerative_clustering(umapEmbedding, umapPolar_embedding, 'UMAP')
-affinity_propagation(pcaEmbedding, pcaEmbedding, 'PCA')
+kmeans_clustering(umapEmbedding, umapPolar_embedding, 'UMAP')
+kmeans_clustering(pcaEmbedding, pcaPolar_embedding, 'PCA')
+print('KMEANS is ready')
+agglomerative_clustering(pcaEmbedding, pcaPolar_embedding, 'PCA')
+agglomerative_clustering(umapEmbedding, umapPolar_embedding, 'UMAP')
+print('Agglomerative Clustering is ready')
+#affinity_propagation(pcaEmbedding, pcaPolar_embedding, 'PCA')
+#affinity_propagation(umapEmbedding, umapPolar_embedding, 'UMAP')
+#print('Affinity Propagation is ready')
+
 plt.show()
