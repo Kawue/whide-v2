@@ -81,6 +81,7 @@ def unit_cicle_color_wheel(embedding, polar_embedding):
     plt.imshow(colors[:,None])
     plt.show()
     '''
+    plt.show()
 
 colors = {0: "tab:blue", 1: "tab:orange", 2: "tab:green", 3: "tab:red", 4: "tab:purple", 5: "tab:brown", 6: "tab:pink", 7: "tab:gray", 8: "tab:olive", 9:"tab:cyan"}
 
@@ -98,6 +99,8 @@ def kmeans_clustering(embed, polEmbedding, method):
     pltFigure(embed, polEmbedding, e_labels, e_proto, pe_labels, pe_proto, 'KMeans', method)
     plt_cluster_img(h5data, e_labels, 'Cartesian', 'KMEANS')
     plt_cluster_img(h5data, pe_labels, 'Polar', 'KMEANS')
+    unit_cicle_color_wheel(e_proto, np.array(cart2polar(e_proto[:,0], e_proto[:,1])).T)
+    unit_cicle_color_wheel(np.array(polar2cart(pe_proto[:,0], pe_proto[:,1])).T, pe_proto)
 
 def agglomerative_clustering(embed, polarEmbed, method):
     num_obj = 5
@@ -130,15 +133,33 @@ def agglomerative_clustering(embed, polarEmbed, method):
     pltFigure(embed, polarEmbed, e_labels, e_proto, pe_labels, pe_proto, 'Agglomerative Clustering', method)
     plt_cluster_img(h5data, e_labels, 'Cartesian', 'Agglomerative')
     plt_cluster_img(h5data, pe_labels, 'Polar', 'Agglomerative')
+    unit_cicle_color_wheel(e_proto, np.array(cart2polar(e_proto[:,0], e_proto[:,1])).T)
+    unit_cicle_color_wheel(np.array(polar2cart(pe_proto[:,0], pe_proto[:,1])).T, pe_proto)
+
+
 
 def affinity_propagation(embed, polarEmbed, method):
     e_affinity  = AffinityPropagation().fit(embed)
     e_labels = e_affinity.labels_
     e_proto = e_affinity.cluster_centers_
 
-    pe_affinity  = AffinityPropagation().fit(polarEmbed)
+    while len(e_proto) > 10:
+        e_affinity = AffinityPropagation().fit(e_proto)
+        e_proto = e_affinity.cluster_centers_
+        e_labels = e_affinity.labels_
+
+    print(e_proto.shape)
+
+    pe_affinity  = AffinityPropagation(damping=0.95).fit(polarEmbed)
     pe_labels = pe_affinity.labels_
     pe_proto = pe_affinity.cluster_centers_
+    while len(pe_proto) > 10:
+        pe_affinity = AffinityPropagation().fit(pe_proto)
+        pe_proto = pe_affinity.cluster_centers_
+        pe_labels - pe_affinity.labels_
+
+    print(pe_proto.shape)
+
 
     pltFigure(embed, polarEmbed, e_labels, e_proto, pe_labels, pe_proto, 'Affinity Propagation', method)
 
@@ -188,9 +209,9 @@ def pltFigure(embe, pEmbe, labels, proto, pLabels, pProto, clustering, method):
     plt.savefig('Polare_in_cartesien_' + clustering + '_' + method + '.png')
     plt.close(fig)
 
-'''
-unit_cicle_color_wheel(embedding, polar_embedding)
 
+#unit_cicle_color_wheel(pcaEmbedding, pcaPolar_embedding)
+'''
 print("----------------")
 
 unit_cicle_color_wheel(e_proto, np.array(cart2polar(e_proto[:,0], e_proto[:,1])).T)
@@ -201,12 +222,13 @@ unit_cicle_color_wheel(np.array(polar2cart(pe_proto[:,0], pe_proto[:,1])).T, pe_
 
 '''
 
-kmeans_clustering(umapEmbedding, umapPolar_embedding, 'UMAP')
-kmeans_clustering(pcaEmbedding, pcaPolar_embedding, 'PCA')
-print('KMEANS is ready')
-agglomerative_clustering(pcaEmbedding, pcaPolar_embedding, 'PCA')
-agglomerative_clustering(umapEmbedding, umapPolar_embedding, 'UMAP')
-print('Agglomerative Clustering is ready')
+#kmeans_clustering(umapEmbedding, umapPolar_embedding, 'UMAP')
+#kmeans_clustering(pcaEmbedding, pcaPolar_embedding, 'PCA')
+#print('KMEANS is ready')
+#agglomerative_clustering(pcaEmbedding, pcaPolar_embedding, 'PCA')
+#agglomerative_clustering(umapEmbedding, umapPolar_embedding, 'UMAP')
+#print('Agglomerative Clustering is ready')
+#Fuck you affinity_propagation i will find u and then i will kill u 
 #affinity_propagation(pcaEmbedding, pcaPolar_embedding, 'PCA')
 #affinity_propagation(umapEmbedding, umapPolar_embedding, 'UMAP')
 #print('Affinity Propagation is ready')
