@@ -52,6 +52,9 @@ def plt_cluster_img(h5data, labels, cartOrPolar, method):
     plt.close(fig)
 
 def unit_cicle_color_wheel(embedding, polar_embedding):
+    print('new')
+    print(polar_embedding)
+    print('---------------')
     fig = plt.figure()
     display_axes = fig.add_axes([0.1,0.1,0.8,0.8], projection='polar')
     display_axes._direction = 2*np.pi
@@ -60,7 +63,7 @@ def unit_cicle_color_wheel(embedding, polar_embedding):
     # Plot the colorbar onto the polar axis
     # note - use orientation horizontal so that the gradient goes around
     # the wheel rather than center out
-    quant_steps = 2056
+    quant_steps = 12056
     cm = mpl.cm.ScalarMappable(norm=norm, cmap=mpl.cm.get_cmap('hsv',quant_steps))
 
     cb = mpl.colorbar.ColorbarBase(display_axes, cmap=mpl.cm.get_cmap('hsv',quant_steps),
@@ -73,7 +76,14 @@ def unit_cicle_color_wheel(embedding, polar_embedding):
 
     cb.outline.set_visible(False)
     display_axes.set_axis_off()
-    display_axes.plot(polar_embedding[:,0], np.sqrt(polar_embedding[:,1]),"ko")
+    #display_axes.plot(polar_embedding[:,0], np.sqrt(polar_embedding[:,1]),"ko")
+    #display_axes.plot(1,2,'ko')
+    #display_axes.plot(-1,1,'ko')
+    #display_axes.plot(-3,2*np.pi, 'ko')
+    #display_axes.plot(4,4, 'ko')
+    h2somdata = np.array([[0.45508986056222733, 0.4550898605622273],[3.9408782088522694e-17, 0.6435942529055826],[-0.4550898605622273, 0.45508986056222733],[-0.6435942529055826, 7.881756417704539e-17],[-0.45508986056222744, -0.4550898605622273],[-1.1822634626556806e-16, -0.6435942529055826],[0.4550898605622272, -0.45508986056222744],[0.6435942529055826, -1.5763512835409078e-16]])
+    display_axes.plot(h2somdata[:,0], h2somdata[:,1],"ko")
+
     '''
     d = polar_embedding[:,0] + np.pi
     colors = cm.to_rgba(d)
@@ -96,9 +106,9 @@ def kmeans_clustering(embed, polEmbedding, method):
     pe_proto = pe_kmeans.cluster_centers_
 
 
-    pltFigure(embed, polEmbedding, e_labels, e_proto, pe_labels, pe_proto, 'KMeans', method)
-    plt_cluster_img(h5data, e_labels, 'Cartesian', 'KMEANS')
-    plt_cluster_img(h5data, pe_labels, 'Polar', 'KMEANS')
+    #pltFigure(embed, polEmbedding, e_labels, e_proto, pe_labels, pe_proto, 'KMeans', method)
+    #plt_cluster_img(h5data, e_labels, 'Cartesian', 'KMEANS')
+    #plt_cluster_img(h5data, pe_labels, 'Polar', 'KMEANS')
     unit_cicle_color_wheel(e_proto, np.array(cart2polar(e_proto[:,0], e_proto[:,1])).T)
     unit_cicle_color_wheel(np.array(polar2cart(pe_proto[:,0], pe_proto[:,1])).T, pe_proto)
 
@@ -130,9 +140,9 @@ def agglomerative_clustering(embed, polarEmbed, method):
     pe_proto = np.array(pe_proto)
 
 
-    pltFigure(embed, polarEmbed, e_labels, e_proto, pe_labels, pe_proto, 'Agglomerative Clustering', method)
-    plt_cluster_img(h5data, e_labels, 'Cartesian', 'Agglomerative')
-    plt_cluster_img(h5data, pe_labels, 'Polar', 'Agglomerative')
+    #pltFigure(embed, polarEmbed, e_labels, e_proto, pe_labels, pe_proto, 'Agglomerative Clustering', method)
+    #plt_cluster_img(h5data, e_labels, 'Cartesian', 'Agglomerative')
+    #plt_cluster_img(h5data, pe_labels, 'Polar', 'Agglomerative')
     unit_cicle_color_wheel(e_proto, np.array(cart2polar(e_proto[:,0], e_proto[:,1])).T)
     unit_cicle_color_wheel(np.array(polar2cart(pe_proto[:,0], pe_proto[:,1])).T, pe_proto)
 
@@ -222,13 +232,13 @@ unit_cicle_color_wheel(np.array(polar2cart(pe_proto[:,0], pe_proto[:,1])).T, pe_
 
 '''
 
-#kmeans_clustering(umapEmbedding, umapPolar_embedding, 'UMAP')
-#kmeans_clustering(pcaEmbedding, pcaPolar_embedding, 'PCA')
+kmeans_clustering(umapEmbedding, umapPolar_embedding, 'UMAP')
+kmeans_clustering(pcaEmbedding, pcaPolar_embedding, 'PCA')
 #print('KMEANS is ready')
 #agglomerative_clustering(pcaEmbedding, pcaPolar_embedding, 'PCA')
 #agglomerative_clustering(umapEmbedding, umapPolar_embedding, 'UMAP')
 #print('Agglomerative Clustering is ready')
-#Fuck you affinity_propagation i will find u and then i will kill u 
+#Fuck you affinity_propagation i will find u and then i will kill u
 #affinity_propagation(pcaEmbedding, pcaPolar_embedding, 'PCA')
 #affinity_propagation(umapEmbedding, umapPolar_embedding, 'UMAP')
 #print('Affinity Propagation is ready')
