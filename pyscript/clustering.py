@@ -52,9 +52,17 @@ def plt_cluster_img(h5data, labels, cartOrPolar, method):
     plt.close(fig)
 
 def unit_cicle_color_wheel(embedding, polar_embedding):
-    print('new')
     print(polar_embedding)
-    print('---------------')
+    maxValue = float('-inf')
+    minValue = float('inf')
+    for i in range(len(polar_embedding)):
+        if maxValue <= abs(polar_embedding[i][1]):
+            maxValue = abs(polar_embedding[i][1])
+        if minValue >= abs(polar_embedding[i][1]):
+            minValue = abs(polar_embedding[i][1])
+
+    print(minValue)
+    print(maxValue)
     fig = plt.figure()
     display_axes = fig.add_axes([0.1,0.1,0.8,0.8], projection='polar')
     display_axes._direction = 2*np.pi
@@ -76,13 +84,9 @@ def unit_cicle_color_wheel(embedding, polar_embedding):
 
     cb.outline.set_visible(False)
     display_axes.set_axis_off()
-    #display_axes.plot(polar_embedding[:,0], np.sqrt(polar_embedding[:,1]),"ko")
-    #display_axes.plot(1,2,'ko')
-    #display_axes.plot(-1,1,'ko')
-    #display_axes.plot(-3,2*np.pi, 'ko')
-    #display_axes.plot(4,4, 'ko')
+    display_axes.plot(polar_embedding[:,0],normalize(1, 5, minValue, maxValue, polar_embedding[:,1]),"ko")
     h2somdata = np.array([[0.45508986056222733, 0.4550898605622273],[3.9408782088522694e-17, 0.6435942529055826],[-0.4550898605622273, 0.45508986056222733],[-0.6435942529055826, 7.881756417704539e-17],[-0.45508986056222744, -0.4550898605622273],[-1.1822634626556806e-16, -0.6435942529055826],[0.4550898605622272, -0.45508986056222744],[0.6435942529055826, -1.5763512835409078e-16]])
-    display_axes.plot(h2somdata[:,0], h2somdata[:,1],"ko")
+    #display_axes.plot(h2somdata[:,0], normalize(1, 5, minValue, maxValue, h2somdata[:,1]),"ko")
 
     '''
     d = polar_embedding[:,0] + np.pi
@@ -220,6 +224,9 @@ def pltFigure(embe, pEmbe, labels, proto, pLabels, pProto, clustering, method):
     plt.close(fig)
 
 
+def normalize(a,b,min,max, x):
+    norm = (b-a)*((x-min)/(max-min))+a
+    return norm
 #unit_cicle_color_wheel(pcaEmbedding, pcaPolar_embedding)
 '''
 print("----------------")
