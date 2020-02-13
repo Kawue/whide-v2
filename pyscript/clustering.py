@@ -51,29 +51,42 @@ def plt_cluster_img(h5data, labels, cartOrPolar, method):
     plt.savefig('Segmentation_' + cartOrPolar + '_' + method + '.png')
     plt.close(fig)
 
-def unit_cicle_color_wheel(embedding, polar_embedding):
+def unit_cicle_color_wheel(centers, cartOrPolar, method, cluster):
     maxValue = float('-inf')
     minValue = float('inf')
-    polar_embedding = sorted(polar_embedding, key=lambda x: x[0], reverse=False)
+    for i in range(len(centers)):
+        if maxValue <= abs(centers[i][1]):
+            maxValue = abs(centers[i][1])
+        if minValue >= abs(centers[i][1]):
+            minValue = abs(centers[i][1])
 
-    l = len(polar_embedding)
+    thetaList = []
+    for i in range(len(centers)):
+        thetaList.append([i,centers[i][0]])
+
+    thetaList = sorted(thetaList, key=lambda x: x[1], reverse=False)
+
+
+    l = len(centers)
     offset = 6/l
-    newPolEmbe =[]
-    for i in range(len(polar_embedding)):
-        if len(newPolEmbe) == 0:
-            newPolEmbe.append([offset, polar_embedding[i][1]])
+    counter = 0
+    for i in range(len(thetaList)):
+        if counter == 0:
+            thetaList[i].append(offset)
+            counter += 1
         else:
-            newPolEmbe.append([newPolEmbe[i-1][0] + offset,polar_embedding[i][1]])
+            thetaList[i].append(thetaList[i-1][2] + offset)
+    thetaList = sorted(thetaList, key=lambda x: x[0], reverse=False)
+    newPolEmbe = []
+    for i in range(len(thetaList)):
+        newPolEmbe.append([thetaList[i][2], centers[i][1]])
+
+
     newPolEmbe = np.array(newPolEmbe)
-    print(newPolEmbe)
-    for i in range(len(polar_embedding)):
-        if maxValue <= abs(polar_embedding[i][1]):
-            maxValue = abs(polar_embedding[i][1])
-        if minValue >= abs(polar_embedding[i][1]):
-            minValue = abs(polar_embedding[i][1])
 
 
     fig = plt.figure()
+    plt.title('ColorWheel_' +cartOrPolar + '_' + method + '_' + cluster)
     display_axes = fig.add_axes([0.1,0.1,0.8,0.8], projection='polar')
     display_axes._direction = 2*np.pi
     norm = mpl.colors.Normalize(0.0, 2*np.pi)
@@ -96,7 +109,8 @@ def unit_cicle_color_wheel(embedding, polar_embedding):
     display_axes.set_axis_off()
     display_axes.plot(newPolEmbe[:,0],normalize(1, 5, minValue, maxValue, abs(newPolEmbe[:,1])),"ko")
     h2somdata = np.array([[0.45508986056222733, 0.4550898605622273],[3.9408782088522694e-17, 0.6435942529055826],[-0.4550898605622273, 0.45508986056222733],[-0.6435942529055826, 7.881756417704539e-17],[-0.45508986056222744, -0.4550898605622273],[-1.1822634626556806e-16, -0.6435942529055826],[0.4550898605622272, -0.45508986056222744],[0.6435942529055826, -1.5763512835409078e-16]])
-
+    plt.savefig('ColorWheel_' +cartOrPolar + '_' + method + '_' + cluster + '.png')
+    plt.close(fig)
 
 
     '''
@@ -106,7 +120,6 @@ def unit_cicle_color_wheel(embedding, polar_embedding):
     plt.imshow(colors[:,None])
     plt.show()
     '''
-    plt.show()
 
 colors = {0: "tab:blue", 1: "tab:orange", 2: "tab:green", 3: "tab:red", 4: "tab:purple", 5: "tab:brown", 6: "tab:pink", 7: "tab:gray", 8: "tab:olive", 9:"tab:cyan"}
 
@@ -124,8 +137,8 @@ def kmeans_clustering(embed, polEmbedding, method):
     #pltFigure(embed, polEmbedding, e_labels, e_proto, pe_labels, pe_proto, 'KMeans', method)
     #plt_cluster_img(h5data, e_labels, 'Cartesian', 'KMEANS')
     #plt_cluster_img(h5data, pe_labels, 'Polar', 'KMEANS')
-    unit_cicle_color_wheel(e_proto, np.array(cart2polar(e_proto[:,0], e_proto[:,1])).T)
-    unit_cicle_color_wheel(np.array(polar2cart(pe_proto[:,0], pe_proto[:,1])).T, pe_proto)
+    unit_cicle_color_wheel(np.array(cart2polar(e_proto[:,0], e_proto[:,1])).T, 'cart2polarFromEProto', 'KMEANS', method)
+    unit_cicle_color_wheel( pe_proto, 'peProto', 'KMEANS', method)
 
 def agglomerative_clustering(embed, polarEmbed, method):
     num_obj = 5
@@ -158,8 +171,8 @@ def agglomerative_clustering(embed, polarEmbed, method):
     #pltFigure(embed, polarEmbed, e_labels, e_proto, pe_labels, pe_proto, 'Agglomerative Clustering', method)
     #plt_cluster_img(h5data, e_labels, 'Cartesian', 'Agglomerative')
     #plt_cluster_img(h5data, pe_labels, 'Polar', 'Agglomerative')
-    unit_cicle_color_wheel(e_proto, np.array(cart2polar(e_proto[:,0], e_proto[:,1])).T)
-    unit_cicle_color_wheel(np.array(polar2cart(pe_proto[:,0], pe_proto[:,1])).T, pe_proto)
+    unit_cicle_color_wheel(np.array(cart2polar(e_proto[:,0], e_proto[:,1])).T, 'cart2polarFromEProto', 'AgglomerativeClustering', method)
+    unit_cicle_color_wheel(pe_proto, 'peProto', 'AgglomerativeClustering', method)
 
 
 
@@ -252,10 +265,10 @@ unit_cicle_color_wheel(np.array(polar2cart(pe_proto[:,0], pe_proto[:,1])).T, pe_
 
 kmeans_clustering(umapEmbedding, umapPolar_embedding, 'UMAP')
 kmeans_clustering(pcaEmbedding, pcaPolar_embedding, 'PCA')
-#print('KMEANS is ready')
-#agglomerative_clustering(pcaEmbedding, pcaPolar_embedding, 'PCA')
-#agglomerative_clustering(umapEmbedding, umapPolar_embedding, 'UMAP')
-#print('Agglomerative Clustering is ready')
+print('KMEANS is ready')
+agglomerative_clustering(pcaEmbedding, pcaPolar_embedding, 'PCA')
+agglomerative_clustering(umapEmbedding, umapPolar_embedding, 'UMAP')
+print('Agglomerative Clustering is ready')
 #Fuck you affinity_propagation i will find u and then i will kill u
 #affinity_propagation(pcaEmbedding, pcaPolar_embedding, 'PCA')
 #affinity_propagation(umapEmbedding, umapPolar_embedding, 'UMAP')
