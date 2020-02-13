@@ -37,53 +37,22 @@ pcaPolar_embedding = np.array(cart2polar(pcaEmbedding[:,0], pcaEmbedding[:,1])).
 
 ############################################
 print('Dim Reduction is ready')
-def plt_cluster_img(h5data, labels, cartOrPolar, method):
+def plt_cluster_img(h5data, labels, cartOrPolar, cluster, method, color):
     gx = h5data.index.get_level_values("grid_x")
     gy = h5data.index.get_level_values("grid_y")
     img = np.full((gy.max()+1, gx.max()+1), -1)
     for i, l in enumerate(labels):
         img[(gy[i], gx[i])] = l
-    cmap = mplcolors.ListedColormap(["white", "tab:blue", "tab:orange", "tab:green", "tab:red", "tab:purple", "tab:brown", "tab:pink", "tab:gray", "tab:olive", "tab:cyan"])
+    cmap = mplcolors.ListedColormap(color)
+    #cmap = mplcolors.ListedColormap(["white", "tab:blue", "tab:orange", "tab:green", "tab:red", "tab:purple", "tab:brown", "tab:pink", "tab:gray", "tab:olive", "tab:cyan"])
     bounds=[-1, 0,1,2,3,4,5,6,7,8,9,10]
     norm = mplcolors.BoundaryNorm(bounds, cmap.N)
     fig = plt.figure()
     plt.imshow(img, interpolation='nearest', cmap=cmap, norm=norm)
-    plt.savefig('Segmentation_' + cartOrPolar + '_' + method + '.png')
+    plt.savefig('Segmentation_' + cartOrPolar + '_' + cluster + '_'   + method + '.png')
     plt.close(fig)
 
 def unit_cicle_color_wheel(centers, cartOrPolar, method, cluster):
-    maxValue = float('-inf')
-    minValue = float('inf')
-    for i in range(len(centers)):
-        if maxValue <= abs(centers[i][1]):
-            maxValue = abs(centers[i][1])
-        if minValue >= abs(centers[i][1]):
-            minValue = abs(centers[i][1])
-
-    thetaList = []
-    for i in range(len(centers)):
-        thetaList.append([i,centers[i][0]])
-
-    thetaList = sorted(thetaList, key=lambda x: x[1], reverse=False)
-
-
-    l = len(centers)
-    offset = 6/l
-    counter = 0
-    for i in range(len(thetaList)):
-        if counter == 0:
-            thetaList[i].append(offset)
-            counter += 1
-        else:
-            thetaList[i].append(thetaList[i-1][2] + offset)
-    thetaList = sorted(thetaList, key=lambda x: x[0], reverse=False)
-    newPolEmbe = []
-    for i in range(len(thetaList)):
-        newPolEmbe.append([thetaList[i][2], centers[i][1]])
-
-
-    newPolEmbe = np.array(newPolEmbe)
-
 
     fig = plt.figure()
     plt.title('ColorWheel_' +cartOrPolar + '_' + method + '_' + cluster)
@@ -107,20 +76,23 @@ def unit_cicle_color_wheel(centers, cartOrPolar, method, cluster):
 
     cb.outline.set_visible(False)
     display_axes.set_axis_off()
-    display_axes.plot(newPolEmbe[:,0],normalize(1, 5, minValue, maxValue, abs(newPolEmbe[:,1])),"ko")
+    display_axes.plot(centers[:,0], centers[:,1],"ko")
     h2somdata = np.array([[0.45508986056222733, 0.4550898605622273],[3.9408782088522694e-17, 0.6435942529055826],[-0.4550898605622273, 0.45508986056222733],[-0.6435942529055826, 7.881756417704539e-17],[-0.45508986056222744, -0.4550898605622273],[-1.1822634626556806e-16, -0.6435942529055826],[0.4550898605622272, -0.45508986056222744],[0.6435942529055826, -1.5763512835409078e-16]])
-    plt.savefig('ColorWheel_' +cartOrPolar + '_' + method + '_' + cluster + '.png')
-    plt.close(fig)
 
 
-    '''
-    d = polar_embedding[:,0] + np.pi
+
+
+    d = centers[:,0]
     colors = cm.to_rgba(d)
+    '''
     plt.figure()
     plt.imshow(colors[:,None])
     plt.show()
     '''
+    plt.savefig('ColorWheel_' +cartOrPolar + '_' + method + '_' + cluster + '.png')
+    plt.close(fig)
 
+    return colors
 colors = {0: "tab:blue", 1: "tab:orange", 2: "tab:green", 3: "tab:red", 4: "tab:purple", 5: "tab:brown", 6: "tab:pink", 7: "tab:gray", 8: "tab:olive", 9:"tab:cyan"}
 
 def kmeans_clustering(embed, polEmbedding, method):
@@ -133,15 +105,48 @@ def kmeans_clustering(embed, polEmbedding, method):
     pe_labels = pe_kmeans.labels_
     pe_proto = pe_kmeans.cluster_centers_
 
-
     #pltFigure(embed, polEmbedding, e_labels, e_proto, pe_labels, pe_proto, 'KMeans', method)
-    #plt_cluster_img(h5data, e_labels, 'Cartesian', 'KMEANS')
-    #plt_cluster_img(h5data, pe_labels, 'Polar', 'KMEANS')
-    unit_cicle_color_wheel(np.array(cart2polar(e_proto[:,0], e_proto[:,1])).T, 'cart2polarFromEProto', 'KMEANS', method)
-    unit_cicle_color_wheel( pe_proto, 'peProto', 'KMEANS', method)
+
+
+    pe_proto_centers, pe_proto_diff = transform(pe_proto)
+    pe_color = unit_cicle_color_wheel(pe_proto_centers, 'peProto', 'KMEANS', method)
+
+    e_proto_centers, e_proto_diff = transform(e_proto)
+    e_color = unit_cicle_color_wheel(e_proto_centers, 'eProto', 'KMEANS', method)
+    #plt_cluster_img(h5data, e_labels, 'Cartesian', 'KMEANS', method, e_color)
+    #plt_cluster_img(h5data, pe_labels, 'Polar', 'KMEANS', method, pe_color)
+
+    all_pol_emb = []
+    for l in set(pe_labels):
+        for i in range(len(polEmbedding)):
+            if(pe_labels[i] == l):
+                diff = pe_proto_diff[l]
+                current = polEmbedding[i]
+                t = current[0] + diff[0]
+                r = current[1] + diff[1]
+                all_pol_emb.append([t,r])
+
+    tranformedPolPixels = np.array(all_pol_emb)
+    all_polar_color = unit_cicle_color_wheel(tranformedPolPixels, 'allPolor', 'KMEANS', method)
+
+
+    all_emb = []
+    for l in set(e_labels):
+        for i in range(len(embed)):
+            if(e_labels[i] == l):
+                diff = e_proto_diff[l]
+                current = embed[i]
+                t = current[0] + diff[0]
+                r = current[1] + diff[1]
+                all_emb.append([t,r])
+    transformedPixels = np.array(all_emb)
+    all_color = unit_cicle_color_wheel(transformedPixels, 'allCartesien', 'KMEANS', method)
+
+
+
 
 def agglomerative_clustering(embed, polarEmbed, method):
-    num_obj = 5
+    num_obj = 7
     e_agglomerative = AgglomerativeClustering(n_clusters=num_obj, affinity='euclidean', linkage='ward').fit(embed)
     e_labels = e_agglomerative.labels_
     e_proto = []
@@ -169,10 +174,40 @@ def agglomerative_clustering(embed, polarEmbed, method):
 
 
     #pltFigure(embed, polarEmbed, e_labels, e_proto, pe_labels, pe_proto, 'Agglomerative Clustering', method)
-    #plt_cluster_img(h5data, e_labels, 'Cartesian', 'Agglomerative')
-    #plt_cluster_img(h5data, pe_labels, 'Polar', 'Agglomerative')
-    unit_cicle_color_wheel(np.array(cart2polar(e_proto[:,0], e_proto[:,1])).T, 'cart2polarFromEProto', 'AgglomerativeClustering', method)
-    unit_cicle_color_wheel(pe_proto, 'peProto', 'AgglomerativeClustering', method)
+
+    pe_proto_centers, pe_proto_diff = transform(pe_proto)
+    pe_color = unit_cicle_color_wheel(pe_proto_centers, 'peProto', 'AgglomerativeClustering', method)
+
+    e_proto_centers, e_proto_diff = transform(e_proto)
+    e_color = unit_cicle_color_wheel(e_proto_centers, 'eProto', 'AgglomerativeClustering', method)
+
+    #plt_cluster_img(h5data, e_labels, 'Cartesian', 'Agglomerative',method, e_color)
+    #plt_cluster_img(h5data, pe_labels, 'Polar', 'Agglomerative',method,  pe_color)
+    all_pol_emb = []
+    for l in set(pe_labels):
+        for i in range(len(polarEmbed)):
+            if(pe_labels[i] == l):
+                diff = pe_proto_diff[l]
+                current = polarEmbed[i]
+                t = current[0] + diff[0]
+                r = current[1] + diff[1]
+                all_pol_emb.append([t,r])
+
+    tranformedPolPixels = np.array(all_pol_emb)
+    all_polar_color = unit_cicle_color_wheel(tranformedPolPixels, 'allPolor', 'AgglomerativeClustering', method)
+
+
+    all_emb = []
+    for l in set(e_labels):
+        for i in range(len(embed)):
+            if(e_labels[i] == l):
+                diff = e_proto_diff[l]
+                current = embed[i]
+                t = current[0] + diff[0]
+                r = current[1] + diff[1]
+                all_emb.append([t,r])
+    transformedPixels = np.array(all_emb)
+    all_color = unit_cicle_color_wheel(transformedPixels, 'allCartesien', 'AgglomerativeClustering', method)
 
 
 
@@ -251,6 +286,43 @@ def pltFigure(embe, pEmbe, labels, proto, pLabels, pProto, clustering, method):
 def normalize(a,b,min,max, x):
     norm = (b-a)*((x-min)/(max-min))+a
     return norm
+
+def transform(centers):
+    maxValue = float('-inf')
+    minValue = float('inf')
+    for i in range(len(centers)):
+        if maxValue <= abs(centers[i][1]):
+            maxValue = abs(centers[i][1])
+        if minValue >= abs(centers[i][1]):
+            minValue = abs(centers[i][1])
+
+    thetaList = []
+    for i in range(len(centers)):
+        thetaList.append([i,centers[i][0]])
+    thetaList = sorted(thetaList, key=lambda x: x[1], reverse=False)
+
+    l = len(centers)
+    offset = (2*np.pi) / l
+    counter = 0
+    for i in range(len(thetaList)):
+        if counter == 0:
+            thetaList[i].append(offset)
+            counter += 1
+        else:
+            thetaList[i].append(thetaList[i-1][2] + offset)
+    thetaList = sorted(thetaList, key=lambda x: x[0], reverse=False)
+    newPolEmbe = []
+    for i in range(len(thetaList)):
+        newPolEmbe.append([thetaList[i][2], normalize(1, 5, minValue, maxValue, abs(centers[i][1]))])
+
+
+    newPolEmbe = np.array(newPolEmbe)
+    differenz = {}
+    for i in range(len(centers)):
+        diffTheta =  newPolEmbe[i][0] - centers[i][0]
+        diffR =  newPolEmbe[i][1] - centers[i][1]
+        differenz[i] = [diffTheta, diffR]
+    return newPolEmbe, differenz
 #unit_cicle_color_wheel(pcaEmbedding, pcaPolar_embedding)
 '''
 print("----------------")
