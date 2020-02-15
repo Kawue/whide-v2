@@ -291,6 +291,14 @@ def transform(centers):
 
 def applyTransformation(centers, embedding, labels):
     new_centers, new_centers_diff = transform(centers)
+    maxValue = float('-inf')
+    minValue = float('inf')
+    for i in range(len(embedding)):
+        if maxValue <= abs(embedding[i][1]):
+            maxValue = abs(embedding[i][1])
+        if minValue >= abs(embedding[i][1]):
+            minValue = abs(embedding[i][1])
+
     allPixels = []
     for l in set(labels):
         for i in range(len(embedding)):
@@ -298,7 +306,8 @@ def applyTransformation(centers, embedding, labels):
                 diff = new_centers_diff[l]
                 current = embedding[i]
                 t = current[0] + diff[0]
-                r = current[1] + diff[1]
+                #r = current[1] + diff[1]
+                r =  normalize(0.5, 6, minValue, maxValue, abs(embedding[i][1]))
                 allPixels.append([t,r])
     allPixels = np.array(allPixels)
     return new_centers, new_centers_diff, allPixels
