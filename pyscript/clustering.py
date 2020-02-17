@@ -1,7 +1,7 @@
 import numpy as np
 from umap import UMAP
 import pandas as pd
-from sys import argv
+import argparse
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from matplotlib import colors as mplcolors
@@ -9,6 +9,8 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.cluster import AffinityPropagation
+import json
+
 
 def cart2polar(x,y):
     theta = np.arctan2(y,x)
@@ -20,7 +22,11 @@ def polar2cart(theta, r):
     y = r * np.sin(theta)
     return x, y
 
-h5data = pd.read_hdf(argv[1])
+parser = argparse.ArgumentParser(description='Arguments for clustering')
+parser.add_argument('-f', '--filename', dest='file', help='The Filename of the h5 data.', required=True)
+args = parser.parse_args()
+
+h5data = pd.read_hdf(args.file)
 data = h5data.values
 
 # Dimension reduction
@@ -29,12 +35,12 @@ data = h5data.values
 u = UMAP(n_components=2)
 umapEmbedding = u.fit_transform(data)
 umapPolar_embedding = np.array(cart2polar(umapEmbedding[:,0], umapEmbedding[:,1])).T
-
+'''
 
 pca = PCA(n_components=2)
 pcaEmbedding = pca.fit_transform(data)
 pcaPolar_embedding = np.array(cart2polar(pcaEmbedding[:,0], pcaEmbedding[:,1])).T
-
+'''
 ############################################
 print('Dim Reduction is ready')
 def plt_cluster_img(h5data, labels, cartOrPolar, cluster, method, color):
@@ -86,6 +92,8 @@ def unit_cicle_color_wheel(centers, cartOrPolar, method, cluster):
     d = centers[:,0]
     colors = cm.to_rgba(d)
     '''
+
+
     plt.figure()
     plt.imshow(colors[:,None])
     plt.show()
@@ -125,6 +133,7 @@ def kmeans_clustering(embed, polEmbedding, method):
     plt_cluster_img(h5data, transformedPixels, 'allCartesien', 'KMEANS', method, all_color)
 
 
+    return e_proto_centers, e_labels, pe_proto_centers, pe_labels
 
 
 
@@ -197,6 +206,7 @@ def affinity_propagation(embed, polarEmbed, method):
         pe_labels - pe_affinity.labels_
 
     print(pe_proto.shape)
+    print(labels)
 
 
     pltFigure(embed, polarEmbed, e_labels, e_proto, pe_labels, pe_proto, 'Affinity Propagation', method)
@@ -311,31 +321,94 @@ def applyTransformation(centers, embedding, labels):
                 allPixels.append([t,r])
     allPixels = np.array(allPixels)
     return new_centers, new_centers_diff, allPixels
+
+def getPixels(grid_x, grid_y, proto_idx, labels):
+    pixels = []
+    pixels_dict = {}
+    id = 0
+    for i in range(len(proto_idx)):
+        idx = np.argwhere(labels == i).flatten()
+        # Get x and y coordinates of the matching pixels
+        seg_x = grid_x[idx]
+        seg_y = grid_y[idx]
+        #Zip X-Values and Y-Values to one List [(x1,y1),(x2,y2),...]
+        result = list(zip(seg_x, seg_y))
+        pixelIDs = []
+        for k in range(0,len(result)):
+	    #creat all pixel Ids
+            pixelIDs.append("px"+str(id)+"ID")
+	    #creat all x and y coordinate for each pixel Id
+            pixels_dict["px"+str(id)+"ID"] = {}
+            pixels_dict["px"+str(id)+"ID"]["pos"] = (int(result[k][0]),int(result[k][1]))
+            id += 1
+
+        pixels.append(pixelIDs)
+    return pixels, pixels_dict
+
+def createJson(h5data, prototyps, labels, embedding):
+    gx = np.array(h5data.index.get_level_values("grid_x"))
+    gy = np.array(h5data.index.get_level_values("grid_y"))
+    gridX_max = np.amax(gx)
+    gridY_max = np.amax(gy)
+    canvas = {'x': gridX_max, 'y': gridY_max}
+
+    posX = prototyps[:,0]
+    posY = prototyps[:,1]
+
+
+    json_dict = {}
+
+    ring_idx = 1
+    prototyp_dict ={}
+    ring_dict = {}
+    pixels_dict = None
+
+	# Get each Ring
+    pixels_dict = None
+    ring_json_list = []
+
+    ring_json_list.append((prototyps, ring_idx))
+
+    pixelsPerPrototype, pixels_dict = getPixels(gx, gy, prototyps, labels)
+	# get the Prototypes of the ring
+    prototyp_idx = 0
+    for k in range(len(prototyps)):
+
+        prototyp_dict["prototyp"+str(k)] = {}
+		# set the items of the Prototype
+        prototyp_dict["prototyp"+str(k)]["pos"] = [posX[k], posY[k]]
+        prototyp_dict["prototyp"+str(k)]["pixel"] = pixelsPerPrototype[prototyp_idx]
+        prototyp_dict["prototyp"+str(k)]["coefficients"] = []
+        prototyp_idx += 1
+
+		# add prtotype to the ring
+    ring_dict["ring0"] = prototyp_dict
+
+	#add Ring, Pixels and Mzs to the Json
+    json_dict["rings"] = ring_dict
+    json_dict["pixels"] = pixels_dict
+    json_dict["mzs"] = [x for x in h5data.columns]
+
+    for key_px, val_px in json_dict["pixels"].items():
+        json_dict["pixels"][key_px]["membership"] = {}
+        for key_ring, val_ring in json_dict["rings"].items():
+            for prot, val_prot in val_ring.items():
+                if key_px in val_prot["pixel"]:
+                    json_dict["pixels"][key_px]["membership"][key_ring] = prot
+
+    print(ring_json_list)
+
+    jsonData= json.dumps(json_dict)
+    return jsonData, canvas
+
+
+
+h2somdata = np.array([[0.45508986056222733, 0.4550898605622273],[3.9408782088522694e-17, 0.6435942529055826],[-0.4550898605622273, 0.45508986056222733],[-0.6435942529055826, 7.881756417704539e-17],[-0.45508986056222744, -0.4550898605622273],[-1.1822634626556806e-16, -0.6435942529055826],[0.4550898605622272, -0.45508986056222744],[0.6435942529055826, -1.5763512835409078e-16]])
+
+
+
+umap_e_proto, umap_e_labels, umap_pe_proto, umap_pe_labels = kmeans_clustering(umapEmbedding, umapPolar_embedding, 'UMAP')
 '''
-all_emb = []
-for l in set(e_labels):
-    for i in range(len(embed)):
-        if(e_labels[i] == l):
-            diff = e_proto_diff[l]
-            current = embed[i]
-            t = current[0] + diff[0]
-            r = current[1] + diff[1]
-            all_emb.append([t,r])
-transformedPixels = np.array(all_emb)
-'''
-#unit_cicle_color_wheel(pcaEmbedding, pcaPolar_embedding)
-'''
-print("----------------")
-
-unit_cicle_color_wheel(e_proto, np.array(cart2polar(e_proto[:,0], e_proto[:,1])).T)
-
-print("----------------")
-
-unit_cicle_color_wheel(np.array(polar2cart(pe_proto[:,0], pe_proto[:,1])).T, pe_proto)
-
-'''
-
-kmeans_clustering(umapEmbedding, umapPolar_embedding, 'UMAP')
 kmeans_clustering(pcaEmbedding, pcaPolar_embedding, 'PCA')
 print('KMEANS is ready')
 agglomerative_clustering(pcaEmbedding, pcaPolar_embedding, 'PCA')
@@ -345,3 +418,5 @@ print('Agglomerative Clustering is ready')
 #affinity_propagation(pcaEmbedding, pcaPolar_embedding, 'PCA')
 #affinity_propagation(umapEmbedding, umapPolar_embedding, 'UMAP')
 #print('Affinity Propagation is ready')
+'''
+created_json, dimensions, rings = createJson(h5data, umap_e_proto, umap_e_labels, umapEmbedding)
