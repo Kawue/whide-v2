@@ -198,22 +198,23 @@ def agglomerative_clustering(embed, polarEmbed, method):
     pe_proto = np.array(pe_proto)
 
 
-    pltFigure(embed, polarEmbed, e_labels, e_proto, pe_labels, pe_proto, 'Agglomerative Clustering', method)
+    #pltFigure(embed, polarEmbed, e_labels, e_proto, pe_labels, pe_proto, 'Agglomerative Clustering', method)
+
     pe_proto_centers, pe_proto_diff, tranformedPolPixels =  applyTransformation(pe_proto, polarEmbed, pe_labels)
-    pe_color = unit_cicle_color_wheel(pe_proto_centers, 'peProto', 'AgglomerativeClustering', method)
-    plt_cluster_img(h5data, pe_labels, 'Polar', 'Agglomerative',method,  pe_color)
+    #pe_color = unit_cicle_color_wheel(pe_proto_centers, 'peProto', 'AgglomerativeClustering', method)
+    #plt_cluster_img(h5data, pe_labels, 'Polar', 'Agglomerative',method,  pe_color)
 
     #all_polar_color = unit_cicle_color_wheel(tranformedPolPixels, 'allPolor', 'AgglomerativeClustering', method)
     #plt_cluster_img(h5data, tranformedPolPixels, 'allPolar', 'Agglomerative',method, all_polar_color)
 
     e_proto_centers, e_proto_diff, transformedPixels =  applyTransformation(e_proto, embed, e_labels)
-    e_color = unit_cicle_color_wheel(e_proto_centers, 'eProto', 'AgglomerativeClustering', method)
-    plt_cluster_img(h5data, e_labels, 'Cartesian', 'Agglomerative',method, e_color)
+    #e_color = unit_cicle_color_wheel(e_proto_centers, 'eProto', 'AgglomerativeClustering', method)
+    #plt_cluster_img(h5data, e_labels, 'Cartesian', 'Agglomerative',method, e_color)
 
     #all_color = unit_cicle_color_wheel(transformedPixels, 'allCartesien', 'AgglomerativeClustering', method)
     #plt_cluster_img(h5data, transformedPixels, 'allCartesien', 'Agglomerative',method, all_color)
 
-
+    return e_proto_centers, e_labels, pe_proto_centers, pe_labels
 
 
 
@@ -296,34 +297,110 @@ def normalize(a,b,min,max, x):
     return norm
 
 def transform(centers):
-    maxValue = float('-inf')
-    minValue = float('inf')
+    yMeanCenters = []
     for i in range(len(centers)):
-        if maxValue <= abs(centers[i][1]):
-            maxValue = abs(centers[i][1])
-        if minValue >= abs(centers[i][1]):
-            minValue = abs(centers[i][1])
+        yMeanCenters.append(centers[i][1])
+    midY = np.mean(np.array(yMeanCenters))
+
+    xMeanCenters = []
+    for i in range(len(centers)):
+        xMeanCenters.append(centers[i][0])
+    midX = np.mean(np.array(xMeanCenters))
+
+    yHighMaxValue = float('-inf')
+    yHighMinValue = float('inf')
+    yLowMaxValue = float('-inf')
+    yLowMinValue = float('inf')
+
+    for i in range(len(centers)):
+        if centers[i][1] >= midY:
+            if yHighMaxValue <= centers[i][1]:
+                yHighMaxValue = centers[i][1]
+            if yHighMinValue >= centers[i][1]:
+                yHighMinValue = centers[i][1]
+        else:
+            if yLowMaxValue <= centers[i][1]:
+                yLowMaxValue = centers[i][1]
+            if yLowMinValue >= centers[i][1]:
+                yLowMinValue = centers[i][1]
+    xHighMaxValue = float('-inf')
+    xHighMinValue = float('inf')
+    xLowMaxValue = float('-inf')
+    xLowMinValue = float('inf')
+
+    for i in range(len(centers)):
+        if centers[i][0] >= midX:
+            if xHighMaxValue <= centers[i][0]:
+                xHighMaxValue = centers[i][0]
+            if xHighMinValue >= centers[i][0]:
+                xHighMinValue = centers[i][0]
+        else:
+            if xLowMaxValue <= centers[i][0]:
+                xLowMaxValue = centers[i][0]
+            if xLowMinValue >= centers[i][0]:
+                xLowMinValue = centers[i][0]
+
+
+
+    newPolEmbe = []
+
+    for pus in centers:
+        pos = [0,0]
+        if pus[1] < midY:
+            pos[1] = normalize(-0.9, -0.5, yLowMinValue, yLowMaxValue, pus[1])
+        else:
+            pos[1] = normalize(0.5, 0.9, yHighMinValue, yHighMaxValue, pus[1])
+
+        if pus[0] < midX:
+            pos[0] = normalize(-0.9, -0.5, xLowMinValue, xLowMaxValue, pus[0])
+        else:
+            pos[0] = normalize(0.5, 0.9, xHighMinValue, xHighMaxValue, pus[0])
+
+        newPolEmbe.append(pos)
+
+    '''
 
     thetaList = []
     for i in range(len(centers)):
         thetaList.append([i,centers[i][0]])
     thetaList = sorted(thetaList, key=lambda x: x[1], reverse=False)
-
     l = len(centers)
-    offset = (2*np.pi) / l
+    newOffset = []
+    step = 2 / l
+    for i in range(len(centers)):
+        if i == 0:
+            newOffset.append((-1 - (step/2)) + step)
+        else:
+            newOffset.append(newOffset[i-1] + step)
+    offset = (1) / l
     counter = 0
     for i in range(len(thetaList)):
+
+        sign = 1
+        if thetaList[i][1] < 0 :
+            sign = -1
         if counter == 0:
-            thetaList[i].append(offset)
+            thetaList[i].append(sign * offset)
             counter += 1
         else:
-            thetaList[i].append(thetaList[i-1][2] + offset)
+            thetaList[i].append(sign * (thetaList[i-1][2] + offset))
+
+        #thetaList[i].append(newOffset[i])
     thetaList = sorted(thetaList, key=lambda x: x[0], reverse=False)
     newPolEmbe = []
+    meanCenters = []
+    for i in range(len(centers)):
+        meanCenters.append(centers[i][1])
+    mid = np.mean(np.array(meanCenters))
     for i in range(len(thetaList)):
-        newPolEmbe.append([thetaList[i][2], normalize(1, 5, minValue, maxValue, abs(centers[i][1]))])
 
+        if centers[i][1] < mid:
+            newPolEmbe.append([thetaList[i][2], normalize(-0.95, -0.4, minValue, maxValue, centers[i][1])])
+        else:
+            newPolEmbe.append([thetaList[i][2], normalize(0.4, 0.95, minValue, maxValue, centers[i][1])])
 
+        newPolEmbe.append([thetaList[i][2], normalize(-0.95, 0.95, minValue, maxValue, centers[i][1])])
+'''
     newPolEmbe = np.array(newPolEmbe)
     differenz = {}
     for i in range(len(centers)):
@@ -435,16 +512,18 @@ def createJson(h5data, prototyps, labels, embedding):
     pixels_dict = None
     ring_json_list = []
     prototypCoeff = calculateCoefficients(data, prototyps, labels, embedding)
-    ring_json_list.append((prototyps, ring_idx))
+    ring_json_list.append((prototypCoeff, ring_idx))
 
     pixelsPerPrototype, pixels_dict = getPixels(gx, gy, prototyps, labels)
+
 	# get the Prototypes of the ring
     prototyp_idx = 0
     for k in range(len(prototyps)):
 
         prototyp_dict["prototyp"+str(k)] = {}
 		# set the items of the Prototype
-        prototyp_dict["prototyp"+str(k)]["pos"] = [posX[k], posY[k]]
+        polarX, polarY = polar2cart(posX[k], posY[k])
+        prototyp_dict["prototyp"+str(k)]["pos"] = [polarX, polarY]
         prototyp_dict["prototyp"+str(k)]["pixel"] = pixelsPerPrototype[prototyp_idx]
         prototyp_dict["prototyp"+str(k)]["coefficients"] = []
         prototyp_idx += 1
@@ -475,15 +554,14 @@ def createJson(h5data, prototyps, labels, embedding):
 
 
 
- #h2somdata = np.array([[0.45508986056222733, 0.4550898605622273],[3.9408782088522694e-17, 0.6435942529055826],[-0.4550898605622273, 0.45508986056222733],[-0.6435942529055826, 7.881756417704539e-17],[-0.45508986056222744, -0.4550898605622273],[-1.1822634626556806e-16, -0.6435942529055826],[0.4550898605622272, -0.45508986056222744],[0.6435942529055826, -1.5763512835409078e-16]])
+#h2somdata = np.array([[0.45508986056222733, 0.4550898605622273],[3.9408782088522694e-17, 0.6435942529055826],[-0.4550898605622273, 0.45508986056222733],[-0.6435942529055826, 7.881756417704539e-17],[-0.45508986056222744, -0.4550898605622273],[-1.1822634626556806e-16, -0.6435942529055826],[0.4550898605622272, -0.45508986056222744],[0.6435942529055826, -1.5763512835409078e-16]])
 
 
-
-umap_e_proto, umap_e_labels, pe_proto_centers, pe_labels = kmeans_clustering(umapEmbedding, umapPolar_embedding, 'UMAP')
+#kmeans_clustering(umapEmbedding, umapPolar_embedding, 'UMAP')
 #kmeans_clustering(pcaEmbedding, pcaPolar_embedding, 'PCA')
 #print('KMEANS is ready')
 #agglomerative_clustering(pcaEmbedding, pcaPolar_embedding, 'PCA')
-#agglomerative_clustering(umapEmbedding, umapPolar_embedding, 'UMAP')
+umap_e_proto, umap_e_labels, pe_proto_centers, pe_labels = agglomerative_clustering(umapEmbedding, umapPolar_embedding, 'UMAP')
 #print('Agglomerative Clustering is ready')
 #Fuck you affinity_propagation i will find u and then i will kill u
 #affinity_propagation(pcaEmbedding, pcaPolar_embedding, 'PCA')
