@@ -2,6 +2,7 @@
 # for Docker
 #from pyclusterbdm.algorithms import H2SOM
 #import pyclusterbdm.core as core
+###########################################
 # For testing
 from pycluster.algorithms import H2SOM
 import pycluster.core as core
@@ -205,6 +206,8 @@ def createJson(h2som, data, dframe, file):
     ring_json_list = []
     for ring in h2som._rings:
         membs, ring_for_json = calc_memb(data, h2som, ring_idx, file)
+        print(ring_for_json)
+        print(ring_for_json.shape)
         ring_json_list.append((ring_for_json, ring_idx))
         pixelsPerPrototype, pixels_dict = getPixelsForRing(data, membs, dframe,ring)
         ring_idx +=1

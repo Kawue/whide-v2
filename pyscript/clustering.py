@@ -87,20 +87,10 @@ def unit_cicle_color_wheel(centers, cartOrPolar, method, cluster):
     cb.outline.set_visible(False)
     display_axes.set_axis_off()
     display_axes.plot(centers[:,0], centers[:,1],"ko")
-    h2somdata = np.array([[0.45508986056222733, 0.4550898605622273],[3.9408782088522694e-17, 0.6435942529055826],[-0.4550898605622273, 0.45508986056222733],[-0.6435942529055826, 7.881756417704539e-17],[-0.45508986056222744, -0.4550898605622273],[-1.1822634626556806e-16, -0.6435942529055826],[0.4550898605622272, -0.45508986056222744],[0.6435942529055826, -1.5763512835409078e-16]])
-
-
-
 
     d = centers[:,0]
     colors = cm.to_rgba(d)
-    '''
 
-
-    plt.figure()
-    plt.imshow(colors[:,None])
-    plt.show()
-    '''
     plt.savefig('ColorWheel_' +cartOrPolar + '_' + method + '_' + cluster + '.png')
     plt.close(fig)
 
@@ -124,20 +114,20 @@ def kmeans_clustering(embed, polEmbedding, method):
     pe_labels = pe_kmeans.labels_
     pe_proto = pe_kmeans.cluster_centers_
 
-    pltFigure(embed, polEmbedding, e_labels, e_proto, pe_labels, pe_proto, 'KMeans', method)
+    #pltFigure(embed, polEmbedding, e_labels, e_proto, pe_labels, pe_proto, 'KMeans', method)
 
 
     pe_proto_centers, pe_proto_diff, tranformedPolPixels =  applyTransformation(pe_proto, polEmbedding, pe_labels)
-    pe_color = unit_cicle_color_wheel(pe_proto_centers, 'peProto', 'KMEANS', method)
-    plt_cluster_img(h5data, pe_labels, 'Polar', 'KMEANS', method, pe_color)
+    #pe_color = unit_cicle_color_wheel(pe_proto_centers, 'peProto', 'KMEANS', method)
+    #plt_cluster_img(h5data, pe_labels, 'Polar', 'KMEANS', method, pe_color)
 
     #all_polar_color = unit_cicle_color_wheel(tranformedPolPixels, 'allPolor', 'KMEANS', method)
     #plt_cluster_img(h5data, tranformedPolPixels, 'allPolar', 'KMEANS', method, all_polar_color)
 
 
     e_proto_centers, e_proto_diff, transformedPixels =  applyTransformation(e_proto, embed, e_labels)
-    e_color = unit_cicle_color_wheel(e_proto_centers, 'eProto', 'KMEANS', method)
-    plt_cluster_img(h5data, e_labels, 'Cartesian', 'KMEANS', method, e_color)
+    #e_color = unit_cicle_color_wheel(e_proto_centers, 'eProto', 'KMEANS', method)
+    #plt_cluster_img(h5data, e_labels, 'Cartesian', 'KMEANS', method, e_color)
 
     #all_color = unit_cicle_color_wheel(transformedPixels, 'allCartesien', 'KMEANS', method)
     #plt_cluster_img(h5data, transformedPixels, 'allCartesien', 'KMEANS', method, all_color)
@@ -388,6 +378,41 @@ def getPixels(grid_x, grid_y, proto_idx, labels):
         pixels.append(pixelIDs)
     return pixels, pixels_dict
 
+def calculateCoefficients( data, prototyps, labels, embedding):
+    bookmark_ring = []
+    #forEach prototype
+    for i in range(len(prototyps)):
+        #get indizes from pixel in prototyp
+        indizes = np.argwhere(labels == i).flatten()
+        #  x and y of prototyp
+        center_point = prototyps[i]
+        # get an array with all the mz values of each pixel
+        pixelMzarray = data[indizes]
+        # get the x and y of each pixel
+        pixelPoints = embedding[indizes]
+
+        weightedMzValues = []
+        weights = []
+        # foreach pixel calculate distance and multiply with mz vector
+        for j in range(len(pixelMzarray)):
+            # mzValues of Pixel j
+            mzValues_pixel = pixelMzarray[j]
+            #point x and y of pixel j
+            point_pixel = pixelPoints[j]
+            #distance between prototyp point and pixel point and save distance
+            d_p_c = np.linalg.norm(point_pixel-center_point)
+            weights.append(d_p_c)
+            # weight the mz vector with distance and save it
+            weightedMz = np.multiply(d_p_c, mzValues_pixel)
+            weightedMzValues.append(weightedMz)
+        # calculate sum of weighted mzValues
+        sum = np.sum(np.array(weightedMzValues), axis=0)
+        # calculate sum of distances
+        mz = np.multiply((1 / np.sum(weights)) , sum)
+        bookmark_ring.append(mz)
+    bookmark_ring = np.array(bookmark_ring)
+    return bookmark_ring
+
 def createJson(h5data, prototyps, labels, embedding):
     gx = np.array(h5data.index.get_level_values("grid_x"))
     gy = np.array(h5data.index.get_level_values("grid_y"))
@@ -409,7 +434,7 @@ def createJson(h5data, prototyps, labels, embedding):
 	# Get each Ring
     pixels_dict = None
     ring_json_list = []
-
+    prototypCoeff = calculateCoefficients(data, prototyps, labels, embedding)
     ring_json_list.append((prototyps, ring_idx))
 
     pixelsPerPrototype, pixels_dict = getPixels(gx, gy, prototyps, labels)
@@ -443,7 +468,7 @@ def createJson(h5data, prototyps, labels, embedding):
     jsonData= json.dumps(json_dict)
 
     pickle.dump(jsonData, open('data.json', 'wb'))
-    pickle.dump(canvas, open('dimensions_info.h2som', "wb"))
+    pickle.dump(canvas, open('data_info.h2som', "wb"))
     for ri in ring_json_list:
         pickle.dump(ri[0], open('data_ring' + str(ri[1]-1) + '.h2som', 'wb'))
 
@@ -454,15 +479,15 @@ def createJson(h5data, prototyps, labels, embedding):
 
 
 
-kmeans_clustering(umapEmbedding, umapPolar_embedding, 'UMAP')
-kmeans_clustering(pcaEmbedding, pcaPolar_embedding, 'PCA')
-print('KMEANS is ready')
-agglomerative_clustering(pcaEmbedding, pcaPolar_embedding, 'PCA')
-agglomerative_clustering(umapEmbedding, umapPolar_embedding, 'UMAP')
-print('Agglomerative Clustering is ready')
+umap_e_proto, umap_e_labels, pe_proto_centers, pe_labels = kmeans_clustering(umapEmbedding, umapPolar_embedding, 'UMAP')
+#kmeans_clustering(pcaEmbedding, pcaPolar_embedding, 'PCA')
+#print('KMEANS is ready')
+#agglomerative_clustering(pcaEmbedding, pcaPolar_embedding, 'PCA')
+#agglomerative_clustering(umapEmbedding, umapPolar_embedding, 'UMAP')
+#print('Agglomerative Clustering is ready')
 #Fuck you affinity_propagation i will find u and then i will kill u
 #affinity_propagation(pcaEmbedding, pcaPolar_embedding, 'PCA')
 #affinity_propagation(umapEmbedding, umapPolar_embedding, 'UMAP')
 #print('Affinity Propagation is ready')
 
-#created_json, dimensions, rings = createJson(h5data, umap_e_proto, umap_e_labels, umapEmbedding)
+createJson(h5data, umap_e_proto, umap_e_labels, umapEmbedding)
