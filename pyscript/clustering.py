@@ -26,6 +26,8 @@ def polar2cart(theta, r):
 
 parser = argparse.ArgumentParser(description='Arguments for clustering')
 parser.add_argument('-f', '--filename', dest='file', help='The Filename of the h5 data.', required=True)
+parser.add_argument('-u', '--umap', dest='umap', help='umap Embedding from before to this dataset', default=False)
+parser.add_argument('-p' '--pca', dest='pca', help='pca Embedding from before to this dataset', default=False)
 args = parser.parse_args()
 
 h5data = pd.read_hdf(args.file)
@@ -33,17 +35,23 @@ data = h5data.values
 
 # Dimension reduction
 ############################################
+if (args.umap == False):
+    u = UMAP(n_components=2)
+    umapEmbedding = u.fit_transform(data)
+    np.save('umapEmbedding', umapEmbedding)
+    umapPolar_embedding = np.array(cart2polar(umapEmbedding[:,0], umapEmbedding[:,1])).T
+else:
+    umapEmbedding = np.load(args.umap)
+    umapPolar_embedding = np.array(cart2polar(umapEmbedding[:,0], umapEmbedding[:,1])).T
 
-u = UMAP(n_components=2)
-umapEmbedding = u.fit_transform(data)
-np.save('umapEmbedding', umapEmbedding)
-umapPolar_embedding = np.array(cart2polar(umapEmbedding[:,0], umapEmbedding[:,1])).T
-
-pca = PCA(n_components=2)
-pcaEmbedding = pca.fit_transform(data)
-np.save('pcaEmbedding', pcaEmbedding)
-pcaPolar_embedding = np.array(cart2polar(pcaEmbedding[:,0], pcaEmbedding[:,1])).T
-
+if(args.pca == False):
+    pca = PCA(n_components=2)
+    pcaEmbedding = pca.fit_transform(data)
+    np.save('pcaEmbedding', pcaEmbedding)
+    pcaPolar_embedding = np.array(cart2polar(pcaEmbedding[:,0], pcaEmbedding[:,1])).T
+else:
+    pcaEmbedding  = np.load(args.pca)
+    pcaPolar_embedding = np.array(cart2polar(pcaEmbedding[:,0], pcaEmbedding[:,1])).T
 ############################################
 print('Dim Reduction is ready')
 def plt_cluster_img(h5data, labels, cartOrPolar, cluster, method, color):
@@ -217,7 +225,7 @@ def agglomerative_clustering(embed, polarEmbed, method):
     return e_proto_centers, e_labels, pe_proto_centers, pe_labels
 
 
-
+'''
 
 def affinity_propagation(embed, polarEmbed, method):
     e_affinity  = AffinityPropagation().fit(embed)
@@ -244,7 +252,7 @@ def affinity_propagation(embed, polarEmbed, method):
 
 
     pltFigure(embed, polarEmbed, e_labels, e_proto, pe_labels, pe_proto, 'Affinity Propagation', method)
-
+'''
 def pltFigure(embe, pEmbe, labels, proto, pLabels, pProto, clustering, method):
     fig = plt.figure()
     plt.title('cluster_Cartesian Cluster in Cartesian with ' + clustering + ' and ' + method)
@@ -563,9 +571,5 @@ def createJson(h5data, prototyps, labels, embedding):
 #agglomerative_clustering(pcaEmbedding, pcaPolar_embedding, 'PCA')
 umap_e_proto, umap_e_labels, pe_proto_centers, pe_labels = agglomerative_clustering(umapEmbedding, umapPolar_embedding, 'UMAP')
 #print('Agglomerative Clustering is ready')
-#Fuck you affinity_propagation i will find u and then i will kill u
-#affinity_propagation(pcaEmbedding, pcaPolar_embedding, 'PCA')
-#affinity_propagation(umapEmbedding, umapPolar_embedding, 'UMAP')
-#print('Affinity Propagation is ready')
 
 createJson(h5data, umap_e_proto, umap_e_labels, umapEmbedding)

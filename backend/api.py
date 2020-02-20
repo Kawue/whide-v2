@@ -107,7 +107,6 @@ def getCoefIndeizes():
         if pattern.match(key):
             rings.append((key, value))
     rings.sort(key=lambda x: int(x[0].split("ring")[1]))
-    print(rings)
     rings = list(zip(*rings))[1]
 
 
@@ -179,9 +178,7 @@ def getBrightfieldImage():
 
 @app.route('/getjson')
 def getJson():
-
     jsn = pickle.load(open(path_to_json + str(json_file), "rb"))
-
     return jsn
 
 
