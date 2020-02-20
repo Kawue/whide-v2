@@ -12,7 +12,11 @@ from sklearn.cluster import AffinityPropagation
 import json
 import pickle
 
-
+path_to_backend_dataset = '../backend/datasets/'
+path_to_dataset = 'data/'
+path_to_json = '../backend/json/'
+path_to_h2som_data = '../backend/h2som/'
+h5 = '.h5'
 
 def cart2polar(x,y):
     theta = np.arctan2(y,x)
@@ -26,35 +30,84 @@ def polar2cart(theta, r):
 
 parser = argparse.ArgumentParser(description='Arguments for clustering')
 parser.add_argument('-f', '--filename', dest='file', help='The Filename of the h5 data.', required=True)
-parser.add_argument('-u', '--umap', dest='umap', help='umap Embedding from before to this dataset', default=False)
-parser.add_argument('-p' '--pca', dest='pca', help='pca Embedding from before to this dataset', default=False)
+parser.add_argument('-o', '--outputfile', dest='out', help='The path where you want to store the computed data', nargs='?')
+parser.add_argument('-e', '--embedding', dest='embedding', help='Embedding from before to this dataset', default=False)
+parser.add_argument('-s', '--space', dest='space', help='Choose between clusting in polar space or cartesien space', default='cartesien', choices=['polar', 'cartesien'])
+parser.add_argument('-a', '--all_prototyps', dest='all', help='Cluster data but every pixel is a prototyp', action='store_true')
+parser.add_argument('-d', '--dimensions_reduction', dest='dim', help='Choose between PCA and UMAP as dimension reduction', default='umap', choices=['pca', 'umap'])
+parser.add_argument('-m', '--clustering_method', dest='method', help='Choose between KMEANS and Agglomerative Clustering', default='kmeans', choices=['kmeans', 'agglomerative'])
 args = parser.parse_args()
+outpath = args.out
 
-h5data = pd.read_hdf(args.file)
+path = ''
+filename = ''
+
+if ('.h5' in args.file):
+    # line for Docker
+    #path = path_to_dataset + args.file
+    # Line for testing
+    path = path_to_backend_dataset + args.file
+    filename = args.file.split('.')[0]
+else:
+    # line for Docker
+    #path = path_to_dataset + args.file + h5
+    # line for testing
+    path = path_to_backend_dataset + args.file + h5
+    filename = args.file
+
+# read path
+h5data = pd.read_hdf(path)
 data = h5data.values
 
 # Dimension reduction
 ############################################
-if (args.umap == False):
-    u = UMAP(n_components=2)
-    umapEmbedding = u.fit_transform(data)
-    np.save('umapEmbedding', umapEmbedding)
-    umapPolar_embedding = np.array(cart2polar(umapEmbedding[:,0], umapEmbedding[:,1])).T
-else:
-    umapEmbedding = np.load(args.umap)
-    umapPolar_embedding = np.array(cart2polar(umapEmbedding[:,0], umapEmbedding[:,1])).T
+dimReduction = ''
+computed_embedding = ''
 
-if(args.pca == False):
-    pca = PCA(n_components=2)
-    pcaEmbedding = pca.fit_transform(data)
-    np.save('pcaEmbedding', pcaEmbedding)
-    pcaPolar_embedding = np.array(cart2polar(pcaEmbedding[:,0], pcaEmbedding[:,1])).T
+if (args.dim == 'umap'):
+    print('Dimensions reduction: UMAP')
+    dimReduction = 'UMAP'
+    if (args.embedding == False):
+        u = UMAP(n_components=2)
+        computed_embedding = u.fit_transform(data)
+        if args.space == 'polar':
+            print('Space: Polarspace')
+            computed_embedding = np.array(cart2polar(computed_embedding[:,0], computed_embedding[:,1])).T
+        else:
+            print('Space: Cartesienspace')
+        np.save('embedding', computed_embedding)
+    else:
+        computed_embedding = np.load(args.embedding)
+        if args.space == 'polar':
+            print('Space: Polarspace')
+            computed_embedding = np.array(cart2polar(computed_embedding[:,0], computed_embedding[:,1])).T
+        else:
+            print('Space: Cartesienspace')
+
 else:
-    pcaEmbedding  = np.load(args.pca)
-    pcaPolar_embedding = np.array(cart2polar(pcaEmbedding[:,0], pcaEmbedding[:,1])).T
-############################################
+    print('Dimensions reduction: PCA')
+
+    dimReduction = 'PCA'
+    if(args.embedding == False):
+        pca = PCA(n_components=2)
+        computed_embedding = pca.fit_transform(data)
+        if args.space == 'polar':
+            print('Space: Polarspace')
+            computed_embedding = np.array(cart2polar(computed_embedding[:,0], computed_embedding[:,1])).T
+        else:
+            print('Space: Cartesienspace')
+        np.save('embedding', computed_embedding)
+    else:
+        computed_embedding = np.load(args.embedding)
+        if args.space == 'polar':
+            print('Space: Polarspace')
+            computed_embedding = np.array(cart2polar(computed_embedding[:,0], computed_embedding[:,1])).T
+        else:
+            print('Space: Cartesienspace')
 print('Dim Reduction is ready')
-def plt_cluster_img(h5data, labels, cartOrPolar, cluster, method, color):
+############################################
+
+def plt_cluster_img(h5data, labels, color):
     gx = h5data.index.get_level_values("grid_x")
     gy = h5data.index.get_level_values("grid_y")
     img = np.full((gy.max()+1, gx.max()+1,4), -1)
@@ -70,10 +123,10 @@ def plt_cluster_img(h5data, labels, cartOrPolar, cluster, method, color):
     plt.savefig('Segmentation_' + cartOrPolar + '_' + cluster + '_'   + method + '.png')
     plt.close(fig)
 
-def unit_cicle_color_wheel(centers, cartOrPolar, method, cluster):
+def unit_cicle_color_wheel(centers):
 
     fig = plt.figure()
-    plt.title('ColorWheel_' +cartOrPolar + '_' + method + '_' + cluster)
+    plt.title('ColorWheel')
     display_axes = fig.add_axes([0.1,0.1,0.8,0.8], projection='polar')
     display_axes._direction = 2*np.pi
     norm = mpl.colors.Normalize(0.0, 2*np.pi)
@@ -99,8 +152,10 @@ def unit_cicle_color_wheel(centers, cartOrPolar, method, cluster):
     d = centers[:,0]
     colors = cm.to_rgba(d)
 
-    plt.savefig('ColorWheel_' +cartOrPolar + '_' + method + '_' + cluster + '.png')
+    plt.savefig('ColorWheel.png')
     plt.close(fig)
+
+    return colors
 
     return colors
 colors = {0: "tab:blue", 1: "tab:orange", 2: "tab:green", 3: "tab:red", 4: "tab:purple", 5: "tab:brown", 6: "tab:pink", 7: "tab:gray", 8: "tab:olive", 9:"tab:cyan"}
@@ -112,33 +167,28 @@ def radiusZero(data):
     data[:,1] = 0
     return data
 
-def kmeans_clustering(embed, polEmbedding, method):
-    e_kmeans = KMeans(n_clusters=8, random_state=42).fit(embed)
-    e_labels = e_kmeans.labels_
-    e_proto = e_kmeans.cluster_centers_
+def kmeans_clustering(embed, method):
+    e_kmeans = KMeans(n_clusters=8, random_state=42, n_jobs=-2).fit(embed)
+    labels = e_kmeans.labels_
+    proto = e_kmeans.cluster_centers_
+    proto_centers, proto_diff, tranformedPixels =  applyTransformation(proto, embed, labels)
+    if (args.all):
+        proto_centers, diff = transform(embed)
+        labels = np.arange(np.size(embed,0))
 
 
-    pe_kmeans = KMeans(n_clusters=8, random_state=42).fit(polEmbedding)
-    pe_labels = pe_kmeans.labels_
-    pe_proto = pe_kmeans.cluster_centers_
 
-    #pltFigure(embed, polEmbedding, e_labels, e_proto, pe_labels, pe_proto, 'KMeans', method)
+    #pltFigure(embed, labels, proto)
 
+    #color = unit_cicle_color_wheel(proto_centers)
+    #plt_cluster_img(h5data, pe_labels,  color)
 
-    pe_proto_centers, pe_proto_diff, tranformedPolPixels =  applyTransformation(pe_proto, polEmbedding, pe_labels)
-    #pe_color = unit_cicle_color_wheel(pe_proto_centers, 'peProto', 'KMEANS', method)
-    #plt_cluster_img(h5data, pe_labels, 'Polar', 'KMEANS', method, pe_color)
-
-    #all_polar_color = unit_cicle_color_wheel(tranformedPolPixels, 'allPolor', 'KMEANS', method)
-    #plt_cluster_img(h5data, tranformedPolPixels, 'allPolar', 'KMEANS', method, all_polar_color)
+    #all_polar_color = unit_cicle_color_wheel(tranformedPolPixels)
+    #plt_cluster_img(h5data, tranformedPolPixels, all_polar_color)
 
 
-    e_proto_centers, e_proto_diff, transformedPixels =  applyTransformation(e_proto, embed, e_labels)
-    #e_color = unit_cicle_color_wheel(e_proto_centers, 'eProto', 'KMEANS', method)
-    #plt_cluster_img(h5data, e_labels, 'Cartesian', 'KMEANS', method, e_color)
-
-    #all_color = unit_cicle_color_wheel(transformedPixels, 'allCartesien', 'KMEANS', method)
-    #plt_cluster_img(h5data, transformedPixels, 'allCartesien', 'KMEANS', method, all_color)
+    #all_color = unit_cicle_color_wheel(transformedPixels)
+    #plt_cluster_img(h5data, transformedPixels,  all_color)
     '''
     #####################TEST##############################
     saveEmbed = np.copy(embed)
@@ -174,130 +224,58 @@ def kmeans_clustering(embed, polEmbedding, method):
     radius_color = unit_cicle_color_wheel(radius_proto_centers, 'eProto', 'KMeans_radius_Zero', method)
     plt_cluster_img(h5data, radius_labels, 'Polar', 'KMeans_radius_Zero', method, radius_color)
     '''
-    return e_proto_centers, e_labels, pe_proto_centers, pe_labels
+    return proto_centers, labels
 
 
 
-def agglomerative_clustering(embed, polarEmbed, method):
+def agglomerative_clustering(embed, method):
     num_obj = 7
     e_agglomerative = AgglomerativeClustering(n_clusters=num_obj, affinity='euclidean', linkage='ward').fit(embed)
-    e_labels = e_agglomerative.labels_
-    e_proto = []
-    for l in set(e_labels):
+    labels = e_agglomerative.labels_
+    proto = []
+    for l in set(labels):
         ind = []
         for i in range(len(embed)):
-            if e_labels[i] == l:
+            if labels[i] == l:
                 ind.append(embed[i])
         pro = np.mean(ind, axis=0)
-        e_proto.append(np.array(pro))
-
-    e_proto = np.array(e_proto)
-
-    pe_agglomerative = AgglomerativeClustering(n_clusters=5, affinity='euclidean', linkage='ward').fit(polarEmbed)
-    pe_labels = pe_agglomerative.labels_
-    pe_proto = []
-    for l in set(pe_labels):
-        ind = []
-        for i in range(len(polarEmbed)):
-            if pe_labels[i] == l:
-                ind.append(polarEmbed[i])
-        pro = np.mean(ind, axis=0)
-        pe_proto.append(np.array(pro))
-    pe_proto = np.array(pe_proto)
+        proto.append(np.array(pro))
+    proto = np.array(proto)
+    proto_centers, proto_diff, tranformedPixels =  applyTransformation(proto, embed, labels)
+    if (args.all):
+        proto_centers, diff = transform(embed)
+        labels = np.arange(np.size(embed,0))
 
 
-    #pltFigure(embed, polarEmbed, e_labels, e_proto, pe_labels, pe_proto, 'Agglomerative Clustering', method)
-
-    pe_proto_centers, pe_proto_diff, tranformedPolPixels =  applyTransformation(pe_proto, polarEmbed, pe_labels)
-    #pe_color = unit_cicle_color_wheel(pe_proto_centers, 'peProto', 'AgglomerativeClustering', method)
-    #plt_cluster_img(h5data, pe_labels, 'Polar', 'Agglomerative',method,  pe_color)
-
-    #all_polar_color = unit_cicle_color_wheel(tranformedPolPixels, 'allPolor', 'AgglomerativeClustering', method)
-    #plt_cluster_img(h5data, tranformedPolPixels, 'allPolar', 'Agglomerative',method, all_polar_color)
-
-    e_proto_centers, e_proto_diff, transformedPixels =  applyTransformation(e_proto, embed, e_labels)
-    #e_color = unit_cicle_color_wheel(e_proto_centers, 'eProto', 'AgglomerativeClustering', method)
-    #plt_cluster_img(h5data, e_labels, 'Cartesian', 'Agglomerative',method, e_color)
-
-    #all_color = unit_cicle_color_wheel(transformedPixels, 'allCartesien', 'AgglomerativeClustering', method)
-    #plt_cluster_img(h5data, transformedPixels, 'allCartesien', 'Agglomerative',method, all_color)
-
-    return e_proto_centers, e_labels, pe_proto_centers, pe_labels
 
 
-'''
 
-def affinity_propagation(embed, polarEmbed, method):
-    e_affinity  = AffinityPropagation().fit(embed)
-    e_labels = e_affinity.labels_
-    e_proto = e_affinity.cluster_centers_
+    #pltFigure(embed, labels, proto)
 
-    while len(e_proto) > 10:
-        e_affinity = AffinityPropagation().fit(e_proto)
-        e_proto = e_affinity.cluster_centers_
-        e_labels = e_affinity.labels_
+    #color = unit_cicle_color_wheel(proto_centers)
+    #plt_cluster_img(h5data, labels,  color)
 
-    print(e_proto.shape)
+    #all_polar_color = unit_cicle_color_wheel(tranformedPolPixels)
+    #plt_cluster_img(h5data, tranformedPolPixels,  all_polar_color)
 
-    pe_affinity  = AffinityPropagation(damping=0.95).fit(polarEmbed)
-    pe_labels = pe_affinity.labels_
-    pe_proto = pe_affinity.cluster_centers_
-    while len(pe_proto) > 10:
-        pe_affinity = AffinityPropagation().fit(pe_proto)
-        pe_proto = pe_affinity.cluster_centers_
-        pe_labels - pe_affinity.labels_
+    #all_color = unit_cicle_color_wheel(transformedPixels)
+    #plt_cluster_img(h5data, transformedPixels,  all_color)
 
-    print(pe_proto.shape)
-    print(labels)
+    return proto_centers, labels
 
 
-    pltFigure(embed, polarEmbed, e_labels, e_proto, pe_labels, pe_proto, 'Affinity Propagation', method)
-'''
-def pltFigure(embe, pEmbe, labels, proto, pLabels, pProto, clustering, method):
+def pltFigure(embed, labels, proto):
     fig = plt.figure()
-    plt.title('cluster_Cartesian Cluster in Cartesian with ' + clustering + ' and ' + method)
+    plt.title('cluster')
     for i, l in enumerate(labels):
-        plt.plot(embe[i,0], embe[i,1], color=colors[l], marker="x")
+        plt.plot(embed[i,0], embed[i,1], color=colors[l], marker="x")
 
     for i, tup in enumerate(proto):
         plt.plot(tup[0], tup[1], color=colors[i], marker="s")
 
-    plt.savefig('cluster_Cartesian_in_cartesien_' + clustering + '_' + method + '.png')
+    plt.savefig('cluster.png')
     plt.close(fig)
 
-    fig = plt.figure()
-    plt.title('cluster_Cartesian Cluster in Polar with ' + clustering + ' and ' + method)
-    for i, l in enumerate(labels):
-        plt.plot(pEmbe[i,0], pEmbe[i,1], color=colors[l], marker="x")
-
-    for i, tup in enumerate(np.array(cart2polar(proto[:,0], proto[:,1])).T):
-        plt.plot(tup[0], tup[1], color=colors[i], marker="s")
-
-    plt.savefig('cluster_Cartesian_in_polar_' + clustering + '_' + method + '.png')
-    plt.close(fig)
-
-    fig = plt.figure()
-    plt.title('cluster_Polar Cluster in Polar with ' + clustering + ' and ' + method)
-    for i, l in enumerate(pLabels):
-        plt.plot(pEmbe[i,0], pEmbe[i,1], color=colors[l], marker="x")
-
-    for i, tup in enumerate(pProto):
-
-        plt.plot(tup[0], tup[1], color=colors[i], marker="s")
-
-    plt.savefig('cluster_Polar_in_polar_' + clustering + '_' + method + '.png')
-    plt.close(fig)
-
-    fig = plt.figure()
-    plt.title('cluster_Polar Cluster in Cartesian with ' + clustering + ' and ' + method)
-    for i, l in enumerate(pLabels):
-        plt.plot(embe[i,0], embe[i,1], color=colors[l], marker="x")
-
-    for i, tup in enumerate(np.array(polar2cart(pProto[:,0], pProto[:,1])).T):
-        plt.plot(tup[0], tup[1], color=colors[i], marker="s")
-
-    plt.savefig('cluster_Polare_in_cartesien_' + clustering + '_' + method + '.png')
-    plt.close(fig)
 
 
 def normalize(a,b,min,max, x):
@@ -305,6 +283,9 @@ def normalize(a,b,min,max, x):
     return norm
 
 def transform(centers):
+    if(args.space == 'polar'):
+        for i in range(len(centers)):
+            centers[i] = np.array(polar2cart(centers[i][0], centers[i][1]))
     yMeanCenters = []
     for i in range(len(centers)):
         yMeanCenters.append(centers[i][1])
@@ -350,72 +331,30 @@ def transform(centers):
 
 
 
-    newPolEmbe = []
+    transformed_centers = []
 
-    for pus in centers:
-        pos = [0,0]
-        if pus[1] < midY:
-            pos[1] = normalize(-0.9, -0.5, yLowMinValue, yLowMaxValue, pus[1])
+    for pos in centers:
+        new_pos = [0,0]
+        if pos[1] < midY:
+            new_pos[1] = normalize(-0.9, -0.5, yLowMinValue, yLowMaxValue, pos[1])
         else:
-            pos[1] = normalize(0.5, 0.9, yHighMinValue, yHighMaxValue, pus[1])
+            new_pos[1] = normalize(0.5, 0.9, yHighMinValue, yHighMaxValue, pos[1])
 
-        if pus[0] < midX:
-            pos[0] = normalize(-0.9, -0.5, xLowMinValue, xLowMaxValue, pus[0])
+        if pos[0] < midX:
+            new_pos[0] = normalize(-0.9, -0.5, xLowMinValue, xLowMaxValue, pos[0])
         else:
-            pos[0] = normalize(0.5, 0.9, xHighMinValue, xHighMaxValue, pus[0])
+            new_pos[0] = normalize(0.5, 0.9, xHighMinValue, xHighMaxValue, pos[0])
 
-        newPolEmbe.append(pos)
+        transformed_centers.append(new_pos)
 
-    '''
+    transformed_centers = np.array(transformed_centers)
 
-    thetaList = []
-    for i in range(len(centers)):
-        thetaList.append([i,centers[i][0]])
-    thetaList = sorted(thetaList, key=lambda x: x[1], reverse=False)
-    l = len(centers)
-    newOffset = []
-    step = 2 / l
-    for i in range(len(centers)):
-        if i == 0:
-            newOffset.append((-1 - (step/2)) + step)
-        else:
-            newOffset.append(newOffset[i-1] + step)
-    offset = (1) / l
-    counter = 0
-    for i in range(len(thetaList)):
-
-        sign = 1
-        if thetaList[i][1] < 0 :
-            sign = -1
-        if counter == 0:
-            thetaList[i].append(sign * offset)
-            counter += 1
-        else:
-            thetaList[i].append(sign * (thetaList[i-1][2] + offset))
-
-        #thetaList[i].append(newOffset[i])
-    thetaList = sorted(thetaList, key=lambda x: x[0], reverse=False)
-    newPolEmbe = []
-    meanCenters = []
-    for i in range(len(centers)):
-        meanCenters.append(centers[i][1])
-    mid = np.mean(np.array(meanCenters))
-    for i in range(len(thetaList)):
-
-        if centers[i][1] < mid:
-            newPolEmbe.append([thetaList[i][2], normalize(-0.95, -0.4, minValue, maxValue, centers[i][1])])
-        else:
-            newPolEmbe.append([thetaList[i][2], normalize(0.4, 0.95, minValue, maxValue, centers[i][1])])
-
-        newPolEmbe.append([thetaList[i][2], normalize(-0.95, 0.95, minValue, maxValue, centers[i][1])])
-'''
-    newPolEmbe = np.array(newPolEmbe)
     differenz = {}
     for i in range(len(centers)):
-        diffTheta =  newPolEmbe[i][0] - centers[i][0]
-        diffR =  newPolEmbe[i][1] - centers[i][1]
+        diffTheta =  transformed_centers[i][0] - centers[i][0]
+        diffR =  transformed_centers[i][1] - centers[i][1]
         differenz[i] = [diffTheta, diffR]
-    return newPolEmbe, differenz
+    return transformed_centers, differenz
 
 def applyTransformation(centers, embedding, labels):
     new_centers, new_centers_diff = transform(centers)
@@ -472,29 +411,36 @@ def calculateCoefficients( data, prototyps, labels, embedding):
         #  x and y of prototyp
         center_point = prototyps[i]
         # get an array with all the mz values of each pixel
-        pixelMzarray = data[indizes]
+        pixelIntensities = data[indizes]
         # get the x and y of each pixel
         pixelPoints = embedding[indizes]
 
-        weightedMzValues = []
+        weightedIntensities = []
         weights = []
         # foreach pixel calculate distance and multiply with mz vector
-        for j in range(len(pixelMzarray)):
+        for j in range(len(pixelIntensities)):
             # mzValues of Pixel j
-            mzValues_pixel = pixelMzarray[j]
+            intensities_pixel = pixelIntensities[j]
             #point x and y of pixel j
             point_pixel = pixelPoints[j]
-            #distance between prototyp point and pixel point and save distance
-            d_p_c = np.linalg.norm(point_pixel-center_point)
+            if (args.all):
+                d_p_c = 1
+            else:
+                #distance between prototyp point and pixel point and save distance
+                d_p_c = np.linalg.norm(point_pixel-center_point)
             weights.append(d_p_c)
             # weight the mz vector with distance and save it
-            weightedMz = np.multiply(d_p_c, mzValues_pixel)
-            weightedMzValues.append(weightedMz)
+            weigIntens = np.multiply(d_p_c, intensities_pixel)
+            weightedIntensities.append(weigIntens)
         # calculate sum of weighted mzValues
-        sum = np.sum(np.array(weightedMzValues), axis=0)
+        sumOfIntensities = np.sum(np.array(weightedIntensities), axis=0)
         # calculate sum of distances
-        mz = np.multiply((1 / np.sum(weights)) , sum)
-        bookmark_ring.append(mz)
+        if (args.all):
+            computed_intensitie = sumOfIntensities
+        else:
+            computed_intensitie = np.multiply((1 / np.sum(weights)) , sumOfIntensities)
+        bookmark_ring.append(computed_intensitie)
+
     bookmark_ring = np.array(bookmark_ring)
     return bookmark_ring
 
@@ -554,11 +500,16 @@ def createJson(h5data, prototyps, labels, embedding):
 
     jsonData= json.dumps(json_dict)
 
-    pickle.dump(jsonData, open('data.json', 'wb'))
-    pickle.dump(canvas, open('data_info.h2som', "wb"))
-    for ri in ring_json_list:
-        pickle.dump(ri[0], open('data_ring' + str(ri[1]-1) + '.h2som', 'wb'))
-
+    if(outpath != None):
+        pickle.dump(jsonData, open(outpath + filename + '.json', 'wb'))
+        pickle.dump(canvas, open(outpath + filename +"_info.h2som", "wb"))
+        for ri in ring_json_list:
+            pickle.dump(ri[0], open(outpath + filename+'_ring' + str(ri[1]-1) + '.h2som', 'wb'))
+    else:
+        pickle.dump(jsonData, open(path_to_json + filename + '.json', 'wb'))
+        pickle.dump(canvas, open(path_to_h2som_data + filename +"_info.h2som", "wb"))
+        for ri in ring_json_list:
+            pickle.dump(ri[0], open(path_to_h2som_data + filename+'_ring' + str(ri[1]-1) + '.h2som', 'wb'))
 
 
 
@@ -569,7 +520,14 @@ def createJson(h5data, prototyps, labels, embedding):
 #kmeans_clustering(pcaEmbedding, pcaPolar_embedding, 'PCA')
 #print('KMEANS is ready')
 #agglomerative_clustering(pcaEmbedding, pcaPolar_embedding, 'PCA')
-umap_e_proto, umap_e_labels, pe_proto_centers, pe_labels = agglomerative_clustering(umapEmbedding, umapPolar_embedding, 'UMAP')
-#print('Agglomerative Clustering is ready')
 
-createJson(h5data, umap_e_proto, umap_e_labels, umapEmbedding)
+# clustering in polar coordinates or in cartesien
+
+if args.method == 'kmeans':
+    print('Clustering method: KMEANS')
+    proto, labels = kmeans_clustering(computed_embedding, dimReduction)
+else:
+    print('Clustering method: Agglomerative Clustering')
+    proto, labels = agglomerative_clustering(computed_embedding, dimReduction)
+
+createJson(h5data, proto, labels, computed_embedding)
