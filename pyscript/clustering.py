@@ -38,15 +38,18 @@ u = UMAP(n_components=2)
 umapEmbedding = u.fit_transform(data)
 np.save('umapEmbedding', umapEmbedding)
 umapPolar_embedding = np.array(cart2polar(umapEmbedding[:,0], umapEmbedding[:,1])).T
+print("UMAP")
 
 pca = PCA(n_components=2)
 pcaEmbedding = pca.fit_transform(data)
 np.save('pcaEmbedding', pcaEmbedding)
 pcaPolar_embedding = np.array(cart2polar(pcaEmbedding[:,0], pcaEmbedding[:,1])).T
+print("PCA")
 
 ############################################
 print('Dim Reduction is ready')
 def plt_cluster_img(h5data, labels, cartOrPolar, cluster, method, color):
+    print("plt_cluster_img")
     gx = h5data.index.get_level_values("grid_x")
     gy = h5data.index.get_level_values("grid_y")
     img = np.full((gy.max()+1, gx.max()+1,4), -1)
@@ -63,7 +66,7 @@ def plt_cluster_img(h5data, labels, cartOrPolar, cluster, method, color):
     plt.close(fig)
 
 def unit_cicle_color_wheel(centers, cartOrPolar, method, cluster):
-
+    print("unit_cicle_color_wheel")
     fig = plt.figure()
     plt.title('ColorWheel_' +cartOrPolar + '_' + method + '_' + cluster)
     display_axes = fig.add_axes([0.1,0.1,0.8,0.8], projection='polar')
@@ -115,6 +118,7 @@ def radiusZero(data):
     return data
 
 def kmeans_clustering(embed, polEmbedding, method):
+    print("kmeans_clustering")
     e_kmeans = KMeans(n_clusters=8, random_state=42).fit(embed)
     e_labels = e_kmeans.labels_
     e_proto = e_kmeans.cluster_centers_
@@ -181,6 +185,7 @@ def kmeans_clustering(embed, polEmbedding, method):
 
 
 def agglomerative_clustering(embed, polarEmbed, method):
+    print("agglomerative_clustering")
     num_obj = 7
     e_agglomerative = AgglomerativeClustering(n_clusters=num_obj, affinity='euclidean', linkage='ward').fit(embed)
     e_labels = e_agglomerative.labels_
@@ -255,6 +260,7 @@ def affinity_propagation(embed, polarEmbed, method):
     pltFigure(embed, polarEmbed, e_labels, e_proto, pe_labels, pe_proto, 'Affinity Propagation', method)
 
 def pltFigure(embe, pEmbe, labels, proto, pLabels, pProto, clustering, method):
+    print("pltFigure")
     fig = plt.figure()
     plt.title('cluster_Cartesian Cluster in Cartesian with ' + clustering + ' and ' + method)
     for i, l in enumerate(labels):
@@ -306,6 +312,7 @@ def normalize(a,b,min,max, x):
     return norm
 
 def transform(centers):
+    print("transform")
     maxValue = float('-inf')
     minValue = float('inf')
     for i in range(len(centers)):
@@ -389,6 +396,7 @@ def getPixels(grid_x, grid_y, proto_idx, labels):
     return pixels, pixels_dict
 
 def createJson(h5data, prototyps, labels, embedding):
+    print("createJson")
     gx = np.array(h5data.index.get_level_values("grid_x"))
     gy = np.array(h5data.index.get_level_values("grid_y"))
     gridX_max = np.amax(gx)
