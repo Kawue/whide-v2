@@ -345,7 +345,11 @@ export default new Vuex.Store({
       state.mzImage.selectedMzValues = mzList;
     },
     SET_BRIGHTFIELD_IMAGE: (state, image) => {
-      state.brightFieldImage = image;
+      if (image === 'No_Img') {
+        state.brightFieldImage = false;
+      } else {
+        state.brightFieldImage = image;
+      }
     },
     SET_FOCUS_MZ_LIST: (state, bool) => {
       state.focusMzList = bool;

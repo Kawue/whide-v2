@@ -53,3 +53,13 @@ fabric.properties
 ./backend/kidney
 ./backend/barley
 ./backend/__pycache__
+
+./backend/datasets/Flax_Pod.h5
+./backend/datasets/hum_Skin.h5
+./backend/datasets/hybrid_poplar_leaf.h5
+./backend/datasets/lung_orbitrap.h5
+./backend/datasets/mouse_kidney.h5
+
+./backend/h2som
+
+./backend/json

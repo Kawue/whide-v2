@@ -45,7 +45,7 @@ aggregation_methods = {
 
 parser = argparse.ArgumentParser(description='Arguments for Backend.')
 parser.add_argument('-f', '--filename', dest='file', help='The Filename of the h5 data, which is located at the datasets directory.', required=True)
-parser.add_argument('-i', '--image', dest='img', help='The brightfield image of the sample.')
+parser.add_argument('-i', '--image', dest='img', help='The brightfield image of the sample.', default='No_Img')
 args = parser.parse_args()
 current_dataset = args.file
 img_file = args.img
@@ -168,12 +168,15 @@ def imagedata_multiple_mz_action():
 
 @app.route('/brightfieldimage')
 def getBrightfieldImage():
-    img_io = BytesIO()
-    img = Image.open(path_to_modalities + img_file)
-    img.save(img_io, format='PNG')
-    img_io.seek(0)
-    response = make_response('data:image/png;base64,' + base64.b64encode(img_io.getvalue()).decode('utf-8'), 200)
-    response.mimetype = 'text/plain'
+    if img_file == 'No_Img':
+        response = 'No_Img'
+    else:
+        img_io = BytesIO()
+        img = Image.open(path_to_modalities + img_file)
+        img.save(img_io, format='PNG')
+        img_io.seek(0)
+        response = make_response('data:image/png;base64,' + base64.b64encode(img_io.getvalue()).decode('utf-8'), 200)
+        response.mimetype = 'text/plain'
     return response
 
 @app.route('/getjson')

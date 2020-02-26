@@ -15,7 +15,7 @@
     </div>
     <div class="transparancy-container">
       <p style="color: white">Transparancy</p>
-      <b-form-input v-model="alphaValue" v-bind:type="'range'" min="0" max="1" :disabled="this.showMzImage" step="0.05" id="alphaChanger"
+      <b-form-input v-model="alphaValue" v-bind:type="'range'" min="0" max="1" :disabled="!this.transparancySlider" step="0.05" id="alphaChanger"
                     class="slider" @change="changeAlphaValue"/>
     </div>
     <div class="inverse-container">
@@ -52,7 +52,8 @@ export default {
         { value: 'interpolatePlasma', text: 'Plasma' },
         { value: 'interpolateInferno', text: 'Inferno' }
       ],
-      inverse: false
+      inverse: false,
+      transparancySlider: true
     };
   },
   computed: {
@@ -92,7 +93,9 @@ export default {
         this.drawMzImage();
       }
       if (mutation.type === 'SET_BRIGHTFIELD_IMAGE') {
-        // this.drawBrightfieldImage();
+        if (this.brightfieldImage === false) {
+          this.transparancySlider = false;
+        }
       }
     });
   },
@@ -144,6 +147,11 @@ export default {
     changeAlphaValue: function () {
       this.clearSegmentation();
       this.drawSegmentation(this.outsideHighlight['id'], this.currentTransformation, this.alphaValue);
+      if (parseFloat(this.alphaValue) !== 1) {
+        this.drawBrightfieldImage();
+      } else {
+        this.clearBrightfield();
+      }
     },
     chooseMethod: function () {
       store.commit('SET_MERGE_METHOD', this.selectedMethod);
@@ -155,6 +163,9 @@ export default {
     },
     toggleMzImage: function () {
       this.showMzImage = !this.showMzImage;
+      if (this.brightfieldImage !== false) {
+        this.transparancySlider = !this.transparancySlider;
+      }
       if (!this.showMzImage) {
         this.inverse = false;
       }
