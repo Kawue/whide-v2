@@ -3,60 +3,6 @@ import * as d3 from 'd3';
 import * as d3annotate from 'd3-svg-annotation';
 
 class BookmarkService {
-  normalizeCoefficients (coefficients) {
-    let max = Number.MIN_SAFE_INTEGER;
-    let min = Number.MAX_SAFE_INTEGER;
-    let newCoeff = {};
-    /*
-    coefficients.forEach(function (pro) {
-      let i;
-      for (i = 0; i < coefficients[pro].length; i++) {
-        if (coefficients[pro][i] < min) {
-          min = coefficients[pro][i];
-        }
-        if (coefficients[pro][i] > max) {
-          max = coefficients[pro][i];
-        }
-      }
-    });
-
-     */
-
-    for (let pro in coefficients) {
-      let i;
-      for (i = 0; i < coefficients[pro].length; i++) {
-        if (coefficients[pro][i] < min) {
-          min = coefficients[pro][i];
-        }
-        if (coefficients[pro][i] > max) {
-          max = coefficients[pro][i];
-        }
-      }
-    }
-    /*
-    coefficients.forEach(function (norPro) {
-      let k;
-      let newValues = [];
-      for (k = 0; k < coefficients[norPro].length; k++) {
-        let val = ((coefficients[norPro][k] - min) / (max - min));
-        newValues.push(val);
-      }
-      newCoeff[norPro] = newValues;
-    });
-
-     */
-
-    for (let norPro in coefficients) {
-      let k;
-      let newValues = [];
-      for (k = 0; k < coefficients[norPro].length; k++) {
-        let val = ((coefficients[norPro][k] - min) / (max - min));
-        newValues.push(val);
-      }
-      newCoeff[norPro] = newValues;
-    }
-    return newCoeff;
-  }
   changePrototypeColor (newColors, choosedBookmarks) {
     let choosedPrototypes = Object.keys(choosedBookmarks);
     choosedPrototypes.forEach(function (p) {
@@ -195,14 +141,14 @@ class BookmarkService {
         ctx.lineWidth = 0.5;
         ctx.strokeRect(0, yScaleAxis(offsetsAr[i]), xScaleAxis(d.coefficient), yScaleAxis(heights[i]));
       });
-      // TODO: schriftgroese gut aendern
       if (showMzBoolean) {
         data.forEach(function (d, i) {
+          const c = d.mz.toString();
           ctx.fillStyle = 'black';
           ctx.textAlign = 'left';
-          ctx.textBaseline = 'left';
-          ctx.font = yScaleAxis(heights[i]);
-          ctx.fillText(d.mz, xScaleAxis(d.coefficient), yScaleAxis(offsetsAr[i]));
+          ctx.textBaseline = 'bottom';
+          ctx.font = yScaleAxis(heights[i]).toString() + 'px verdana';
+          ctx.fillText(c, xScaleAxis(d.coefficient) - ctx.measureText(c).width, yScaleAxis(offsetsAr[i]) + yScaleAxis(heights[i]));
         });
       }
     }
@@ -391,13 +337,25 @@ class BookmarkService {
       // TODO: schriftgroese gut aendern
       if (showMzBoolean) {
         data.forEach(function (d, i) {
+          const c = d.mz.toString();
           ctx.fillStyle = 'black';
           ctx.textAlign = 'left';
-          ctx.textBaseline = 'left';
-          ctx.font = xScaleAxis(widths[i]);
-          ctx.fillText(d.mz, xScaleAxis(offsetsAr[i]), yScaleAxis(d.coefficient));
+          ctx.textBaseline = 'bottom';
+          fitTextOnBar(ctx, c, 'verdana', xScaleAxis(widths[i]));
+          // ctx.font = xScaleAxis(widths[i]).toString() + 'px verdana';
+          ctx.fillText(c, xScaleAxis(offsetsAr[i]), yScaleAxis(d.coefficient));
         });
       }
+    }
+    function fitTextOnBar (context, text, fontface, w) {
+      // start with a large font size
+      var fontsize = 30;
+
+      // lower the font size until the text fits the canvas
+      do {
+        fontsize--;
+        context.font = fontsize + 'px ' + fontface;
+      } while (context.measureText(text).width > w);
     }
 
     function addMouseMove (event) {

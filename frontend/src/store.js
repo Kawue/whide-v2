@@ -5,11 +5,13 @@ import * as d3 from 'd3';
 import BookmarkService from './services/BookmarkService';
 import axios from 'axios';
 import { moebiustransformation } from './services/colorWheel';
+import MzService from './services/mzService';
 
 const API_URL = 'http://localhost:5000';
 
 Vue.use(Vuex);
 let bookmarkService = new BookmarkService();
+let mzService = new MzService();
 
 export default new Vuex.Store({
   state: {
@@ -173,7 +175,7 @@ export default new Vuex.Store({
   mutations: {
     SET_ORIGINAL_DATA: (state, originalData) => {
       state.rings = originalData.rings;
-      state.mzList.mzItems = originalData.mzs;
+      state.mzList.mzItems = mzService.roundMzValues(originalData.mzs);
       state.pixels = originalData.pixels;
       let protoDict = {};
       Object.keys(originalData.rings[state.ringIdx]).forEach(function (prototype) {
@@ -257,7 +259,7 @@ export default new Vuex.Store({
       state.colorSlider = false;
     },
     SET_RING_COEFFICIENTS: (state, coefficients) => {
-      state.ringCoefficients = bookmarkService.normalizeCoefficients(coefficients);
+      state.ringCoefficients = mzService.normalizeCoefficients(coefficients);
     },
     SET_RING_IDX: (state, ringIdx) => {
       state.ringIdx = ringIdx;
