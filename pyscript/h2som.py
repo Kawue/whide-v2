@@ -63,7 +63,12 @@ def calc_h2som(data, eps, sig):
 
     # Cluster Centroids
     #print(h2som._centroids.shape)
-
+    # Sigma: Neihborhood bell function [start_value, decrease_value]
+    # Epsilon: Learning step size [start_value, decrease_value]
+    # Learning steps based on n_iter
+    # For each step (n_iter) the neighborhood (sigma) and learning step size (epsilon) 
+    # will decrease to allow for more and more specialization and fine tuning.
+    # Therefore sigma and epsilon decrease value depend strongly on n_iter!
     # H2SOM initialization
     h2som = H2SOM(data, epsilon=[float(eps[0]), float(eps[1])], sigma=[float(sig[0]), float(sig[1])])
 
@@ -248,8 +253,8 @@ def createJson(h2som, data, dframe, file):
 parser = argparse.ArgumentParser(description='Arguments for the h2som')
 parser.add_argument('-f', '--filename', dest='file', help='The Filename of the h5 data.', required=True)
 parser.add_argument('-o', '--outputfile', dest='out', help='The path where you want to store the computed data', nargs='?')
-parser.add_argument('-e', '--epsilon', dest='eps', help='Epsilon parameter for the h2SOM.', nargs=2, default=['1.001', '0.001'])
-parser.add_argument('-s', '--sigma', dest='sig', nargs=2, default=['12', '0.01'], help='Sigma parameter for the h2SOM.')
+parser.add_argument('-e', '--epsilon', dest='eps', help='Epsilon parameter for the h2SOM.', nargs=2, default=['1.0', '0.01'])
+parser.add_argument('-s', '--sigma', dest='sig', nargs=2, default=['13', '0.24'], help='Sigma parameter for the h2SOM.')
 args = parser.parse_args()
 
 outpath = args.out
