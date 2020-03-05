@@ -143,7 +143,7 @@ class BookmarkService {
       });
       if (showMzBoolean) {
         data.forEach(function (d, i) {
-          const c = d.mz.toString();
+          const c = parseFloat(d.mz).toFixed(3).toString();
           ctx.fillStyle = 'black';
           ctx.textAlign = 'left';
           ctx.textBaseline = 'bottom';
@@ -180,7 +180,7 @@ class BookmarkService {
 
       const property = [{
         note: {
-          label: currentHighlightedMz.mz
+          label: parseFloat(currentHighlightedMz.mz).toFixed(3)
         },
         x: margin.left + xScaleAxis(currentHighlightedMz.coefficient),
         y: yScaleAxis(offsetsAr[index]) + 26,
@@ -337,7 +337,7 @@ class BookmarkService {
       // TODO: schriftgroese gut aendern
       if (showMzBoolean) {
         data.forEach(function (d, i) {
-          const c = d.mz.toString();
+          const c = parseFloat(d.mz).toFixed(3).toString();
           ctx.fillStyle = 'black';
           ctx.textAlign = 'left';
           ctx.textBaseline = 'bottom';
@@ -393,7 +393,7 @@ class BookmarkService {
 
       const property = [{
         note: {
-          label: currentHighlightedMz.mz
+          label: parseFloat(currentHighlightedMz.mz).toFixed(3)
         },
         x: margin.left + xScaleAxis(offsetsAr[index]) + 3,
         y: yScaleAxis(nearest.coefficient) + margin.top + 2,
@@ -564,11 +564,12 @@ class BookmarkService {
       // TODO: schriftgroese gut aendern
       if (showMzBoolean) {
         data.forEach(function (d) {
+          const c = parseFloat(d.mz).toFixed(3).toString();
           ctx.fillStyle = 'black';
           ctx.textAlign = 'left';
           ctx.textBaseline = 'left';
           ctx.font = xScaleAxis(d.mz);
-          ctx.fillText(d.mz, xScaleAxis(d.mz), yScaleAxis(d.coefficient));
+          ctx.fillText(c, xScaleAxis(d.mz), yScaleAxis(d.coefficient));
         });
       }
     }
@@ -601,7 +602,7 @@ class BookmarkService {
 
       const property = [{
         note: {
-          label: currentHighlightedMz.mz
+          label: parseFloat(currentHighlightedMz.mz).toFixed(3)
         },
         x: margin.left + xScaleAxis(nearest.mz) + 3,
         y: yScaleAxis(nearest.coefficient) + margin.top + 2,

@@ -53,12 +53,5 @@ class mzService {
     }
     return newCoeff;
   }
-  roundMzValues (mzs) {
-    let roundedMzs = [];
-    mzs.forEach(function (mz) {
-      roundedMzs.push(parseFloat(mz.toFixed(3)));
-    });
-    return roundedMzs;
-  }
 }
 export default mzService;

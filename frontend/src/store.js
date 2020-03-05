@@ -175,7 +175,7 @@ export default new Vuex.Store({
   mutations: {
     SET_ORIGINAL_DATA: (state, originalData) => {
       state.rings = originalData.rings;
-      state.mzList.mzItems = mzService.roundMzValues(originalData.mzs);
+      state.mzList.mzItems = originalData.mzs;
       state.pixels = originalData.pixels;
       let protoDict = {};
       Object.keys(originalData.rings[state.ringIdx]).forEach(function (prototype) {

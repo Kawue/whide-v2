@@ -426,7 +426,7 @@ export default {
         combinedList.forEach(function (mzKey) {
           d3.select('#mzValueAggregationList')
             .append('option')
-            .text(that.aggregationList[mzKey])
+            .text(parseFloat(that.aggregationList[mzKey]).toFixed(3))
             .style('color', 'white')
             .attr('id', 'aggregation_' + mzKey.toString())
             .on('click', function (event) {
@@ -440,7 +440,7 @@ export default {
         combinedList.forEach(function (mzKey) {
           d3.select('#mzValueAggregationList')
             .append('option')
-            .text(mzKey)
+            .text(parseFloat(mzKey).toFixed(3))
             .style('color', 'white')
             .attr('id', 'aggregation_' + mzKey.toString())
             .on('click', function (event) {
@@ -453,7 +453,6 @@ export default {
       }
     },
     renderMzList: function (dict, color) {
-      // console.log(dict);
       let that = this;
       let sortingList = Object.keys(dict);
       sortingList.sort(function (a, b) {
@@ -466,7 +465,7 @@ export default {
           d3.select('#mzValueList')
             .append('option')
             .attr('id', item)
-            .text(dict[item].toString())
+            .text(parseFloat(dict[item]).toFixed(3))
             .on('click', function (event) {
               that.clickChecker(event, item, dict[item]);
             })
@@ -475,7 +474,7 @@ export default {
           d3.select('#mzValueList')
             .append('option')
             .attr('id', item.toString())
-            .text(item.toString())
+            .text(parseFloat(item).toFixed(3))
             .on('click', function (event) {
               that.clickChecker(event, item, dict[item]);
             })

@@ -247,15 +247,13 @@ def transform(centers):
     for i in range(len(centers)):
         yMeanCenters.append(centers[i][1])
     midY = np.mean(np.array(yMeanCenters))
-    print(yMeanCenters)
-    print(midY)
+    
 
     xMeanCenters = []
     for i in range(len(centers)):
         xMeanCenters.append(centers[i][0])
     midX = np.mean(np.array(xMeanCenters))
-    print(xMeanCenters)
-    print(midX)
+
 
     yHighMaxValue = float('-inf')
     yHighMinValue = float('inf')
