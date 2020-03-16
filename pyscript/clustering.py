@@ -12,10 +12,10 @@ from sklearn.cluster import AffinityPropagation
 import json
 import pickle
 
-path_to_backend_dataset = '../backend/datasets/'
-path_to_dataset = 'data/'
-path_to_json = '../backend/json/'
-path_to_h2som_data = '../backend/h2som/'
+path_to_backend = 'backend/'
+path_to_dataset = 'datasets/'
+path_to_json = 'json/'
+path_to_h2som_data = 'h2som/'
 h5 = '.h5'
 
 def cart2polar(x,y):
@@ -45,15 +45,15 @@ filename = ''
 
 if ('.h5' in args.file):
     # line for Docker
-    #path = path_to_dataset + args.file
+    path = path_to_backend + path_to_dataset + args.file
     # Line for testing
-    path = path_to_backend_dataset + args.file
+    #path = path_to_backend_dataset + args.file
     filename = args.file.split('.')[0]
 else:
     # line for Docker
-    #path = path_to_dataset + args.file + h5
+    path = path_to_backend + path_to_dataset + args.file + h5
     # line for testing
-    path = path_to_backend_dataset + args.file + h5
+    #path = path_to_backend_dataset + args.file + h5
     filename = args.file
 
 # read path
@@ -171,6 +171,8 @@ def kmeans_clustering(embed, method):
 
 
 
+
+
     #pltFigure(embed, labels, proto)
 
     #color = unit_cicle_color_wheel(proto_centers)
@@ -247,7 +249,7 @@ def transform(centers):
     for i in range(len(centers)):
         yMeanCenters.append(centers[i][1])
     midY = np.mean(np.array(yMeanCenters))
-    
+
 
     xMeanCenters = []
     for i in range(len(centers)):
@@ -470,10 +472,10 @@ def createJson(h5data, prototyps, labels, embedding):
         for ri in ring_json_list:
             pickle.dump(ri[0], open(outpath + filename+'_ring' + str(ri[1]-1) + '.h2som', 'wb'))
     else:
-        pickle.dump(jsonData, open(path_to_json + filename + '.json', 'wb'))
-        pickle.dump(canvas, open(path_to_h2som_data + filename +"_info.h2som", "wb"))
+        pickle.dump(jsonData, open(path_to_backend + path_to_json + filename + '.json', 'wb'))
+        pickle.dump(canvas, open(path_to_backend + path_to_h2som_data + filename +"_info.h2som", "wb"))
         for ri in ring_json_list:
-            pickle.dump(ri[0], open(path_to_h2som_data + filename+'_ring' + str(ri[1]-1) + '.h2som', 'wb'))
+            pickle.dump(ri[0], open(path_to_backend + path_to_h2som_data + filename+'_ring' + str(ri[1]-1) + '.h2som', 'wb'))
 
 
 

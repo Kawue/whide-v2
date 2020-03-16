@@ -1,12 +1,3 @@
-###########################################
-# for Docker
-#from pyclusterbdm.algorithms import H2SOM
-#import pyclusterbdm.core as core
-###########################################
-# For testing
-from pycluster.algorithms import H2SOM
-import pycluster.core as core
-############################################
 import pandas as pd
 import numpy as np
 import matplotlib
@@ -17,10 +8,20 @@ import json
 import pickle
 import argparse
 
-path_to_backend_dataset = '../backend/datasets/'
-path_to_dataset = 'data/'
-path_to_json = '../backend/json/'
-path_to_h2som_data = '../backend/h2som/'
+###########################################
+# for Docker
+from pyclusterbdm.algorithms import H2SOM
+import pyclusterbdm.core as core
+###########################################
+# For testing
+#from pycluster.algorithms import H2SOM
+#import pycluster.core as core
+############################################
+
+path_to_backend = 'backend/'
+path_to_dataset = 'datasets/'
+path_to_json = 'json/'
+path_to_h2som_data = 'h2som/'
 
 
 h5 = '.h5'
@@ -66,7 +67,7 @@ def calc_h2som(data, eps, sig):
     # Sigma: Neihborhood bell function [start_value, decrease_value]
     # Epsilon: Learning step size [start_value, decrease_value]
     # Learning steps based on n_iter
-    # For each step (n_iter) the neighborhood (sigma) and learning step size (epsilon) 
+    # For each step (n_iter) the neighborhood (sigma) and learning step size (epsilon)
     # will decrease to allow for more and more specialization and fine tuning.
     # Therefore sigma and epsilon decrease value depend strongly on n_iter!
     # H2SOM initialization
@@ -213,7 +214,7 @@ def createJson(h2som, data, dframe, file):
         membs, ring_for_json = calc_memb(data, h2som, ring_idx, file)
         ring_json_list.append((ring_for_json, ring_idx))
         pixelsPerPrototype, pixels_dict = getPixelsForRing(data, membs, dframe,ring)
-        
+
         ring_idx +=1
 		# get the Prototypes of the ring
         prototyp_idx = 0
@@ -263,15 +264,15 @@ path = ''
 filename = ''
 if ('.h5' in args.file):
     # line for Docker
-    #path = path_to_dataset + args.file
+    path = path_to_backend + path_to_dataset + args.file
     # Line for testing
-    path = path_to_backend_dataset + args.file
+    #path = path_to_backend_dataset + args.file
     filename = args.file.split('.')[0]
 else:
     # line for Docker
-    #path = path_to_dataset + args.file + h5
+    path = path_to_backend + path_to_dataset + args.file + h5
     # line for testing
-    path = path_to_backend_dataset + args.file + h5
+    #path = path_to_backend_dataset + args.file + h5
     filename = args.file
 # line for Docker
 #path = path_to_dataset + args.file
@@ -291,9 +292,9 @@ if(outpath != None):
     for ri in rings:
         pickle.dump(ri[0], open(outpath + filename+'_ring' + str(ri[1]-1) + '.h2som', 'wb'))
 else:
-    pickle.dump(created_json, open(path_to_json + filename + '.json', 'wb'))
-    pickle.dump(dimensions, open(path_to_h2som_data + filename +"_info.h2som", "wb"))
+    pickle.dump(created_json, open(path_to_backend + path_to_json + filename + '.json', 'wb'))
+    pickle.dump(dimensions, open(path_to_backend + path_to_h2som_data + filename +"_info.h2som", "wb"))
     for ri in rings:
-        pickle.dump(ri[0], open(path_to_h2som_data + filename+'_ring' + str(ri[1]-1) + '.h2som', 'wb'))
+        pickle.dump(ri[0], open(path_to_backend + path_to_h2som_data + filename+'_ring' + str(ri[1]-1) + '.h2som', 'wb'))
 # spectral_cluster(data, membs, dframe)
 #plot_poincare_structure(h2som)
