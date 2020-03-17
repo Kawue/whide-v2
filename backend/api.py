@@ -14,7 +14,7 @@ import re
 import base64
 import argparse
 
-
+# Paths for saving files
 path_to_modalities = './modalities/'
 path_to_datasets = './datasets/'
 path_to_json = './json/'
@@ -27,7 +27,7 @@ json_file = ''
 img_file = ''
 
 
-
+#colorscales and aggregation methods for mzimage needs to be the same in frontend store
 colorscales = {
         'Viridis': 'viridis',
         'Magma': 'magma',
@@ -43,6 +43,7 @@ aggregation_methods = {
     'max': np.max
 }
 
+#argumentparser
 parser = argparse.ArgumentParser(description='Arguments for Backend.')
 parser.add_argument('-f', '--filename', dest='file', help='The Filename of the h5 data, which is located at the datasets directory.', required=True)
 parser.add_argument('-i', '--image', dest='img', help='The brightfield image of the sample.', default='No_Img')
@@ -55,7 +56,7 @@ else:
 img_file = args.img
 dataset_name = current_dataset.split('.')[0]
 
-
+# readyng the h2som files wich are created by h2som.py or clustering.py
 h2som_files = [f for f in listdir(path_to_h2som_data) if isfile(join(path_to_h2som_data, f))]
 for file in h2som_files:
     if(dataset_name + '_info' in file):
@@ -89,10 +90,9 @@ app = Flask(__name__)
 CORS(app)
 
 
+# Method gets the coefficients for all mz-values in ring
 @app.route('/coefficients')
 def getCoefficienten():
-    # request.args.get('index') is the argument given (now the ring0)
-    #h2som = pickle.load(open(request.args.get('index')+".h2som","rb"))
     h2som = ringdata[request.args.get('index')]
     givenlastIdx = request.args.get('lastIndex')
     data = {}
@@ -103,6 +103,7 @@ def getCoefficienten():
     data['coefficients'] = coefficients
     return json.dumps(data)
 
+# reads the size of the segmantation map and the number of rings and there starting indize
 @app.route('/ringdata')
 def getCoefIndeizes():
     rings = []
@@ -129,16 +130,6 @@ def getCoefIndeizes():
     dim = pickle.load(open(path_to_h2som_data + info_file, "rb"))
     returnData = {'indizes' : indexList, 'dim': {'x': int(dim['x']), 'y': int(dim['y'])}}
     return json.dumps(returnData)
-
-@app.route('/dimensions')
-def getDimensions():
-    #dim = pickle.load(open('info.h2som', "rb"))
-    dim = ringdata["info"]
-    dim['x'] = int(dim['x'])
-    dim['y'] = int(dim['y'])
-    dimX = int(dim['x'])
-    dimY = int(dim['y'])
-    return json.dumps(dim)
 
 # get mz image data for dataset and mz values
 # specified merge method is passed via GET parameter
@@ -170,6 +161,7 @@ def imagedata_multiple_mz_action():
     response.mimetype = 'text/plain'
     return response
 
+#loads the brightfielimage which was given as an argument to the frontend
 @app.route('/brightfieldimage')
 def getBrightfieldImage():
     if img_file == 'No_Img':

@@ -17,6 +17,9 @@ export default {
     };
   },
   methods: {
+    /*
+      Easter Egg Function for whider
+     */
     easterEgg (evt) {
       switch (evt.keyCode) {
         case 87:

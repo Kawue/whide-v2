@@ -3,6 +3,10 @@ import * as d3 from 'd3';
 import * as d3annotate from 'd3-svg-annotation';
 
 class BookmarkService {
+  /*
+  Set the new color from the colorwheel for the bookmark infromation.
+  @params: newColors is a dict where eacht key (prototype) holds his color, choosedbookmark is the dict of all choosed Bookmarks
+   */
   changePrototypeColor (newColors, choosedBookmarks) {
     let choosedPrototypes = Object.keys(choosedBookmarks);
     choosedPrototypes.forEach(function (p) {
@@ -10,6 +14,17 @@ class BookmarkService {
     });
     return choosedBookmarks;
   }
+  /*
+  creates a vertical bar chart
+  @params:
+    qdtree is the qdtree which is created in the bookmaerk.vue for this prototype
+    data hold the informations about the mzs and the intensities
+    given height holds the height of the component
+    showMzBoolean is a boolean if the mz should be display on the bars
+    mzAnnotations is the boolean if the annotations should be display not the real values
+    id is the prototype id
+    color is the color of the bookmark
+   */
   createBchart (qdtree, data, givenHeight = 300, showMzBoolean = false, mzAnnotations = false, id, color) {
     let currentHighlightedMz;
     const gHeight = givenHeight - 30;
@@ -28,6 +43,7 @@ class BookmarkService {
     let dataMax = d3.max(data, function (d) { return d.coefficient; });
     let barWidthMax = width;
 
+    // add events on chart for interaction
     let canvas = document.querySelector('#' + id);
     canvas.addEventListener('mousemove', addMouseMove, false);
     canvas.addEventListener('mouseenter', mEnter, false);
@@ -70,6 +86,7 @@ class BookmarkService {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.translate(margin.left, margin.top);
 
+    // build scalors for d3 chart
     let yScaleAxis = d3.scaleLinear()
       .range([0, height - 40]);
 
@@ -96,6 +113,7 @@ class BookmarkService {
       d.coefficient = +d.coefficient;
     });
 
+    // function to calculate the thikness of the bars according to the height
     let coefficientArray = [];
     data.forEach(function (e) {
       coefficientArray.push(e['coefficient']);
@@ -111,15 +129,19 @@ class BookmarkService {
       offsetsAr.push(offset);
       offset += height;
     }
+    // apply the offset on the y-axes
     yScaleAxis.domain([offsetsAr[0], offsetsAr[offsetsAr.length - 1]]);
     drawChart();
 
+    // function for finding the nearest bar with the qdtree
     function addMouseMove (event) {
       let x = event.offsetX;
       let y = event.offsetY;
       let nearest = qdtree.find(x - margin.left, y - margin.top);
       createAnnotation(nearest);
     }
+
+    // function to draw the chart as a canvas
     function drawChart () {
       qdtree.removeAll(data);
       qdtree
@@ -152,6 +174,11 @@ class BookmarkService {
         });
       }
     }
+
+    /*
+      colors the nearest bar in the chart orange or white and back if it is not anymore the nearest
+      also adds the annotation with d3-annotations
+     */
     function createAnnotation (nearest) {
       const index = data.indexOf(nearest);
       if (currentHighlightedMz === undefined) {
@@ -200,12 +227,21 @@ class BookmarkService {
         .call(d3annotate.annotation()
           .annotations(property));
     }
+    // Function for clicking on bar to add the mz-value to aggregation list
     function addMzToAggregation () {
       store.commit('SET_MZ_TO_AGGREGATIONLIST', currentHighlightedMz.mz.toString());
     }
   }
-
-  // function to creat a bar chart of the spektrum from one prototype
+  /*
+  creates a horizontal bar chart which uses the full width of the screen
+  @params:
+    qdtree is the qdtree which is created in the bookmaerk.vue for this prototype
+    data hold the informations about the mzs and the intensities
+    showMzBoolean is a boolean if the mz should be display on the bars
+    mzAnnotations is the boolean if the annotations should be display not the real values
+    id is the prototype id
+    color is the color of the bookmark
+   */
   createHorizontalChart (qdtree, data, showMzBoolean = false, mzAnnotations = false, id, color) {
     let currentHighlightedMz;
     let backgroundColor = color.toString();
@@ -229,6 +265,7 @@ class BookmarkService {
     let dataMin = d3.min(data, function (d) { return d.coefficient; });
     let dataMax = d3.max(data, function (d) { return d.coefficient; });
 
+    // add events on chart for interaction
     let canvas = document.querySelector('#' + id);
     canvas.addEventListener('mousemove', addMouseMove, false);
     canvas.addEventListener('mouseenter', mEnter, false);
@@ -334,7 +371,6 @@ class BookmarkService {
         ctx.lineWidth = 0.5;
         ctx.strokeRect(xScaleAxis(offsetsAr[i]), yScaleAxis(d.coefficient), xScaleAxis(widths[i]), height - yScaleAxis(d.coefficient));
       });
-      // TODO: schriftgroese gut aendern
       if (showMzBoolean) {
         data.forEach(function (d, i) {
           const c = parseFloat(d.mz).toFixed(3).toString();
@@ -347,6 +383,14 @@ class BookmarkService {
         });
       }
     }
+
+    /* function to find out how big the font needs to be to fit on the bar
+    @ params:
+      context is the canvas context of the bookmark
+      text is the mz-value or his annotation
+      fontface is the type of font
+      w is the width of the bar
+     */
     function fitTextOnBar (context, text, fontface, w) {
       // start with a large font size
       var fontsize = 30;
@@ -364,7 +408,10 @@ class BookmarkService {
       let nearest = qdtree.find(x - margin.left, y - margin.top);
       createAnnotation(nearest);
     }
-
+    /*
+          colors the nearest bar in the chart orange or white and back if it is not anymore the nearest
+          also adds the annotation with d3-annotations
+    */
     function createAnnotation (nearest) {
       const index = data.indexOf(nearest);
       if (currentHighlightedMz === undefined) {
@@ -419,6 +466,16 @@ class BookmarkService {
     }
   }
 
+  /*
+  creates a horizonatl linechart
+  @params:
+    qdtree is the qdtree which is created in the bookmaerk.vue for this prototype
+    data hold the informations about the mzs and the intensities
+    showMzBoolean is a boolean if the mz should be display on the bars
+    mzAnnotations is the boolean if the annotations should be display not the real values
+    id is the prototype id
+    color is the color of the bookmark
+   */
   lineChart (qdtree, data, showMzBoolean = false, mzAnnotations = false, id, color) {
     let currentHighlightedMz;
     let margin = {
@@ -443,8 +500,9 @@ class BookmarkService {
     let mzMax = d3.max(data, function (d) {
       return parseFloat(d.mz);
     });
-    let canvas = document.querySelector('#' + id);
 
+    // add events on chart for interaction
+    let canvas = document.querySelector('#' + id);
     canvas.addEventListener('mousemove', addMouseMove, false);
     canvas.addEventListener('mouseenter', mEnter, false);
     canvas.addEventListener('mouseout', mOut, false);
@@ -502,14 +560,6 @@ class BookmarkService {
     ctx.strokeStyle = 'black';
     ctx.stroke();
 
-    /*
-    ctx.beginPath();
-    ctx.moveTo(xScaleAxis(mzMin - 2), height);
-    ctx.lineTo(xScaleAxis(mzMax + 2), height);
-    ctx.strokeStyle = 'black';
-    ctx.stroke();
-
-     */
 
     // dataMin, dataMax / 2, dataMax]
     this.drawHorizontalLine(dataMin, ctx, height, yScaleAxis);
@@ -561,7 +611,6 @@ class BookmarkService {
         ctx.arc(xScaleAxis(point.mz), yScaleAxis(point.coefficient), 2, 0, 2 * Math.PI);
         ctx.fill();
       });
-      // TODO: schriftgroese gut aendern
       if (showMzBoolean) {
         data.forEach(function (d) {
           const c = parseFloat(d.mz).toFixed(3).toString();

@@ -14,6 +14,9 @@ let bookmarkService = new BookmarkService();
 let mzService = new MzService();
 
 export default new Vuex.Store({
+  /*
+  state holds every importent information
+   */
   state: {
     rings: {},
     prototypesPosition: {},
@@ -72,10 +75,12 @@ export default new Vuex.Store({
     addMzToAggregationList: ''
 
   },
+  // Methods to get the current state
   getters: {
     getMzAnnotations: state => {
       return Object.values(state.mzObjects);
     },
+
     getMzObject: state => {
       return state.mzObjects;
     },
@@ -173,6 +178,7 @@ export default new Vuex.Store({
     }
   },
   mutations: {
+    // build the orginal data from the backend in the store
     SET_ORIGINAL_DATA: (state, originalData) => {
       state.rings = originalData.rings;
       state.mzList.mzItems = originalData.mzs;
@@ -186,6 +192,7 @@ export default new Vuex.Store({
       });
       state.prototypesPosition = protoDict;
     },
+    // Fills the data in the store with every information for the visualisation
     SET_FULL_DATA: state => {
       let ringData = {};
       Object.keys(state.rings[state.ringIdx]).forEach(function (prototype) {
@@ -208,6 +215,7 @@ export default new Vuex.Store({
       });
       state.currentRingData = ringData;
     },
+    // Add color to the Data in store, gets color from colowheel service
     ADD_COLOR_TO_FULL_DATA: (state, allPrototypeColors) => {
       Object.keys(allPrototypeColors).forEach(function (pro) {
         state.currentRingData[pro.toString()]['color'] = allPrototypeColors[pro].toString();
@@ -227,6 +235,7 @@ export default new Vuex.Store({
     SET_POS_COLOR: (state, pos) => {
       state.currentRingData = bookmarkService.changePrototypeColor(pos, state.currentRingData);
     },
+    // if bookmark is choosed it will be added
     SET_CHOOSED_BOOKMARK: (state, prototype) => {
       if (!(state.choosedBookmarksOnlyIds.includes(prototype))) {
         state.choosedBookmarksIds.push({
@@ -237,6 +246,7 @@ export default new Vuex.Store({
         state.colorSlider = true;
       }
     },
+    // if bookmark is deleted it removes the bookmark from store
     DELETE_BOOKMARK: (state, itemId) => {
       let currentIds = state.choosedBookmarksIds;
       let currentOnlyIds = state.choosedBookmarksOnlyIds;
@@ -264,6 +274,7 @@ export default new Vuex.Store({
     SET_RING_IDX: (state, ringIdx) => {
       state.ringIdx = ringIdx;
     },
+    // Sets the prototype position after moebius transformation
     SET_PROTOTYPES_POSITION: (state) => {
       let protoDict = {};
       Object.keys(state.rings[state.ringIdx]).forEach(function (prototype) {
@@ -274,6 +285,7 @@ export default new Vuex.Store({
       });
       state.prototypesPosition = protoDict;
     },
+    // applys moebiustransformation on all prototyp positions
     SET_MOEBIUS: (state, xAndY) => {
       state.prototypesPosition = moebiustransformation(state.prototypesPosition, xAndY);
     },
@@ -361,18 +373,7 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    getDimensions: context => {
-      const url = API_URL + '/dimensions';
-      axios
-        .get(url)
-        .then(response => {
-          context.commit('SET_SEGMENTATION_DIM', response.data);
-        })
-        .catch(function (e) {
-          console.error(e);
-          alert('Error while getting dimensions');
-        });
-    },
+    // gets the informations from the backend and the ring
     getDimAndIndizes: context => {
       const url = API_URL + '/ringdata';
       axios
@@ -387,6 +388,7 @@ export default new Vuex.Store({
           alert('Error while fetching data');
         });
     },
+    // open and reads Json
     openJson: context => {
       const url = API_URL + '/getjson';
       axios
@@ -399,6 +401,7 @@ export default new Vuex.Store({
           console.error(e);
         });
     },
+    // gets the coefficients for all mz in all prototypes if the current ring changes while WHIDE runs
     getCoeff: context => {
       let ringIdx = context.state.ringIdx;
       let re = /\d+/;
@@ -418,6 +421,7 @@ export default new Vuex.Store({
           alert('Error while getting coefficients or set Focus');
         });
     },
+    // getting the coeeficents for all prototypes in the first ring, gets only called at starting
     getRingCoefficients: (context) => {
       let ringIdx = context.state.ringIdx;
       let re = /\d+/;
@@ -437,6 +441,7 @@ export default new Vuex.Store({
           alert('Error while getting coefficients or set Focus');
         });
     },
+    // load brightfiel image
     getBrightfieldImage: context => {
       const url = API_URL + '/brightfieldimage';
       axios
@@ -448,6 +453,7 @@ export default new Vuex.Store({
           console.error(err);
         });
     },
+    // Get the mzImage for choosen mz values or value
     fetchImageData: (context) => {
       let mzValues = context.state.mzImage.selectedMzValues;
       // do an api fetch for a combination image of multiple mz values

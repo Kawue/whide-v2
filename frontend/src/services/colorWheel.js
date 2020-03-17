@@ -1,6 +1,13 @@
 import * as d3 from 'd3';
 import store from '../store';
 
+/*
+Creates the colorwheel, and put the prototypes on it
+@params:
+  rotation is a value between 1 and 0 for the rotation of the farbscala
+  posswitcher is a number from 0 to number of prototypes for the amount of switched positions in one way
+  ringIndex is the index of the current ring for better visualisation on the wheel
+ */
 var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0, ringIndex = 0) {
   let firstIdx = store.state.lastPrototypeIndex;
   const DEGREES_PER_RADIAN = 180 / Math.PI;
@@ -15,6 +22,8 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0, ringInd
   const radius = Math.min(halfWidth, halfHeight);
   const radiusSquared = radius * radius;
   let multiplierForPosPosition;
+
+  // for better postioning of the prototypes on the wheel we set a multiplier
   if (ringIndex === 0) {
     multiplierForPosPosition = 100;
   } else if (ringIndex === 1) {
