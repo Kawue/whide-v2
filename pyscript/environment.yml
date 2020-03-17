@@ -8,6 +8,7 @@ dependencies:
   - ca-certificates=2020.1.1
   - certifi=2019.11.28
   - cycler=0.10.0
+  - cython=0.29.14
   - dbus=1.13.12
   - expat=2.2.6
   - fontconfig=2.13.0
@@ -46,6 +47,7 @@ dependencies:
   - pip=20.0.2
   - pyparsing=2.4.6
   - pyqt=5.9.2
+  - pytables=3.6.1
   - python=3.8.2
   - python-dateutil=2.8.1
   - python_abi=3.8
