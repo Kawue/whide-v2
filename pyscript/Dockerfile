@@ -12,4 +12,4 @@ RUN /bin/bash -c "source activate whide"
 RUN cd pyclusterbdm && python setup.py install
 RUN mv /pyclusterbdm/build/temp.linux-x86_64-3.8/pyclusterbdm/core.o /opt/conda/lib/python3.7/site-packages/pyclusterbdm
 RUN mv /pyclusterbdm/build/temp.linux-x86_64-3.8/pyclusterbdm/c_core.o /opt/conda/lib/python3.7/site-packages/pyclusterbdm
-ENV PYTHONPATH "${PYTHONPATH}:/opt/conda/lib/python3.7/site-packages/pyclusterbdm"
+ENV PYTHONPATH "${PYTHONPATH}:/opt/conda/envs/whide/lib/python3.8/site-packages/pyclusterbdm"
