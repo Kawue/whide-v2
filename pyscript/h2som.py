@@ -10,12 +10,12 @@ import argparse
 
 ###########################################
 # for Docker
-from pyclusterbdm.algorithms import H2SOM
-import pyclusterbdm.core as core
+#from pyclusterbdm.algorithms import H2SOM
+#import pyclusterbdm.core as core
 ###########################################
 # For testing
-#from pycluster.algorithms import H2SOM
-#import pycluster.core as core
+from pycluster.algorithms import H2SOM
+import pycluster.core as core
 ############################################
 
 path_to_backend = 'backend/'
@@ -256,8 +256,10 @@ parser.add_argument('-f', '--filename', dest='file', help='The Filename of the h
 parser.add_argument('-o', '--outputfile', dest='out', help='The path where you want to store the computed data', nargs='?')
 parser.add_argument('-e', '--epsilon', dest='eps', help='Epsilon parameter for the h2SOM.', nargs=2, default=['1.0', '0.01'])
 parser.add_argument('-s', '--sigma', dest='sig', nargs=2, default=['13', '0.24'], help='Sigma parameter for the h2SOM.')
+parser.add_argument('-t', '--test', dest='test', action='store_true')
 args = parser.parse_args()
-
+if (args.test):
+    path_to_backend = '../backend/'
 outpath = args.out
 
 path = ''

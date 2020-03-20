@@ -12,6 +12,7 @@ from sklearn.cluster import AffinityPropagation
 import json
 import pickle
 
+path_to_backend_testing = '../backend/'
 path_to_backend = 'backend/'
 path_to_dataset = 'datasets/'
 path_to_json = 'json/'
@@ -37,23 +38,26 @@ parser.add_argument('-a', '--all_prototyps', dest='all', help='Cluster data but 
 parser.add_argument('-d', '--dimensions_reduction', dest='dim', help='Choose between PCA and UMAP as dimension reduction', default='umap', choices=['pca', 'umap'])
 parser.add_argument('-m', '--clustering_method', dest='method', help='Choose between KMEANS and Agglomerative Clustering', default='kmeans', choices=['kmeans', 'agglomerative'])
 parser.add_argument('-c', '--no_dimension_reduction', dest='clustering', help='If clustering is done on Data without dimension reduction', action='store_true')
+parser.add_argument('-t', '--test', dest='test', action='store_true')
 args = parser.parse_args()
 outpath = args.out
 
 path = ''
 filename = ''
+if(args.test) :
+    path_to_backend = '../backend/'
 
 if ('.h5' in args.file):
     # line for Docker
     path = path_to_backend + path_to_dataset + args.file
     # Line for testing
-    #path = path_to_backend_dataset + args.file
+    #path = path_to_backend_testing + path_to_dataset + args.file
     filename = args.file.split('.')[0]
 else:
     # line for Docker
     path = path_to_backend + path_to_dataset + args.file + h5
     # line for testing
-    #path = path_to_backend_dataset + args.file + h5
+    #path = path_to_backend_testing +path_to_dataset + args.file + h5
     filename = args.file
 
 # read path
@@ -173,7 +177,7 @@ def kmeans_clustering(embed, method):
 
 
 
-    #pltFigure(embed, labels, proto)
+    pltFigure(embed, labels, proto)
 
     #color = unit_cicle_color_wheel(proto_centers)
     #plt_cluster_img(h5data, pe_labels,  color)
@@ -210,7 +214,7 @@ def agglomerative_clustering(embed, method):
 
 
 
-    #pltFigure(embed, labels, proto)
+    pltFigure(embed, labels, proto)
 
     #color = unit_cicle_color_wheel(proto_centers)
     #plt_cluster_img(h5data, labels,  color)
@@ -230,7 +234,7 @@ def pltFigure(embed, labels, proto):
         plt.plot(embed[i,0], embed[i,1], color=colors[l], marker="x")
 
     for i, tup in enumerate(proto):
-        plt.plot(tup[0], tup[1], color=colors[i], marker="s")
+        plt.plot(tup[0], tup[1], color='black', marker="s")
 
     plt.savefig('cluster.png')
     plt.close(fig)

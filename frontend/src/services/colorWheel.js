@@ -42,6 +42,9 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0, ringInd
   let allPrototypeColors = {};
   const idList = Object.keys(protoId);
   const numberOfPrototypes = idList.length;
+  /*
+  for each prototype the will be calculated with respect to the number of posSwitcher
+  */
   Object.keys(protoId).forEach(function (id) {
     let idNumber = parseInt(id.replace(/'/g, '').split(/(\d+)/).filter(Boolean)[1]);
     let newIdNumber;
@@ -51,6 +54,7 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0, ringInd
       newIdNumber = idNumber + (posSwitcher % numberOfPrototypes);
     }
     let newPrototypeString = 'prototyp' + newIdNumber;
+    // calculate color for prototype
     let posColor = renderColorMarker((Object.values(protoId[newPrototypeString])), id);
     posDict[id] = {
       color: posColor,
@@ -63,15 +67,23 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0, ringInd
   store.commit('SET_COLORS_READY', true);
   return allPrototypeColors;
 
+  /*
+  puts prototype to his position on colorwheel
+  @params:
+  postion: position from prototype
+  id: id from prototype
+   */
   function renderColorMarker (position, id) {
     const markerRadius = 6;
     const x = position[0][0];
     const y = position[0][1];
+    // i and j are the new coordinates on colorwheel
     const i = parseInt(x * multiplierForPosPosition + halfWidth);
     const j = parseInt(y * multiplierForPosPosition + halfHeight);
     let canvas = document.getElementById('colorwheelCanvas');
     let ctx = canvas.getContext('2d');
     let ctxData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    // number of colorchannels and the offestes in the imagedata object
     const NUM_CHANNELS = 4;
     const rowByteOffset = j * canvas.width * NUM_CHANNELS;
     const colByteOffset = i * NUM_CHANNELS;
@@ -79,6 +91,7 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0, ringInd
     const posColor = ctxData.slice(pixelByteOffset, pixelByteOffset + 4);
 
     let colorOfPos = 'rgba(' + posColor[0].toString() + ',' + posColor[1].toString() + ',' + posColor[2].toString() + ',' + posColor[3].toString() + ')';
+    // draw a circle on the radius
     d3.select('#colorwheelContainer')
       .append('circle')
       .attr('class', id)
@@ -100,6 +113,11 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0, ringInd
     return colorOfPos;
   }
 
+  /*
+  creates the colorwheel
+  @params:
+  image: empty imagedata object
+   */
   function renderColorWheel (image) {
     /* let angleScaler180 = d3.scaleLinear()
       .domain([0, 180])
@@ -143,7 +161,7 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0, ringInd
 
  */
 
-          // needs to be var with let color is not defined ....?
+          // sets for every pixel the color of itself
           var color = d3.hsl(angleInDegrees, (distanceFromOrigin / radius), 0.5).rgb();
           setPixelColor(image, i, j, color, 200);
         }
@@ -167,83 +185,75 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0, ringInd
     return color;
   }
 
+  /*
+  set the calculated color of the pixel in the imagedata object
+  @params:
+  image: imagedataObject
+  x: postion x on the colorwheel
+  y: postion y on the colorwheel
+  color: color as an rgb value
+  alpha: the alpha value of the color
+   */
   function setPixelColor (image, x, y, color, alpha) {
     alpha = (alpha !== undefined ? alpha : 255);
 
-    var NUM_CHANNELS = 4;
-    var rowByteOffset = y * image.width * NUM_CHANNELS;
-    var colByteOffset = x * NUM_CHANNELS;
-    var pixelByteOffset = rowByteOffset + colByteOffset;
+    const NUM_CHANNELS = 4;
+    const rowByteOffset = y * image.width * NUM_CHANNELS;
+    const colByteOffset = x * NUM_CHANNELS;
+    const pixelByteOffset = rowByteOffset + colByteOffset;
 
     image.data[pixelByteOffset] = color.r;
     image.data[pixelByteOffset + 1] = color.g;
     image.data[pixelByteOffset + 2] = color.b;
     image.data[pixelByteOffset + 3] = alpha;
-    // console.log(image.data[pixelByteOffset + 0])
   }
 };
-
-var moebiustransformation = function (ringPos, direction) {
+/*
+function to apply the moebiustransformation the prototypes
+@params:
+allPrototyps: all prototyps and there postions
+direction: the direction where the points should be transformed exp: (1,0) for right, (0,1) for up, (-1,-1) for left down
+ */
+var moebiustransformation = function (allPrototyps, direction) {
   const FOCUS_MOVE_SPEED = 0.06;
-  // const RECTIFICATION_FACTOR = 0.4;
-  // const RECTIFICATION_FACTOR_X_2 = RECTIFICATION_FACTOR * 2;
-  // const RECTIFICATION_FACTOR_X_4 = RECTIFICATION_FACTOR * RECTIFICATION_FACTOR * 4;
-  // let canvas = document.getElementById('colorwheelCanvas');
-  // let context = canvas.getContext('2d');
+  let focus;
 
-  // let bgImage = context.createImageData(canvas.width, canvas.height);
-
-  // let halfWidth = Math.floor(bgImage.width / 2);
-  // let halfHeight = Math.floor(bgImage.height / 2);
-
-  let focus = { 'x': 0, 'y': 0 };
-
+  /*
+  move the focus from the midpoint to the direction
+   */
   function moveFocus (x, y) {
     let defaultPoint = {
       'x': 0,
       'y': 0
     };
-    let movedFocus = {
-      'x': focus['x'] + x,
-      'y': focus['y'] + y
-    };
 
-    let a = defaultPoint['x'] - movedFocus['x'];
-    let b = defaultPoint['y'] - movedFocus['y'];
+    let a = defaultPoint['x'] - x;
+    let b = defaultPoint['y'] - y;
     let distance = Math.sqrt(a * a + b * b);
 
     if (distance <= 1) {
       focus = {
-        'x': movedFocus['x'],
-        'y': movedFocus['y']
+        'x': x,
+        'y': y
       };
     }
   }
 
-  moveFocus(FOCUS_MOVE_SPEED * direction['x'], FOCUS_MOVE_SPEED * direction['y']);
-  /* let offsetCenter;
-  if (halfWidth > halfHeight) {
-    offsetCenter = halfHeight;
-  } else {
-    offsetCenter = halfWidth;
-  }
-
+  /*
+  moves the focus of the prototypes on the colorwheel with the speed
    */
+  moveFocus(FOCUS_MOVE_SPEED * direction['x'], FOCUS_MOVE_SPEED * direction['y']);
   // focus coordinates
   let ar = focus['x'];
   let ai = focus['y'];
 
-  // let fR = Number;
-  // let fS = Number;
-
   let fA = Number; let fB = Number; let fC = Number; let fD = Number; let fQ = Number;
   let z0r = Number; let z0i = Number; let z1r = Number; let z1i = Number;
 
-  // let fScale = 0.99;
   let protoDict = {};
-  Object.keys(ringPos).forEach(function (prototype) {
-    z0r = ringPos[prototype]['currentPos'][0];
-    z0i = ringPos[prototype]['currentPos'][1];
+  Object.keys(allPrototyps).forEach(function (prototype) {
+    z0r = allPrototyps[prototype]['currentPos'][0];
+    z0i = allPrototyps[prototype]['currentPos'][1];
 
     // distance between point.x and focus.x
     fA = z0r - ar;
@@ -257,14 +267,12 @@ var moebiustransformation = function (ringPos, direction) {
     z1r = (fA * fB + fC * fD) / fQ;
     z1i = (fC * fB - fA * fD) / fQ;
 
-    // fR = z1r * z1r + z1i * z1i;
-
-    // if (fR === 0) { fS = 1.0; } else {
-    //   fS = 1 / (RECTIFICATION_FACTOR_X_2 * fR) * (fR - 1 + Math.sqrt(fR * fR - 2 * fR + 1 + RECTIFICATION_FACTOR_X_4 * fR));
-    // }
+    /*
+    new Position for each prototype after moebiusTransfromation
+     */
     protoDict[prototype] = {
       'currentPos': [ z1r, z1i ],
-      'startPos': ringPos[prototype]['startPos']
+      'startPos': allPrototyps[prototype]['startPos']
     };
   });
 

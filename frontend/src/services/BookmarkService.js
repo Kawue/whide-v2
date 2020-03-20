@@ -560,7 +560,6 @@ class BookmarkService {
     ctx.strokeStyle = 'black';
     ctx.stroke();
 
-
     // dataMin, dataMax / 2, dataMax]
     this.drawHorizontalLine(dataMin, ctx, height, yScaleAxis);
     this.drawHorizontalLine(dataMax / 2, ctx, height, yScaleAxis);
