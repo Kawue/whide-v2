@@ -4,7 +4,7 @@ Whide is an interactive visualization tool to explore a segmentation map, create
 ![WHIDE_Logo](../../Bilder/WHIDE_Logo.png)
 
 ## Required installations:
-To use WHIDE zou need to install:
+To use WHIDE the following installations are required:
 
 1. Docker
 2. docker-compose
@@ -12,15 +12,15 @@ To use WHIDE zou need to install:
 Docker is not compatible with Windows 7, 8 and 10 Home. For details about a workaround see instructions below.
 
 ## Data Creation
-To start WHIDE v2 you need to provide:
-A .HDF5 file that contains the MSI data information.
-We refer to our processing pipeline [ProViM](https://github.com/Kawue/provim). For a self written processing we refer to [pyImzML-Parser](https://github.com/alexandrovteam/pyimzML/blob/master/pyimzml/ImzMLParser.py)  and  [Pandas](https://pandas.pydata.org/).
+To start WHIDE v2 please provide a .HDF5 file that contains the MSI data information.
 
-All of your .h5 files need to be saved in the folder `datasets` in the `backend` directory.
+We refer to our processing pipeline [ProViM](https://github.com/Kawue/provim). For a conversion of already processed data we refer to our [imzML-to-HDF5-Parser](https://github.com/Kawue/imzML-to-HDF5). For a self written processing we refer to [pyImzML-Parser](https://github.com/alexandrovteam/pyimzML/blob/master/pyimzml/ImzMLParser.py)  and  [Pandas](https://pandas.pydata.org/).
+
+All .h5 files need to be saved in the folder `datasets` in the `backend` directory.
 Please use only unique and readable file names like: 'barley_101.h5'.
 
 To create the data for WHIDE you can choose between the `h2som` and some new clustering approaches like `k-means` and `agglomerative hierachical clustering`.
-For the first start we will use the `h2som` for data creation. How to use the new clustering approaches will be discribed in the handbook.
+In our example below we will use the `h2som` for data creation. How to use the new clustering approaches will be discribed in the handbook.
 
 
 1. Open a terminal and navigate to the `pyscript` folder.
@@ -38,8 +38,8 @@ docker run -v <path_to_backend>:/backend  --rm whide/h2som python h2som.py -f <d
 After these two commands all the data for WHIDE is created. 
 
 ## Data visualisation in WHIDE
-For the visualisation of your dataset it is possible to visualize also a brightfield image or a mask of your dataset. 
-If you got one, than save this image file in the folder `modalities` in the backend directory. 
+**Remark:** It is possible incorporate a brightfield image or a mask of the dataset into the visualization.
+If such an image exists it has to be saved into the `modalities` folder in the backend directory. 
 
 ### Step 1: File changing
 To visualise the created date in WHIDE you need to change one line in one file. 
@@ -49,21 +49,20 @@ If you got a brightfield image follow step i, if not follow step ii.
     3. Change this line to: `pyargv = -f <dataset_name -i <image_file_name>.`, for example: `pyargv = -f barley_101.h5 -i barley_101_mask.png.`
     4. Change this line to: `pyargv = -f <dataset_name>.`, for example: `pyargv = -f barley_101.h5.`
 
-For each dataset you want to visualize you need to do this step. 
+This step is required for each dataset that should be visualized.
 
 ### Step2: Start WHIDE
-To start WHIDE you need to open a terminal and navigate to the frontend directory.
+To start WHIDE, open a terminal and navigate to the frontend directory.
 
 Type:
 ```shell script
 docker-compose up --build -d
 ```
 Don't close the terminal. 
-Now you can start your Browser and open `http://localhost:8080/`.
-If you have several localhosts running the port number 8080 will not be correct. 
-# Karsten wie schaut man noch mal nach welchen Port das ding nutzt?
+Now start a Browser (Chrome and Firefox are officially supported) and open `http://localhost:8080/`.
+If you have several localhosts running the port number 8080 will not be correct.
 
-If you are finished with your work in WHIDE go back to the running terminal and type:
+After each analysis session the docker container should be closed with type:
 ```shell script
 docker-compose down
 ```
