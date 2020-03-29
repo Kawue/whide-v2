@@ -1,7 +1,7 @@
 # Whide v2
 Whide is an interactive visualization tool to explore a segmentation map, created by the Hierarchical Hyperbolic Self Organizing Map (H2SOM) algorithm.
 
-![WHIDE_Logo](../../Bilder/WHIDE_Logo.png)
+![WHIDE_Logo](frontend/public/WHIDE_Logo.png)
 
 ## Required installations:
 To use WHIDE the following installations are required:
@@ -68,7 +68,8 @@ docker-compose down
 ```
 
 
-
+## Handbook
+You can find the Handbook for WHIDE [here](Handbook.md)
 
 
 
