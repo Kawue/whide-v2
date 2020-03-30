@@ -1,5 +1,5 @@
 # Handbook
-The Handbook for WHIDE is split into two parts. The Data Creation [Data Creation](#-data-creation) part and the use of WHIDE [WHIDE](#-use-whide).
+The Handbook for WHIDE is split into two parts. The Data Creation part and the use of WHIDE.
 
 ## Data Creation
 For the data creation you can choose between the `h2som.py` and the `clustering.py`.
@@ -86,7 +86,7 @@ You can combine all the flags as desired. For example:
 clustering.py -f <dataset_name> -d pca -s polar -m agglomerative
 ```
  
-## Use WHIDE 
+## Usage of WHIDE 
  
 ### Segmentation Map
 * Zoom with mouse wheel
