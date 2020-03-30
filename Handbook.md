@@ -86,8 +86,52 @@ You can combine all the flags as desired. For example:
 clustering.py -f <dataset_name> -d pca -s polar -m agglomerative
 ```
  
- ## Use WHIDE 
+## Use WHIDE 
  
- 
+### Segmentation Map
+* Zoom with mouse wheel
+* Hover over Segmentation map highlights all pixel that belong to this cluster
+* Click on highlighted cluster adds the related boomark to the bookmarks.
+* Transparency slider regulates the transparency from the segmantation map. Shows more of the brightfield image.
+* The button "mz-Image" on shows the distribution of the current mz-value. 
+* There are two options for choosing aggregation method and color scale for the mz-Image
+* While showing the mz-image click on the "Inverse" Button for inverse highlighting
 
+### MZ-List
+* If mz-Image is on, click on mz value shows his distribution an Segmentation Map
+* Double click on mz value to annotate this mz value
+* Press "Enter" on selected mz value to add this mz value to aggregation list (also multiple selected mz values)
+* Press "Delete" on selected mz value to to ignore it (grey and at the end of the list) and again delete to reignore it
+* Press the "pencil" button to show  annotations
+* Press "arrow up" button to put selected mz value/s to aggregation list
+* Press "arrow down" button to remove the selected mz value from aggregation list
+* Press "Delete" on aggregation list mz value to remove this mz value from aggregation list
+* Press "brushes" button to clear the whole aggregation list
+* Press "sign in" button to show mz-Image from the whole aggregation list
+* Press "Enter" or click on aggregation list mz value to ignore or deignorize mz value
+
+### Color Wheel
+* Hover over prototype point to highlight related pixels in the segmentation map 
+* The granularity slider regulates the granularity of the clustering
+* Press "arrow up" button or "arrow up" key to move prototypes upwards
+* Press "arrow left" button or "arrow left" key to move prototypes to the left
+* Press "arrow right" button or "arrow right" key to move prototypes to the right
+* Press "arrow down" button or "arrow down" key to move prototypes downwards
+* Press "back" button below the arrows to move the prototypes to the default positions
+* Press "circle arrow" to rotate the color wheel
+* Press "back" button below the circle arrow to rotate the color wheel to the default position
+* Press "pointed circle" to rotate the prototype postions
+* Press "back" button below pointed circle put the prototypes on their default position after rotating them
+
+### Bookmarks
+* Pull the top of the Bookmark panel to resize it
+* Hover over chosen bookmark to highlight the related pixels on segmentation map
+* Hover over bars in the chart to show the mz value
+* Click on the "close" button to delete the bookmark
+* Click on the "Horizontal" button to visualize the bookmarks horizontally 
+* Clicking on "Spektrum" button while horizontal visualisation to visualize the pseudo spektrum
+* Click on the "Show MZ-Values" button to visualize mz value on the bars in the charts
+* Click on the "Show Annotations" button to show the annotation of each mz value
+* Click on the "Fullscreen" button for fullscreen Bookmarks
+* Click on the "Clear Bookmarks" Button to delete all the bookmarks and resize the Bookmark panel
 
