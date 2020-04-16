@@ -12,12 +12,14 @@ from sklearn.cluster import AffinityPropagation
 import json
 import pickle
 
-path_to_backend_testing = '../backend/'
 path_to_backend = 'backend/'
 path_to_dataset = 'datasets/'
 path_to_json = 'json/'
 path_to_h2som_data = 'h2som/'
 h5 = '.h5'
+
+colors = {0: "tab:blue", 1: "tab:orange", 2: "tab:green", 3: "tab:red", 4: "tab:purple", 5: "tab:brown", 6: "tab:pink", 7: "tab:gray", 8: "tab:olive", 9:"tab:cyan"}
+
 
 def cart2polar(x,y):
     theta = np.arctan2(y,x)
@@ -50,14 +52,11 @@ if(args.test) :
 if ('.h5' in args.file):
     # line for Docker
     path = path_to_backend + path_to_dataset + args.file
-    # Line for testing
-    #path = path_to_backend_testing + path_to_dataset + args.file
     filename = args.file.split('.')[0]
 else:
     # line for Docker
     path = path_to_backend + path_to_dataset + args.file + h5
-    # line for testing
-    #path = path_to_backend_testing +path_to_dataset + args.file + h5
+
     filename = args.file
 
 # read path
@@ -122,42 +121,39 @@ def plt_cluster_img(h5data, labels, color):
     plt.savefig('Segmentation_' + cartOrPolar + '_' + cluster + '_'   + method + '.png')
     plt.close(fig)
 
-def unit_cicle_color_wheel(centers):
+def unit_cicle_color_wheel(centers, name = 'colorwheel'):
 
     fig = plt.figure()
-    plt.title('ColorWheel')
-    display_axes = fig.add_axes([0.1,0.1,0.8,0.8], projection='polar')
-    display_axes._direction = 2*np.pi
-    norm = mpl.colors.Normalize(0.0, 2*np.pi)
+    #plt.axis((-1,1,-1,1))
+    #display_axes = fig.add_axes([0.1,0.1,0.8,0.8], projection='polar')
+    #display_axes._direction = 2*np.pi
+    #norm = mpl.colors.Normalize(0.0, 2*np.pi)
 
     # Plot the colorbar onto the polar axis
     # note - use orientation horizontal so that the gradient goes around
     # the wheel rather than center out
     quant_steps = 12056
-    cm = mpl.cm.ScalarMappable(norm=norm, cmap=mpl.cm.get_cmap('hsv',quant_steps))
+    # cm = mpl.cm.ScalarMappable(norm=norm, cmap=mpl.cm.get_cmap('hsv',quant_steps))
 
-    cb = mpl.colorbar.ColorbarBase(display_axes, cmap=mpl.cm.get_cmap('hsv',quant_steps),
-                                    norm=norm,
-                                    orientation='horizontal')
+    # cb = mpl.colorbar.ColorbarBase(display_axes, cmap=mpl.cm.get_cmap('hsv',quant_steps),
+    #                                norm=norm,
+    #                                orientation='horizontal')
 
 
     #for x in np.arctan2(embedding[:,0],embedding[:,1]):
     #    print(display_axes.format_coord(x,0.8))
 
-    cb.outline.set_visible(False)
-    display_axes.set_axis_off()
-    display_axes.plot(centers[:,0], centers[:,1],"ko")
+    #cb.outline.set_visible(False)
+    #plt.set_axis_off()
+    plt.plot(centers[:,0], centers[:,1], 'ko')
 
-    d = centers[:,0]
-    colors = cm.to_rgba(d)
+    #d = centers[:,0]
+    #colors = cm.to_rgba(d)
 
-    plt.savefig('ColorWheel.png')
+    plt.savefig(name + '.png')
     plt.close(fig)
 
     return colors
-
-    return colors
-colors = {0: "tab:blue", 1: "tab:orange", 2: "tab:green", 3: "tab:red", 4: "tab:purple", 5: "tab:brown", 6: "tab:pink", 7: "tab:gray", 8: "tab:olive", 9:"tab:cyan"}
 
 
 def kmeans_clustering(embed, method):
@@ -168,16 +164,19 @@ def kmeans_clustering(embed, method):
         u = UMAP(n_components=2)
         proto = u.fit_transform(proto)
 
+    print(proto)
+    unit_cicle_color_wheel(proto, 'Normal')
     proto_centers, proto_diff, tranformedPixels =  applyTransformation(proto, embed, labels)
     if (args.all):
         proto_centers, diff = transform(embed)
         labels = np.arange(np.size(embed,0))
 
+    print(proto_centers)
+    unit_cicle_color_wheel(proto_centers, 'Transformed')
 
 
 
-
-    pltFigure(embed, labels, proto)
+    #pltFigure(embed, labels, proto)
 
     #color = unit_cicle_color_wheel(proto_centers)
     #plt_cluster_img(h5data, pe_labels,  color)
@@ -214,7 +213,7 @@ def agglomerative_clustering(embed, method):
 
 
 
-    pltFigure(embed, labels, proto)
+    #pltFigure(embed, labels, proto)
 
     #color = unit_cicle_color_wheel(proto_centers)
     #plt_cluster_img(h5data, labels,  color)
