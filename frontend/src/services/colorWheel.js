@@ -113,6 +113,9 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0, ringInd
     return colorOfPos;
   }
 
+  function normalization (x) {
+    return (0.7 - 0.4) * ((x - 0) / (radius - 0)) + 0.4;
+  }
   /*
   creates the colorwheel
   @params:
@@ -129,6 +132,8 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0, ringInd
     */
 
     let i, j;
+    let min = 1000;
+    let max = 0;
     for (j = 0; j < image.height; j++) {
       for (i = 0; i < image.width; i++) {
         const x = i - halfWidth;
@@ -162,12 +167,21 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0, ringInd
  */
 
           // sets for every pixel the color of itself
-          var color = d3.hsl(angleInDegrees, (distanceFromOrigin / radius), 0.5).rgb();
+          let distanceFromOriginPercent = distanceFromOrigin / 100;
+          // console.log(distanceFromOriginPercent);
+          if (min > distanceFromOriginPercent) {
+            min = distanceFromOriginPercent;
+          }
+          if (max < distanceFromOriginPercent) {
+            max = distanceFromOriginPercent;
+          }
+          var color = d3.hsl(angleInDegrees, (distanceFromOrigin / radius), normalization(distanceFromOrigin)).rgb();
           setPixelColor(image, i, j, color, 200);
         }
       }
     }
-
+    console.log(min);
+    console.log(max);
     let colorwheelContainer = d3.select('#colorwheelCanvas').select(function () { return this.parentNode; });
     let offset = parseInt(d3.select('#colorwheelCanvas').style('margin-left')) + parseInt(d3.select('.trigger').style('width'));
     colorwheelContainer.append('svg')

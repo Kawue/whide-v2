@@ -123,6 +123,8 @@ def plt_cluster_img(h5data, labels, color):
 
 def unit_cicle_color_wheel(centers, name = 'colorwheel'):
 
+
+
     fig = plt.figure()
     #plt.axis((-1,1,-1,1))
     #display_axes = fig.add_axes([0.1,0.1,0.8,0.8], projection='polar')
@@ -132,7 +134,7 @@ def unit_cicle_color_wheel(centers, name = 'colorwheel'):
     # Plot the colorbar onto the polar axis
     # note - use orientation horizontal so that the gradient goes around
     # the wheel rather than center out
-    quant_steps = 12056
+    #quant_steps = 12056
     # cm = mpl.cm.ScalarMappable(norm=norm, cmap=mpl.cm.get_cmap('hsv',quant_steps))
 
     # cb = mpl.colorbar.ColorbarBase(display_axes, cmap=mpl.cm.get_cmap('hsv',quant_steps),
