@@ -21,7 +21,7 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0, ringInd
 
   const radius = Math.min(halfWidth, halfHeight);
   const radiusSquared = radius * radius;
-  let multiplierForPosPosition;
+  /* let multiplierForPosPosition;
 
   // for better postioning of the prototypes on the wheel we set a multiplier
   if (ringIndex === 0) {
@@ -31,6 +31,8 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0, ringInd
   } else if (ringIndex >= 2) {
     multiplierForPosPosition = 140;
   }
+
+   */
 
   renderColorWheel(bgImage);
 
@@ -55,7 +57,7 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0, ringInd
     }
     let newPrototypeString = 'prototyp' + newIdNumber;
     // calculate color for prototype
-    let posColor = renderColorMarker((Object.values(protoId[newPrototypeString])), id);
+    let posColor = renderColorMarker((Object.values(protoId[newPrototypeString])), id, canvas.width, canvas.height);
     posDict[id] = {
       color: posColor,
       position: Object.values(protoId[id])
@@ -67,19 +69,30 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0, ringInd
   store.commit('SET_COLORS_READY', true);
   return allPrototypeColors;
 
+  function scaleValue (value, from, to) {
+    var scale = (to[1] - to[0]) / (from[1] - from[0]);
+    var capped = Math.min(from[1], Math.max(from[0], value)) - from[0];
+    return ~~(capped * scale + to[0]);
+  }
   /*
   puts prototype to his position on colorwheel
   @params:
   postion: position from prototype
   id: id from prototype
    */
-  function renderColorMarker (position, id) {
+  function renderColorMarker (position, id, w, h) {
     const markerRadius = 6;
     const x = position[0][0];
     const y = position[0][1];
     // i and j are the new coordinates on colorwheel
-    const i = parseInt(x * multiplierForPosPosition + halfWidth);
-    const j = parseInt(y * multiplierForPosPosition + halfHeight);
+
+    const i = scaleValue(x, [-1, 1], [0, w]);
+    const j = scaleValue(y, [-1, 1], [0, h]);
+
+    // const i = parseInt(x * multiplierForPosPosition + halfWidth);
+
+    // const j = parseInt(y * multiplierForPosPosition + halfHeight);
+
     let canvas = document.getElementById('colorwheelCanvas');
     let ctx = canvas.getContext('2d');
     let ctxData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
@@ -112,10 +125,11 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0, ringInd
       });
     return colorOfPos;
   }
-
+  /*
   function normalization (x) {
-    return (0.7 - 0.4) * ((x - 0) / (radius - 0)) + 0.4;
+    return (0.7 - 0.5) * ((x - 0) / (radius - 0)) + 0.5;
   }
+  */
   /*
   creates the colorwheel
   @params:
@@ -175,13 +189,12 @@ var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0, ringInd
           if (max < distanceFromOriginPercent) {
             max = distanceFromOriginPercent;
           }
-          var color = d3.hsl(angleInDegrees, (distanceFromOrigin / radius), normalization(distanceFromOrigin)).rgb();
+          // var color = d3.hsl(angleInDegrees, (distanceFromOrigin / radius), normalization(distanceFromOrigin)).rgb();
+          var color = d3.hsl(angleInDegrees, (distanceFromOrigin / radius), 0.5).rgb();
           setPixelColor(image, i, j, color, 200);
         }
       }
     }
-    console.log(min);
-    console.log(max);
     let colorwheelContainer = d3.select('#colorwheelCanvas').select(function () { return this.parentNode; });
     let offset = parseInt(d3.select('#colorwheelCanvas').style('margin-left')) + parseInt(d3.select('.trigger').style('width'));
     colorwheelContainer.append('svg')

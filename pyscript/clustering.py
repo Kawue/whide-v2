@@ -166,14 +166,14 @@ def kmeans_clustering(embed, method):
         u = UMAP(n_components=2)
         proto = u.fit_transform(proto)
 
-    print(proto)
+    #print(proto)
     unit_cicle_color_wheel(proto, 'Normal')
     proto_centers, proto_diff, tranformedPixels =  applyTransformation(proto, embed, labels)
     if (args.all):
         proto_centers, diff = transform(embed)
         labels = np.arange(np.size(embed,0))
 
-    print(proto_centers)
+    #print(proto_centers)
     unit_cicle_color_wheel(proto_centers, 'Transformed')
 
 
@@ -245,6 +245,46 @@ def pltFigure(embed, labels, proto):
 def normalize(a,b,min,max, x):
     norm = (b-a)*((x-min)/(max-min))+a
     return norm
+
+def newTransformation(centers):
+    # calculate emean and max distance
+    dx = 0
+    dy = 0
+    for k in range(len(centers)):
+        dx += centers[k][0]
+        dy += centers[k][1]
+    mx = dx/len(centers)
+    my = dy/len(centers)
+
+
+    max_dist = float('-inf')
+    point = centers[0]
+    for k in range(len(centers)):
+        dx = centers[k][0]
+        dy = centers[k][1]
+
+        distance = np.sqrt(np.power(dx-mx,2) + np.power(dy-my,2))
+        if distance > max_dist:
+            max_dist = distance
+            point = centers[k]
+    print('The point with max distance is {} and the distance is {}'.format(point, max_dist))
+
+    transformed_centers = []
+    for i in range(len(centers)):
+        scalor = (1-0.1)/max_dist
+        x = scalor * (centers[i][0] - mx)
+        y = scalor * (centers[i][1] - my)
+        transformed_centers.append([x,y])
+
+
+    differenz = {}
+    for i in range(len(centers)):
+        diffTheta =  transformed_centers[i][0] - centers[i][0]
+        diffR =  transformed_centers[i][1] - centers[i][1]
+        differenz[i] = [diffTheta, diffR]
+    return np.array(transformed_centers), differenz
+
+
 
 def transform(centers):
     if(args.space == 'polar'):
@@ -323,7 +363,8 @@ def transform(centers):
     return transformed_centers, differenz
 
 def applyTransformation(centers, embedding, labels):
-    new_centers, new_centers_diff = transform(centers)
+    new_centers, new_centers_diff = newTransformation(centers)
+    #new_centers, new_centers_diff = transform(centers)
     maxValue = float('-inf')
     minValue = float('inf')
     for i in range(len(embedding)):
@@ -447,8 +488,7 @@ def createJson(h5data, prototyps, labels, embedding):
 
         prototyp_dict["prototyp"+str(k)] = {}
 		# set the items of the Prototype
-        polarX, polarY = polar2cart(posX[k], posY[k])
-        prototyp_dict["prototyp"+str(k)]["pos"] = [polarX, polarY]
+        prototyp_dict["prototyp"+str(k)]["pos"] = [posX[k], posY[k]]
         prototyp_dict["prototyp"+str(k)]["pixel"] = pixelsPerPrototype[prototyp_idx]
         prototyp_dict["prototyp"+str(k)]["coefficients"] = []
         prototyp_idx += 1
@@ -501,4 +541,5 @@ else:
     print('Clustering method: Agglomerative Clustering')
     proto, labels = agglomerative_clustering(computed_embedding, dimReduction)
 
+print(proto)
 createJson(h5data, proto, labels, computed_embedding)
