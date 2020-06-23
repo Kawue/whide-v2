@@ -167,14 +167,14 @@ def kmeans_clustering(embed, method):
         proto = u.fit_transform(proto)
 
     #print(proto)
-    unit_cicle_color_wheel(proto, 'Normal')
+    #unit_cicle_color_wheel(proto, 'Normal')
     proto_centers, proto_diff, tranformedPixels =  applyTransformation(proto, embed, labels)
     if (args.all):
         proto_centers, diff = transform(embed)
         labels = np.arange(np.size(embed,0))
 
     #print(proto_centers)
-    unit_cicle_color_wheel(proto_centers, 'Transformed')
+    #unit_cicle_color_wheel(proto_centers, 'Transformed')
 
 
 
@@ -267,7 +267,7 @@ def newTransformation(centers):
         if distance > max_dist:
             max_dist = distance
             point = centers[k]
-    print('The point with max distance is {} and the distance is {}'.format(point, max_dist))
+    #print('The point with max distance is {} and the distance is {}'.format(point, max_dist))
 
     transformed_centers = []
     for i in range(len(centers)):
@@ -541,5 +541,5 @@ else:
     print('Clustering method: Agglomerative Clustering')
     proto, labels = agglomerative_clustering(computed_embedding, dimReduction)
 
-print(proto)
+
 createJson(h5data, proto, labels, computed_embedding)

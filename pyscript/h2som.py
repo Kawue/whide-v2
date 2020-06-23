@@ -18,7 +18,6 @@ from pycluster.algorithms import H2SOM
 import pycluster.core as core
 ############################################
 
-path_to_backend = 'backend/'
 path_to_dataset = 'datasets/'
 path_to_json = 'json/'
 path_to_h2som_data = 'h2som/'
@@ -256,31 +255,27 @@ parser.add_argument('-f', '--filename', dest='file', help='The Filename of the h
 parser.add_argument('-o', '--outputfile', dest='out', help='The path where you want to store the computed data', nargs='?')
 parser.add_argument('-e', '--epsilon', dest='eps', help='Epsilon parameter for the h2SOM.', nargs=2, default=['1.0', '0.01'])
 parser.add_argument('-s', '--sigma', dest='sig', nargs=2, default=['13', '0.24'], help='Sigma parameter for the h2SOM.')
-parser.add_argument('-t', '--test', dest='test', action='store_true')
+parser.add_argument('-t', '--test', dest='test', action='store_true', help='Set the flag while you develope bro')
 args = parser.parse_args()
 if (args.test):
     path_to_backend = '../backend/'
+else:
+    path_to_backend = 'backend/'
+
 outpath = args.out
 
 path = ''
 filename = ''
 if ('.h5' in args.file):
-    # line for Docker
     path = path_to_backend + path_to_dataset + args.file
-    # Line for testing
-    #path = path_to_backend_dataset + args.file
     filename = args.file.split('.')[0]
 else:
-    # line for Docker
     path = path_to_backend + path_to_dataset + args.file + h5
-    # line for testing
-    #path = path_to_backend_dataset + args.file + h5
     filename = args.file
-# line for Docker
-#path = path_to_dataset + args.file
-#Line for testing
+
 
 dframe, data = read_data(path)
+data = data.copy(order='C')
 ### For spatial workflow add:
 #data = data.T.copy(order="C")
 h2som = calc_h2som(data, args.eps, args.sig)
