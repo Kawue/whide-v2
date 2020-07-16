@@ -2,15 +2,15 @@ import numpy as np
 from umap import UMAP
 import pandas as pd
 import argparse
+from os.path import join
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from matplotlib import colors as mplcolors
-from sklearn.cluster import KMeans
-from sklearn.decomposition import PCA
-from sklearn.cluster import AgglomerativeClustering
-from sklearn.cluster import AffinityPropagation
+from sklearn.cluster import KMeans, AgglomerativeClustering, AffinityPropagation, DBSCAN
 import json
 import pickle
+from msi_dimension_reducer import PCA, UMAP
+
 
 path_to_backend = 'backend/'
 path_to_dataset = 'datasets/'
@@ -34,6 +34,7 @@ def polar2cart(theta, r):
 parser = argparse.ArgumentParser(description='Arguments for clustering')
 parser.add_argument('-f', '--filename', dest='file', help='The Filename of the h5 data.', required=True)
 parser.add_argument('-o', '--outputfile', dest='out', help='The path where you want to store the computed data', nargs='?')
+parser.add_argument('-k', '--nrclusters', dest='nr', help='The number of clusters', default=8)
 parser.add_argument('-e', '--embedding', dest='embedding', help='Embedding from before to this dataset', default=False)
 parser.add_argument('-s', '--space', dest='space', help='Choose between clusting in polar space or cartesien space', default='cartesien', choices=['polar', 'cartesien'])
 parser.add_argument('-a', '--all_prototyps', dest='all', help='Cluster data but every pixel is a prototyp', action='store_true')
@@ -43,6 +44,7 @@ parser.add_argument('-c', '--no_dimension_reduction', dest='clustering', help='I
 parser.add_argument('-t', '--test', dest='test', action='store_true')
 args = parser.parse_args()
 outpath = args.out
+nr_clusters = args.nr
 
 path = ''
 filename = ''
@@ -65,384 +67,211 @@ data = h5data.values
 
 # Dimension reduction
 ############################################
-dimReduction = ''
-computed_embedding = ''
+dimReductionDict = {
+    "pca": PCA,
+    "umap": UMAP
+}
+
 if (args.embedding == False):
     if (args.clustering):
-        computed_embedding = data
+        embedding = data
     else:
-        if (args.dim == 'umap'):
-            print('Dimensions reduction: UMAP')
-            dimReduction = 'UMAP'
-            u = UMAP(n_components=2)
-            computed_embedding = u.fit_transform(data)
-            if args.space == 'polar':
-                print('Space: Polarspace')
-                computed_embedding = np.array(cart2polar(computed_embedding[:,0], computed_embedding[:,1])).T
-            else:
-                print('Space: Cartesienspace')
-            np.save('embedding', computed_embedding)
-            print('Dim Reduction is ready')
+        embedding = dimReductionDict[args.dim](data, 2).perform()
+        if args.space == 'polar':
+            print('Space: Polar space')
+            embedding = np.array(cart2polar(embedding[:,0], embedding[:,1])).T
         else:
-            print('Dimensions reduction: PCA')
-            dimReduction = 'PCA'
-            pca = PCA(n_components=2)
-            computed_embedding = pca.fit_transform(data)
-            if args.space == 'polar':
-                print('Space: Polarspace')
-                computed_embedding = np.array(cart2polar(computed_embedding[:,0], computed_embedding[:,1])).T
-            else:
-                print('Space: Cartesienspace')
-            np.save('embedding', computed_embedding)
-            print('Dim Reduction is ready')
+            print('Space: Cartesien space')
+        np.save(join(outpath, filename + "_" + args.dim + '_embedding.npy'), embedding)
 else:
-    computed_embedding = np.load(args.embedding)
+    embedding = np.load(args.embedding)
     if args.space == 'polar':
-        print('Space: Polarspace')
-        computed_embedding = np.array(cart2polar(computed_embedding[:,0], computed_embedding[:,1])).T
+        print('Space: Polar space')
+        embedding = np.array(cart2polar(embedding[:,0], embedding[:,1])).T
     else:
-        print('Space: Cartesienspace')
+        print('Space: Cartesien space')
 
 ###########################################
-
-def plt_cluster_img(h5data, labels, color):
-    gx = h5data.index.get_level_values("grid_x")
-    gy = h5data.index.get_level_values("grid_y")
-    img = np.full((gy.max()+1, gx.max()+1,4), -1)
-    for i, l in enumerate(labels):
-
-        if (isinstance(l, np.ndarray)):
-            k = i
-        else:
-            k = l
-        img[(gy[i], gx[i])] = list((color[k] * 255).astype(int))
-    fig = plt.figure()
-    plt.imshow(img.astype('uint8'), interpolation='nearest')
-    plt.savefig('Segmentation_' + cartOrPolar + '_' + cluster + '_'   + method + '.png')
-    plt.close(fig)
-
-def unit_cicle_color_wheel(centers, name = 'colorwheel'):
-
-
-
-    fig = plt.figure()
-    #plt.axis((-1,1,-1,1))
-    #display_axes = fig.add_axes([0.1,0.1,0.8,0.8], projection='polar')
-    #display_axes._direction = 2*np.pi
-    #norm = mpl.colors.Normalize(0.0, 2*np.pi)
-
-    # Plot the colorbar onto the polar axis
-    # note - use orientation horizontal so that the gradient goes around
-    # the wheel rather than center out
-    #quant_steps = 12056
-    # cm = mpl.cm.ScalarMappable(norm=norm, cmap=mpl.cm.get_cmap('hsv',quant_steps))
-
-    # cb = mpl.colorbar.ColorbarBase(display_axes, cmap=mpl.cm.get_cmap('hsv',quant_steps),
-    #                                norm=norm,
-    #                                orientation='horizontal')
-
-
-    #for x in np.arctan2(embedding[:,0],embedding[:,1]):
-    #    print(display_axes.format_coord(x,0.8))
-
-    #cb.outline.set_visible(False)
-    #plt.set_axis_off()
-    plt.plot(centers[:,0], centers[:,1], 'ko')
-
-    #d = centers[:,0]
-    #colors = cm.to_rgba(d)
-
-    plt.savefig(name + '.png')
-    plt.close(fig)
-
-    return colors
-
-
-def kmeans_clustering(embed, method):
-    e_kmeans = KMeans(n_clusters=8, random_state=42, n_jobs=-2).fit(embed)
+def kmeans_clustering(embedding, nr_clusters):
+    e_kmeans = KMeans(n_clusters=nr_clusters, random_state=42, n_jobs=-1).fit(embedding)
     labels = e_kmeans.labels_
     proto = e_kmeans.cluster_centers_
     if (args.clustering):
-        u = UMAP(n_components=2)
-        proto = u.fit_transform(proto)
-
-    #print(proto)
-    #unit_cicle_color_wheel(proto, 'Normal')
-    proto_centers, proto_diff, tranformedPixels =  applyTransformation(proto, embed, labels)
+        proto = dimReductionDict[args.dim](proto, 2).perform()
+    proto_centers, proto_diff, tranformedPixels =  applyTransformation(proto, embedding, labels)
     if (args.all):
-        proto_centers, diff = transform(embed)
-        labels = np.arange(np.size(embed,0))
-
-    #print(proto_centers)
-    #unit_cicle_color_wheel(proto_centers, 'Transformed')
-
-
-
-    #pltFigure(embed, labels, proto)
-
-    #color = unit_cicle_color_wheel(proto_centers)
-    #plt_cluster_img(h5data, pe_labels,  color)
-
-    #all_polar_color = unit_cicle_color_wheel(tranformedPolPixels)
-    #plt_cluster_img(h5data, tranformedPolPixels, all_polar_color)
-
-
-    #all_color = unit_cicle_color_wheel(transformedPixels)
-    #plt_cluster_img(h5data, transformedPixels,  all_color)
-
+        proto_centers, diff = transform(embedding)
+        labels = np.arange(np.size(embedding,0))
     return proto_centers, labels
 
-
-
-def agglomerative_clustering(embed, method):
-    num_obj = 8
-
-    e_agglomerative = AgglomerativeClustering(n_clusters=num_obj, affinity='euclidean', linkage='ward').fit(embed)
+def agglomerative_clustering(embedding, nr_clusters):
+    e_agglomerative = AgglomerativeClustering(n_clusters=nr_clusters, affinity='euclidean', linkage='ward').fit(embedding)
     labels = e_agglomerative.labels_
     proto = []
     for l in set(labels):
-        ind = []
-        for i in range(len(embed)):
-            if labels[i] == l:
-                ind.append(embed[i])
-        pro = np.mean(ind, axis=0)
-        proto.append(np.array(pro))
+        idx = np.where(labels == l)
+        proto.append(np.mean(embedding[idx], axis=0))
     proto = np.array(proto)
-    proto_centers, proto_diff, tranformedPixels =  applyTransformation(proto, embed, labels)
+    proto_centers, proto_diff, tranformedPixels =  applyTransformation(proto, embedding, labels)
     if (args.all):
-        proto_centers, diff = transform(embed)
-        labels = np.arange(np.size(embed,0))
-
-
-
-    #pltFigure(embed, labels, proto)
-
-    #color = unit_cicle_color_wheel(proto_centers)
-    #plt_cluster_img(h5data, labels,  color)
-
-    #all_polar_color = unit_cicle_color_wheel(tranformedPolPixels)
-    #plt_cluster_img(h5data, tranformedPolPixels,  all_polar_color)
-
-    #all_color = unit_cicle_color_wheel(transformedPixels)
-    #plt_cluster_img(h5data, transformedPixels,  all_color)
-
+        proto_centers, diff = transform(embedding)
+        labels = np.arange(np.size(embedding,0))
     return proto_centers, labels
 
+def affinity_propagation_clustering(embedding, nr_clusters):
+    e_affinity = AffinityPropagation(random_state=42).fit(embedding)
+    labels = e_affinity.labels_
+    proto = e_affinity.cluster_centers_
+    if (args.clustering):
+        proto = dimReductionDict[args.dim](proto, 2).perform()
+    proto_centers, proto_diff, tranformedPixels =  applyTransformation(proto, embedding, labels)
+    if (args.all):
+        proto_centers, diff = transform(embedding)
+        labels = np.arange(np.size(embedding,0))
+    return proto_centers, labels
 
-def pltFigure(embed, labels, proto):
-    fig = plt.figure()
-    for i, l in enumerate(labels):
-        plt.plot(embed[i,0], embed[i,1], color=colors[l], marker="x")
+def dbscan_clustering(embedding, nr_clusters):
+    e_dbscan = DBSCAN(eps=0.3).fit(embedding)
+    labels = e_dbscan.labels_
+    if -1 in labels:
+        labels += 1
+    #proto = embedding[core_sample_indices_]
+    proto = []
+    for l in set(labels):
+        idx = np.where(labels == l)
+        proto.append(np.mean(embedding[idx], axis=0))
+    proto = np.array(proto)
+    proto_centers, proto_diff, tranformedPixels = applyTransformation(proto, embedding, labels)
+    if (args.all):
+        proto_centers, diff = transform(embedding)
+        labels = np.arange(np.size(embedding,0))
+    return proto_centers, labels
 
-    for i, tup in enumerate(proto):
-        plt.plot(tup[0], tup[1], color='black', marker="s")
-
-    plt.savefig('cluster.png')
-    plt.close(fig)
-
-
-
-def normalize(a,b,min,max, x):
-    norm = (b-a)*((x-min)/(max-min))+a
+def normalize(newmin, newmax, minval, maxval, x):
+    norm = (newmax-newmin)*((x-minval)/(maxval-minval))+newmin
     return norm
 
 def newTransformation(centers):
-    # calculate emean and max distance
-    dx = 0
-    dy = 0
-    for k in range(len(centers)):
-        dx += centers[k][0]
-        dy += centers[k][1]
-    mx = dx/len(centers)
-    my = dy/len(centers)
-
-
-    max_dist = float('-inf')
-    point = centers[0]
-    for k in range(len(centers)):
-        dx = centers[k][0]
-        dy = centers[k][1]
-
-        distance = np.sqrt(np.power(dx-mx,2) + np.power(dy-my,2))
-        if distance > max_dist:
-            max_dist = distance
-            point = centers[k]
-    #print('The point with max distance is {} and the distance is {}'.format(point, max_dist))
-
-    transformed_centers = []
-    for i in range(len(centers)):
-        scalor = (1-0.1)/max_dist
-        x = scalor * (centers[i][0] - mx)
-        y = scalor * (centers[i][1] - my)
-        transformed_centers.append([x,y])
-
-
-    differenz = {}
-    for i in range(len(centers)):
-        diffTheta =  transformed_centers[i][0] - centers[i][0]
-        diffR =  transformed_centers[i][1] - centers[i][1]
-        differenz[i] = [diffTheta, diffR]
-    return np.array(transformed_centers), differenz
-
-
+    # calculate mean and max distance
+    mx,my = np.mean(centers, axis=0)
+    distances = np.array([np.sqrt((dx-mx)**2 + (dy-my)**2) for (dx,dy) in centers])
+    max_dist = np.amax(distances)
+    point = centers[np.argmax(distances)]
+    print('The point with max distance is {} and the distance is {}'.format(point, max_dist))
+    scale = (1-0.1)/max_dist
+    transformed_centers = np.array([[scale*(dx-mx), scale*(dy-my)] for (dx,dy) in centers])
+    # diffTheta: tcenter[0] - centers[i][0]; diffR: tcenter[1] - centers[i][1]]
+    difference = {idx:[tcenter[0] - centers[idx][0], tcenter[1] - centers[idx][1]] for idx, tcenter in enumerate(transformed_centers)}
+    return transformed_centers, difference
 
 def transform(centers):
     if(args.space == 'polar'):
-        for i in range(len(centers)):
-            centers[i] = np.array(polar2cart(centers[i][0], centers[i][1]))
-    yMeanCenters = []
-    for i in range(len(centers)):
-        yMeanCenters.append(centers[i][1])
-    midY = np.mean(np.array(yMeanCenters))
+        centers = np.array([polar2cart(center[0], center[1]) for center in centers])
 
+    midX, midY = np.mean(centers, axis=0)
+    upperX = centers[np.where(centers[:,0] >= midX)][:,0]
+    lowerX = centers[np.where(centers[:,0] < midX)][:,0]
+    upperY = centers[np.where(centers[:,1] >= midY)][:,1]
+    lowerY = centers[np.where(centers[:,1] < midY)][:,1]
+    
+    xHighMaxValue = np.amax(upperX)
+    xHighMinValue = np.amin(upperX)
+    xLowMaxValue = np.amax(lowerX)
+    xLowMinValue = np.amin(lowerX)
+    yHighMaxValue = np.amax(upperY)
+    yHighMinValue = np.amin(upperY)
+    yLowMaxValue = np.amax(lowerY)
+    yLowMinValue = np.amin(lowerY)
 
-    xMeanCenters = []
-    for i in range(len(centers)):
-        xMeanCenters.append(centers[i][0])
-    midX = np.mean(np.array(xMeanCenters))
+    transformed_centersX = [
+        normalize(-0.9, -0.5, xLowMinValue, xLowMaxValue, center[0]) 
+        if center[0] < midX else 
+        normalize(0.5, 0.9, xHighMinValue, xHighMaxValue, center[0]) 
+        for center in centers
+        ]
 
+    transformed_centersY = [
+        normalize(-0.9, -0.5, yLowMinValue, yLowMaxValue, center[1]) 
+        if center[0] < midX else 
+        normalize(0.5, 0.9, yHighMinValue, yHighMaxValue, center[1]) 
+        for center in centers
+        ]
+    
+    transformed_centers = np.array(list(zip(transformed_centersX, transformed_centersY)))
 
-    yHighMaxValue = float('-inf')
-    yHighMinValue = float('inf')
-    yLowMaxValue = float('-inf')
-    yLowMinValue = float('inf')
+    # diffTheta: tcenter[0] - centers[i][0]; diffR: tcenter[1] - centers[i][1]]
+    difference = {idx:[tcenter[0] - centers[idx][0], tcenter[1] - centers[idx][1]] for idx, tcenter in enumerate(transformed_centers)}
 
-    for i in range(len(centers)):
-        if centers[i][1] >= midY:
-            if yHighMaxValue <= centers[i][1]:
-                yHighMaxValue = centers[i][1]
-            if yHighMinValue >= centers[i][1]:
-                yHighMinValue = centers[i][1]
-        else:
-            if yLowMaxValue <= centers[i][1]:
-                yLowMaxValue = centers[i][1]
-            if yLowMinValue >= centers[i][1]:
-                yLowMinValue = centers[i][1]
-    xHighMaxValue = float('-inf')
-    xHighMinValue = float('inf')
-    xLowMaxValue = float('-inf')
-    xLowMinValue = float('inf')
-
-    for i in range(len(centers)):
-        if centers[i][0] >= midX:
-            if xHighMaxValue <= centers[i][0]:
-                xHighMaxValue = centers[i][0]
-            if xHighMinValue >= centers[i][0]:
-                xHighMinValue = centers[i][0]
-        else:
-            if xLowMaxValue <= centers[i][0]:
-                xLowMaxValue = centers[i][0]
-            if xLowMinValue >= centers[i][0]:
-                xLowMinValue = centers[i][0]
-
-
-
-    transformed_centers = []
-
-    for pos in centers:
-        new_pos = [0,0]
-        if pos[1] < midY:
-            new_pos[1] = normalize(-0.9, -0.5, yLowMinValue, yLowMaxValue, pos[1])
-        else:
-            new_pos[1] = normalize(0.5, 0.9, yHighMinValue, yHighMaxValue, pos[1])
-
-        if pos[0] < midX:
-            new_pos[0] = normalize(-0.9, -0.5, xLowMinValue, xLowMaxValue, pos[0])
-        else:
-            new_pos[0] = normalize(0.5, 0.9, xHighMinValue, xHighMaxValue, pos[0])
-
-        transformed_centers.append(new_pos)
-
-    transformed_centers = np.array(transformed_centers)
-
-    differenz = {}
-    for i in range(len(centers)):
-        diffTheta =  transformed_centers[i][0] - centers[i][0]
-        diffR =  transformed_centers[i][1] - centers[i][1]
-        differenz[i] = [diffTheta, diffR]
-    return transformed_centers, differenz
+    return transformed_centers, difference
 
 def applyTransformation(centers, embedding, labels):
     new_centers, new_centers_diff = newTransformation(centers)
     #new_centers, new_centers_diff = transform(centers)
-    maxValue = float('-inf')
-    minValue = float('inf')
-    for i in range(len(embedding)):
-        if maxValue <= abs(embedding[i][1]):
-            maxValue = abs(embedding[i][1])
-        if minValue >= abs(embedding[i][1]):
-            minValue = abs(embedding[i][1])
+
+    maxValue = np.amax(abs(embedding))
+    minValue = np.amin(abs(embedding))
 
     allPixels = []
     for l in set(labels):
-        for i in range(len(embedding)):
-            if(labels[i] == l):
-                diff = new_centers_diff[l]
-                current = embedding[i]
-                t = current[0] + diff[0]
-                #r = current[1] + diff[1]
-                r =  normalize(0.5, 6, minValue, maxValue, abs(embedding[i][1]))
-                allPixels.append([t,r])
-    allPixels = np.array(allPixels)
+        idx = np.where(labels == l)
+        # t=embedding[i][0] + new_centers_diff[l][0] >> angle
+        # r=normalize(0.5, 6, minValue, maxValue, abs(embedding[i][1])); alternative t=embedding[i][1] + new_centers_diff[l][1] >> radius
+        allPixels.append([[embedding[i][0] + new_centers_diff[l][0], normalize(0.5, 6, minValue, maxValue, abs(embedding[i][1]))] for i,_ in enumerate(embedding[idx])])
+    allPixels = np.concatenate(allPixels)
     return new_centers, new_centers_diff, allPixels
 
+
 def getPixels(grid_x, grid_y, proto_idx, labels):
-    pixels = []
+    pixels = {}
     pixels_dict = {}
-    id = 0
     for i in range(len(proto_idx)):
-        idx = np.argwhere(labels == i).flatten()
+        idx = np.where(labels == i)[0]
         # Get x and y coordinates of the matching pixels
         seg_x = grid_x[idx]
         seg_y = grid_y[idx]
         #Zip X-Values and Y-Values to one List [(x1,y1),(x2,y2),...]
         result = list(zip(seg_x, seg_y))
         pixelIDs = []
-        for k in range(0,len(result)):
-	    #creat all pixel Ids
-            pixelIDs.append("px"+str(id)+"ID")
-	    #creat all x and y coordinate for each pixel Id
-            pixels_dict["px"+str(id)+"ID"] = {}
-            pixels_dict["px"+str(id)+"ID"]["pos"] = (int(result[k][0]),int(result[k][1]))
-            id += 1
-
-        pixels.append(pixelIDs)
+        for px,py in result:
+            pxID = f"px{px}.{py}ID"
+	        #creat all pixel Ids
+            pixelIDs.append(pxID)
+	        #creat all x and y coordinate for each pixel Id
+            pixels_dict[pxID] = {}
+            pixels_dict[pxID]["pos"] = (int(px),int(py))
+        pixels[f"prototyp{i}"] = pixelIDs
     return pixels, pixels_dict
 
-def calculateCoefficients( data, prototyps, labels, embedding):
+
+def calculateCoefficients(data, prototyps, labels, embedding):
     bookmark_ring = []
     if(args.clustering):
-        u = UMAP(n_components=2)
-        pixel_embed = u.fit_transform(embedding)
+        pixel_embedding = dimReductionDict[args.dim](embedding, 2).perform()
     else:
-        pixel_embed = embedding
-    #forEach prototype
-    for i in range(len(prototyps)):
+        pixel_embedding = embedding
+    # center_point: x, y of prototyp
+    for idx, center_point in enumerate(prototyps):
         #get indizes from pixel in prototyp
-        indizes = np.argwhere(labels == i).flatten()
-        #  x and y of prototyp
-        center_point = prototyps[i]
+        indices = np.where(labels == idx)
         # get an array with all the mz values of each pixel
-        pixelIntensities = data[indizes]
+        pixelIntensities = data[indices]
         # get the x and y of each pixel
-        pixelPoints = pixel_embed[indizes]
+        pixelPoints = pixel_embedding[indices]
 
         weightedIntensities = []
         weights = []
-        # foreach pixel calculate distance and multiply with mz vector
-        for j in range(len(pixelIntensities)):
-            # mzValues of Pixel j
-            intensities_pixel = pixelIntensities[j]
-            #point x and y of pixel j
-            point_pixel = pixelPoints[j]
+        # calculate distance and multiply with mz vector
+        for idx2, px_intensity in enumerate(pixelIntensities):
+            # x,y of pixel idx2
+            point_pixel = pixelPoints[idx2]
+            # distance between prototyp point and pixel point
             if (args.all):
                 d_p_c = 1
             else:
-                #distance between prototyp point and pixel point and save distance
                 d_p_c = np.linalg.norm(point_pixel-center_point)
             weights.append(d_p_c)
-            # weight the mz vector with distance and save it
-            weigIntens = np.multiply(d_p_c, intensities_pixel)
+            # weight the mz vector with distance
+            weigIntens = np.multiply(d_p_c, px_intensity)
             weightedIntensities.append(weigIntens)
         # calculate sum of weighted mzValues
         sumOfIntensities = np.sum(np.array(weightedIntensities), axis=0)
@@ -452,48 +281,35 @@ def calculateCoefficients( data, prototyps, labels, embedding):
         else:
             computed_intensitie = np.multiply((1 / np.sum(weights)) , sumOfIntensities)
         bookmark_ring.append(computed_intensitie)
-
-    bookmark_ring = np.array(bookmark_ring)
-    return bookmark_ring
+    return np.array(bookmark_ring)
 
 def createJson(h5data, prototyps, labels, embedding):
-    gx = np.array(h5data.index.get_level_values("grid_x"))
-    gy = np.array(h5data.index.get_level_values("grid_y"))
+    gx = np.array(h5data.index.get_level_values("grid_x")).astype(int)
+    gy = np.array(h5data.index.get_level_values("grid_y")).astype(int)
     gridX_max = np.amax(gx)
     gridY_max = np.amax(gy)
     canvas = {'x': gridX_max, 'y': gridY_max}
-
-    posX = prototyps[:,0]
-    posY = prototyps[:,1]
-
-
     json_dict = {}
-
     ring_idx = 1
     prototyp_dict ={}
     ring_dict = {}
-    pixels_dict = None
-
-	# Get each Ring
-    pixels_dict = None
     ring_json_list = []
     prototypCoeff = calculateCoefficients(data, prototyps, labels, embedding)
     ring_json_list.append((prototypCoeff, ring_idx))
-
+    posX = prototyps[:,0]
+    posY = prototyps[:,1]
     pixelsPerPrototype, pixels_dict = getPixels(gx, gy, prototyps, labels)
 
 	# get the Prototypes of the ring
-    prototyp_idx = 0
-    for k in range(len(prototyps)):
-
-        prototyp_dict["prototyp"+str(k)] = {}
+    for k, _ in enumerate(prototyps):
+        protokey = "prototyp"+str(k)
+        prototyp_dict[protokey] = {}
 		# set the items of the Prototype
-        prototyp_dict["prototyp"+str(k)]["pos"] = [posX[k], posY[k]]
-        prototyp_dict["prototyp"+str(k)]["pixel"] = pixelsPerPrototype[prototyp_idx]
-        prototyp_dict["prototyp"+str(k)]["coefficients"] = []
-        prototyp_idx += 1
-
-		# add prtotype to the ring
+        prototyp_dict[protokey]["pos"] = [posX[k], posY[k]]
+        prototyp_dict[protokey]["pixel"] = pixelsPerPrototype[protokey]
+        #prototyp_dict["prototyp"+str(k)]["coefficients"] = []
+    
+	# add prtotype to the ring
     ring_dict["ring0"] = prototyp_dict
 
 	#add Ring, Pixels and Mzs to the Json
@@ -501,15 +317,14 @@ def createJson(h5data, prototyps, labels, embedding):
     json_dict["pixels"] = pixels_dict
     json_dict["mzs"] = [x for x in h5data.columns]
 
-    for key_px, val_px in json_dict["pixels"].items():
-        json_dict["pixels"][key_px]["membership"] = {}
-        for key_ring, val_ring in json_dict["rings"].items():
-            for prot, val_prot in val_ring.items():
-                if key_px in val_prot["pixel"]:
-                    json_dict["pixels"][key_px]["membership"][key_ring] = prot
+    for pxid, _ in json_dict["pixels"].items():
+        json_dict["pixels"][pxid]["membership"] = {}
+        for ring_key, protodict in json_dict["rings"].items():
+            for protokey, _ in protodict.items():
+                if pxid in protodict[protokey]["pixel"]:
+                    json_dict["pixels"][pxid]["membership"][ring_key] = protokey
 
-
-    jsonData= json.dumps(json_dict)
+    jsonData = json.dumps(json_dict)
 
     if(outpath != None):
         pickle.dump(jsonData, open(outpath + filename + '.json', 'wb'))
@@ -534,12 +349,21 @@ def createJson(h5data, prototyps, labels, embedding):
 
 # clustering in polar coordinates or in cartesien
 
+# clustering in polar coordinates or in cartesien
 if args.method == 'kmeans':
-    print('Clustering method: KMEANS')
-    proto, labels = kmeans_clustering(computed_embedding, dimReduction)
-else:
+    print('Clustering method: k-Means')
+    proto, labels = kmeans_clustering(embedding, nr_clusters)
+elif args.method == 'agglomerative':
     print('Clustering method: Agglomerative Clustering')
-    proto, labels = agglomerative_clustering(computed_embedding, dimReduction)
+    proto, labels = agglomerative_clustering(embedding, nr_clusters)
+elif args.method == 'affinity':
+    print('Clustering method: Affinity Propagation')
+    proto, labels = affinity_propagation_clustering(embedding, nr_clusters)
+elif args.method == 'dbscan':
+    print('Clustering method: DBSCAN')
+    proto, labels = dbscan_clustering(embedding, nr_clusters)
+else:
+    raise ValueError("Something went wrong with the selection of a clustering method.")
 
 
-createJson(h5data, proto, labels, computed_embedding)
+createJson(h5data, proto, labels, embedding)
