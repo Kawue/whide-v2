@@ -16,8 +16,10 @@ from scipy.spatial.distance import pdist, squareform
 #import pyclusterbdm.core as core
 ###########################################
 # For testing
-from pycluster.algorithms import H2SOM
-import pycluster.core as core
+#from pycluster.algorithms import H2SOM
+#import pycluster.core as core
+from pyclusterbdmseed.algorithms import H2SOM
+import pyclusterbdmseed.core as core
 ############################################
 
 path_to_dataset = 'datasets/'
@@ -54,7 +56,7 @@ def read_data(path):
 def calc_h2som(data, eps, sig, niter):
     ### Important H2SOM Properties
     ## hierachical ring index intervals
-    # print(h2som._rings) 
+    # print(h2som._rings)
     # Child node indices of each node as dict. Key = node, value = list of child indices.
     # Indices which are not included: parent index, index of both same level hierarchy neighbors
     ## 2D positions in on poincare disc
@@ -122,7 +124,7 @@ def position_optimization(h2som, prototypes, variant, ring):
                     dullfactor = posdist_adjust(pos_dist)
                 else:
                     dullfactor = 1
-                
+
                 if d_prev < posdist_adjust(pos_dist):
                     change = np.array([0,0])
                 else:
@@ -158,9 +160,9 @@ def position_optimization(h2som, prototypes, variant, ring):
                 change_prev = np.array([0,0])
             else:
                 change_prev = (pos_in_ring[k] - pos_in_ring[i]) * d_prev * dullfactor_ik
-                
+
             change = [change_next, change_prev]
-            
+
         else:
             raise ValueError("Wrong variant!")
 
@@ -210,7 +212,7 @@ def getPixelsForRing(data, bmu_matches, dframe):
             pixels_dict[pxID] = {}
             pixels_dict[pxID]["pos"] = (int(px),int(py))
         pixels[f"prototyp{i}"] = pixelIDs
-   
+
     return pixels, pixels_dict
 
 def createJson(h2som, data, dframe):
@@ -238,7 +240,7 @@ def createJson(h2som, data, dframe):
             proto_idx += 1
 		# add prtotype to the ring
         ring_dict["ring"+str(ring_idx-1)] = prototyp_dict
-        
+
 	#add Ring, Pixels and Mzs to the Json
     json_dict["rings"] = ring_dict
     json_dict["pixels"] = pixels_dict
@@ -267,7 +269,7 @@ parser.add_argument('-i', '--niter', dest='niter', default=10, help='iteration p
 parser.add_argument('-p', '--posopt', dest='posopt', help='Apply position optimization for H2SOM.', action='store_true')
 parser.add_argument('-v', '--posoptalg', dest='posoptalg', help='Position optimization algorithm.', required=False, default="winnertakealldulled", choices=["winnertakeall", "winnertakealldulled", "tugofwar", "tugofwardulled"])
 parser.add_argument('-m', '--maxiter', dest='maxiter', default=np.inf, help='Hardcap maximum iterations for position optimization.', required=False)
-parser.add_argument('-t', '--test', dest='test', action='store_true')
+#parser.add_argument('-t', '--test', dest='test', action='store_true')
 args = parser.parse_args()
 if (args.test):
     path_to_backend = '../backend/'
