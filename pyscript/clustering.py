@@ -82,7 +82,8 @@ if (args.embedding == False):
             embedding = np.array(cart2polar(embedding[:,0], embedding[:,1])).T
         else:
             print('Space: Cartesien space')
-        np.save(join(outpath, filename + "_" + args.dim + '_embedding.npy'), embedding)
+        #np.save(join(outpath, filename + "_" + args.dim + '_embedding.npy'), embedding)
+        np.save(join(filename + "_" + args.dim + '_embedding.npy'), embedding)
 else:
     embedding = np.load(args.embedding)
     if args.space == 'polar':
@@ -173,7 +174,7 @@ def transform(centers):
     lowerX = centers[np.where(centers[:,0] < midX)][:,0]
     upperY = centers[np.where(centers[:,1] >= midY)][:,1]
     lowerY = centers[np.where(centers[:,1] < midY)][:,1]
-    
+
     xHighMaxValue = np.amax(upperX)
     xHighMinValue = np.amin(upperX)
     xLowMaxValue = np.amax(lowerX)
@@ -184,19 +185,19 @@ def transform(centers):
     yLowMinValue = np.amin(lowerY)
 
     transformed_centersX = [
-        normalize(-0.9, -0.5, xLowMinValue, xLowMaxValue, center[0]) 
-        if center[0] < midX else 
-        normalize(0.5, 0.9, xHighMinValue, xHighMaxValue, center[0]) 
+        normalize(-0.9, -0.5, xLowMinValue, xLowMaxValue, center[0])
+        if center[0] < midX else
+        normalize(0.5, 0.9, xHighMinValue, xHighMaxValue, center[0])
         for center in centers
         ]
 
     transformed_centersY = [
-        normalize(-0.9, -0.5, yLowMinValue, yLowMaxValue, center[1]) 
-        if center[0] < midX else 
-        normalize(0.5, 0.9, yHighMinValue, yHighMaxValue, center[1]) 
+        normalize(-0.9, -0.5, yLowMinValue, yLowMaxValue, center[1])
+        if center[0] < midX else
+        normalize(0.5, 0.9, yHighMinValue, yHighMaxValue, center[1])
         for center in centers
         ]
-    
+
     transformed_centers = np.array(list(zip(transformed_centersX, transformed_centersY)))
 
     # diffTheta: tcenter[0] - centers[i][0]; diffR: tcenter[1] - centers[i][1]]
@@ -308,7 +309,7 @@ def createJson(h5data, prototyps, labels, embedding):
         prototyp_dict[protokey]["pos"] = [posX[k], posY[k]]
         prototyp_dict[protokey]["pixel"] = pixelsPerPrototype[protokey]
         #prototyp_dict["prototyp"+str(k)]["coefficients"] = []
-    
+
 	# add prtotype to the ring
     ring_dict["ring0"] = prototyp_dict
 

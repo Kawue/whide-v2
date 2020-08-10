@@ -8,6 +8,7 @@ Creates the colorwheel, and put the prototypes on it
   posswitcher is a number from 0 to number of prototypes for the amount of switched positions in one way
   ringIndex is the index of the current ring for better visualisation on the wheel
  */
+// TODO remove ringIdx and other unneccessary stuff
 var createColorWheel = function (protoId, rotation = 0, posSwitcher = 0, ringIndex = 0) {
   let firstIdx = store.state.lastPrototypeIndex;
   const DEGREES_PER_RADIAN = 180 / Math.PI;
