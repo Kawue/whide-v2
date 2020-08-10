@@ -75,7 +75,7 @@ def calc_h2som(data, eps, sig, niter):
     return h2som
 
 
-def position_optimization(h2som, prototypes, variant, ring):
+def position_optimization(h2som, prototypes, variant, ring, stopfactor):
     def posdist_adjust(dist):
         return 1/(1+dist)
     h2som_cp = deepcopy(h2som)
@@ -107,7 +107,7 @@ def position_optimization(h2som, prototypes, variant, ring):
                 else:
                     dullfactor = 1
 
-                if d_next < posdist_adjust(pos_dist):
+                if d_next < (posdist_adjust(pos_dist)*stopfactor):
                     change = np.array([0,0])
                 else:
                     change = (pos_in_ring[j] - pos_in_ring[i]) * d_next * dullfactor
@@ -123,7 +123,7 @@ def position_optimization(h2som, prototypes, variant, ring):
                 else:
                     dullfactor = 1
                 
-                if d_prev < posdist_adjust(pos_dist):
+                if d_prev < (posdist_adjust(pos_dist)*stopfactor):
                     change = np.array([0,0])
                 else:
                     change = (pos_in_ring[j] - pos_in_ring[i]) * d_prev * dullfactor
@@ -149,12 +149,12 @@ def position_optimization(h2som, prototypes, variant, ring):
                 dullfactor_ij = 1
                 dullfactor_ik = 1
 
-            if d_next < posdist_adjust(pos_dist_ij):
+            if d_next < (posdist_adjust(pos_dist_ij)*stopfactor):
                 change_next = np.array([0,0])
             else:
                 change_next = (pos_in_ring[j] - pos_in_ring[i]) * d_next * dullfactor_ij
 
-            if d_prev < posdist_adjust(pos_dist_ik):
+            if d_prev < (posdist_adjust(pos_dist_ik)*stopfactor):
                 change_prev = np.array([0,0])
             else:
                 change_prev = (pos_in_ring[k] - pos_in_ring[i]) * d_prev * dullfactor_ik
@@ -186,7 +186,7 @@ def calc_memb(data, h2som, ring_idx):
     return bmu_matches, prototypes
 
 
-def getPixelsForRing(data, bmu_matches, dframe):
+def getPixelsForRing(data, bmu_matches, dframe, ring_offset):
     grid_x = np.array(dframe.index.get_level_values("grid_x")).astype(int)
     grid_y = np.array(dframe.index.get_level_values("grid_y")).astype(int)
 
@@ -209,7 +209,7 @@ def getPixelsForRing(data, bmu_matches, dframe):
             pixelIDs.append(pxID)
             pixels_dict[pxID] = {}
             pixels_dict[pxID]["pos"] = (int(px),int(py))
-        pixels[f"prototyp{i}"] = pixelIDs
+        pixels[f"prototyp{i+ring_offset-1}"] = pixelIDs
    
     return pixels, pixels_dict
 
@@ -228,7 +228,8 @@ def createJson(h2som, data, dframe):
         prototyp_dict = {}
         membs, prototypes = calc_memb(data, h2som, ring_idx)
         ring_json_list.append((prototypes, ring_idx))
-        pixelsPerPrototype, pixels_dict = getPixelsForRing(data, membs, dframe)
+        ring_offset = h2som._rings[ring_idx-1][0]
+        pixelsPerPrototype, pixels_dict = getPixelsForRing(data, membs, dframe, ring_offset)
 		# get the Prototypes of the ring
         proto_idx = 0
         for protokey, pixel_id_list in pixelsPerPrototype.items():
@@ -267,6 +268,7 @@ parser.add_argument('-i', '--niter', dest='niter', default=10, help='iteration p
 parser.add_argument('-p', '--posopt', dest='posopt', help='Apply position optimization for H2SOM.', action='store_true')
 parser.add_argument('-v', '--posoptalg', dest='posoptalg', help='Position optimization algorithm.', required=False, default="winnertakealldulled", choices=["winnertakeall", "winnertakealldulled", "tugofwar", "tugofwardulled"])
 parser.add_argument('-m', '--maxiter', dest='maxiter', default=np.inf, help='Hardcap maximum iterations for position optimization.', required=False)
+parser.add_argument('-d', '--stopfactor', dest='stopfactor', default=1, help='Factor to stop automatic position optimization earlier.', required=False)
 parser.add_argument('-t', '--test', dest='test', action='store_true')
 args = parser.parse_args()
 if (args.test):
@@ -299,7 +301,7 @@ if args.posopt:
         change = np.inf
         iterations = 0
         while change > 0 and iterations < args.maxiter:
-            h2som_opt, change = position_optimization(h2som_opt, prototypes, args.posoptalg, ring)
+            h2som_opt, change = position_optimization(h2som_opt, prototypes, args.posoptalg, ring, args.stopfactor)
             iterations += 1
         print(f"Position optimization stopped after {iterations} iterations!")
     h2som = h2som_opt
