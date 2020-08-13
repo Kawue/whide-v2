@@ -196,12 +196,14 @@ class BookmarkService {
         ctx.lineWidth = 0.5;
         ctx.strokeRect(0, yScaleAxis(offsetsAr[currentIndex]), xScaleAxis(currentHighlightedMz.coefficient), yScaleAxis(heights[currentIndex]));
 
-        const c = parseFloat(currentHighlightedMz.mz).toFixed(3).toString();
-        ctx.fillStyle = 'black';
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'bottom';
-        ctx.font = yScaleAxis(heights[currentIndex]).toString() + 'px verdana';
-        ctx.fillText(c, xScaleAxis(currentHighlightedMz.coefficient) - ctx.measureText(c).width, yScaleAxis(offsetsAr[currentIndex]) + yScaleAxis(heights[currentIndex]));
+        if (showMzBoolean) {
+          const c = parseFloat(currentHighlightedMz.mz).toFixed(3).toString();
+          ctx.fillStyle = 'black';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'bottom';
+          ctx.font = yScaleAxis(heights[currentIndex]).toString() + 'px verdana';
+          ctx.fillText(c, xScaleAxis(currentHighlightedMz.coefficient) - ctx.measureText(c).width, yScaleAxis(offsetsAr[currentIndex]) + yScaleAxis(heights[currentIndex]));
+        }
 
         // draw next one orange
         ctx.fillStyle = 'orange';
@@ -438,14 +440,15 @@ class BookmarkService {
         ctx.lineWidth = 0.5;
         ctx.strokeRect(xScaleAxis(offsetsAr[currentIndex]), yScaleAxis(currentHighlightedMz.coefficient), xScaleAxis(widths[currentIndex]), height - yScaleAxis(currentHighlightedMz.coefficient));
 
-        const c = parseFloat(currentHighlightedMz.mz).toFixed(3).toString();
-        ctx.fillStyle = 'black';
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'bottom';
-        fitTextOnBar(ctx, c, 'verdana', xScaleAxis(widths[currentIndex]));
-        // ctx.font = xScaleAxis(widths[i]).toString() + 'px verdana';
-        ctx.fillText(c, xScaleAxis(offsetsAr[currentIndex]), yScaleAxis(currentHighlightedMz.coefficient));
-
+        if (showMzBoolean) {
+          const c = parseFloat(currentHighlightedMz.mz).toFixed(3).toString();
+          ctx.fillStyle = 'black';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'bottom';
+          fitTextOnBar(ctx, c, 'verdana', xScaleAxis(widths[currentIndex]));
+          // ctx.font = xScaleAxis(widths[i]).toString() + 'px verdana';
+          ctx.fillText(c, xScaleAxis(offsetsAr[currentIndex]), yScaleAxis(currentHighlightedMz.coefficient));
+        }
         ctx.fillStyle = 'orange';
         ctx.fillRect(xScaleAxis(offsetsAr[index]), yScaleAxis(nearest.coefficient), xScaleAxis(widths[index]), height - yScaleAxis(nearest.coefficient));
         ctx.strokeStyle = 'black';
