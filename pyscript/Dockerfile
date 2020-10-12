@@ -1,4 +1,4 @@
-FROM continuumio/anaconda3
+FROM continuumio/anaconda3:2020.02
 RUN apt-get update
 RUN apt -y install gcc
 RUN apt-get -y install libatlas-base-dev
