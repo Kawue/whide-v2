@@ -266,7 +266,7 @@ var highlightprototypeSegmentation = function (dimensions, prototyp, transformat
   highCtx.translate(transformation.x, transformation.y);
   highCtx.scale(transformation.k, transformation.k);
   if (inverse) {
-    highCtx.globalAlpha = 0.3;
+    highCtx.globalAlpha = 0.55;
   }
   draw(highImageData, highCtx);
   highCtx.restore();
