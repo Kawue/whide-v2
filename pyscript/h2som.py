@@ -271,7 +271,6 @@ parser.add_argument('-p', '--posopt', dest='posopt', help='Apply position optimi
 parser.add_argument('-v', '--posoptalg', dest='posoptalg', help='Position optimization algorithm.', required=False, default="winnertakealldulled", choices=["winnertakeall", "winnertakealldulled", "tugofwar", "tugofwardulled"])
 parser.add_argument('-m', '--maxiter', dest='maxiter', default=np.inf, help='Hardcap maximum iterations for position optimization.', required=False)
 parser.add_argument('-d', '--stopfactor', dest='stopfactor', default=1, help='Factor to stop automatic position optimization earlier.', required=False)
-parser.add_argument('-t', '--test', dest='test', action='store_true')
 
 args = parser.parse_args()
 if (args.test):
