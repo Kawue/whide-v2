@@ -35,8 +35,6 @@
      _a < _b ? _a : _b; })
 #endif
 
-
-
 /**---									Utility Functions								---**/
 
 
@@ -349,6 +347,7 @@ void c_partial_adapt(const double* signal,double* centroids,const int dim,const 
 #endif
 
 void c_learning(const double *data,double *centroids,const int dim,const unsigned int itms,const unsigned long learningSteps,const int minRing,const int maxRing,double curSigma,const double sigmaStep,double curEpsilon,const double epsilonStep,const double *pos){
+	srand(3422);
 	const int itmrange=maxRing-minRing+1;
 		#pragma omp parallel for
 		for(int i=0;i<learningSteps;i++){
@@ -906,7 +905,7 @@ void c_SOMadapt(const double* signal,double* centroids,int centitms,const int di
 
 
 void c_som(const double *data,double *centroids,const int dim,const int items,const int learningSteps,const int width,const int height,const double sigma,const double sigmaEnd,double epsilon,double epsilonEnd){
-    const int centitms=width*height;
+	const int centitms=width*height;
     struct SOMnode nodes[centitms];
     
     for(int i=0;i<width;i++){

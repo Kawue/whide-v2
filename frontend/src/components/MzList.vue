@@ -465,7 +465,7 @@ export default {
           d3.select('#mzValueList')
             .append('option')
             .attr('id', item)
-            .text(parseFloat(dict[item]).toFixed(3))
+            .text(dict[item])
             .on('click', function (event) {
               that.clickChecker(event, item, dict[item]);
             })

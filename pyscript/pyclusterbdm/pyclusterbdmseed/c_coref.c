@@ -678,7 +678,7 @@ void c_SOMadaptf(const float* signal,float* centroids,int centitms,const int dim
 
 
 void c_somf(const float *data,float *centroids,const int dim,const int items,const int learningSteps,const int width,const int height,const float sigma,const float sigmaEnd,float epsilon,float epsilonEnd){
-    const int centitms=width*height;
+	const int centitms=width*height;
     struct SOMnodef nodes[centitms];
     
     for(int i=0;i<width;i++){

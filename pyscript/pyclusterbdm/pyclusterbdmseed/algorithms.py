@@ -8,7 +8,7 @@ import scipy.stats
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn import preprocessing
 import sklearn.neighbors
-
+import random
 
 class H2SOM:
     def __init__(self, data, epsilon=[1., 0.01], sigma=[8., 0.1], n_iter=10, arch=[3, 8], globalSearch=True, swidth=2):

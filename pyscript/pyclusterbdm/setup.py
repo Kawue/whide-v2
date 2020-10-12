@@ -16,8 +16,8 @@ if pl == 'Darwin':
 modules = None
 if pl == 'Linux':
     modules = [Extension(
-        "pyclusterbdm.core",
-        sources=["pyclusterbdm/core.pyx", "pyclusterbdm/c_core.c"],
+        "pyclusterbdmseed.core",
+        sources=["pyclusterbdmseed/core.pyx", "pyclusterbdmseed/c_core.c"],
         include_dirs=[numpy.get_include()],
         extra_link_args=["-lcblas"],
         extra_compile_args=["-std=c99", "-ffast-math", "-msse", "-msse2",
@@ -25,8 +25,8 @@ if pl == 'Linux':
                             "-march=native", "-ftree-vectorize", "-mno-avx"])]
 elif pl == 'Darwin':
     modules = [Extension(
-        "pyclusterbdm.core",
-        sources=["pyclusterbdm/core.pyx", "pyclusterbdm/c_core.c"],
+        "pyclusterbdmseed.core",
+        sources=["pyclusterbdmseed/core.pyx", "pyclusterbdmseed/c_core.c"],
         include_dirs=[numpy.get_include()],
         extra_link_args=["-qopenmp"],
         extra_compile_args=["-DINTEL_MKL_VERSION", "-qopenmp", "-std=c99", "-Ofast",
@@ -34,14 +34,14 @@ elif pl == 'Darwin':
 else:
     print("test")
     modules = [Extension(
-        "pyclusterbdm.core",
-        sources=["pyclusterbdm/core.pyx", "pyclusterbdm/c_core.c"],
+        "pyclusterbdmseed.core",
+        sources=["pyclusterbdmseed/core.pyx", "pyclusterbdmseed/c_core.c"],
         include_dirs=[numpy.get_include()])]
 
 setup(
-    name="pyclusterbdm",
+    name="pyclusterbdmseed",
     version='0.2',
-    packages=['pyclusterbdm'],
+    packages=['pyclusterbdmseed'],
     description='Unsupervised Machine Learning Algorithms for Python',
     install_requires=[
         'cython>=0.25.2',
