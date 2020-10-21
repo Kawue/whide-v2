@@ -4,6 +4,7 @@ RUN apt -y install gcc
 RUN apt-get -y install libatlas-base-dev
 COPY h2som.py .
 COPY clustering.py .
+COPY msi_dimension_reducer.py .
 COPY /pyclusterbdmseed/ ./pyclusterbdmseed/
 COPY environment.yml .
 RUN conda env create -f environment.yml
