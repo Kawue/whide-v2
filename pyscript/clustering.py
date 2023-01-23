@@ -34,7 +34,7 @@ def polar2cart(theta, r):
 parser = argparse.ArgumentParser(description='Arguments for clustering')
 parser.add_argument('-f', '--filename', dest='file', help='The Filename of the h5 data.', required=True)
 parser.add_argument('-o', '--outputfile', dest='out', help='The path where you want to store the computed data', nargs='?')
-parser.add_argument('-k', '--nrclusters', dest='nr', help='The number of clusters', default=8)
+parser.add_argument('-k', '--nrclusters', dest='nr', help='The number of clusters', default=8, type=int)
 parser.add_argument('-e', '--embedding', dest='embedding', help='Embedding from before to this dataset', default=False)
 parser.add_argument('-s', '--space', dest='space', help='Choose between clusting in polar space or cartesien space', default='cartesien', choices=['polar', 'cartesien'])
 parser.add_argument('-a', '--all_prototyps', dest='all', help='Cluster data but every pixel is a prototyp', action='store_true')

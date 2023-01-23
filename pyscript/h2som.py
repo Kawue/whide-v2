@@ -269,7 +269,7 @@ parser.add_argument('-t', '--test', dest='test', action='store_true', help='Set 
 parser.add_argument('-i', '--niter', dest='niter', default=10, help='iteration parameter for the h2SOM.')
 parser.add_argument('-p', '--posopt', dest='posopt', help='Apply position optimization for H2SOM.', action='store_true')
 parser.add_argument('-v', '--posoptalg', dest='posoptalg', help='Position optimization algorithm.', required=False, default="winnertakealldulled", choices=["winnertakeall", "winnertakealldulled", "tugofwar", "tugofwardulled"])
-parser.add_argument('-m', '--maxiter', dest='maxiter', default=np.inf, help='Hardcap maximum iterations for position optimization.', required=False)
+parser.add_argument('-m', '--maxiter', dest='maxiter', type=int, default=np.inf, help='Hardcap maximum iterations for position optimization.', required=False)
 parser.add_argument('-d', '--stopfactor', dest='stopfactor', default=1, help='Factor to stop automatic position optimization earlier.', required=False)
 
 args = parser.parse_args()
